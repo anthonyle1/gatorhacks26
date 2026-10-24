@@ -9,15 +9,32 @@ node_modules/
 
 # Python backend
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
 .venv/
 venv/
+*.egg-info/
+.eggs/
+
+# Test, lint, and coverage artifacts
 .pytest_cache/
+pytest-cache-files-*/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
 
 # Build outputs
 dist/
 build/
 coverage/
+
+# Packaged Chrome extensions
+*.crx
 
 # Logs
 *.log
