@@ -1,3 +1,4 @@
+import logging
 from typing import Annotated, Any
 
 from fastapi import APIRouter, HTTPException, Path, Query
@@ -5,14 +6,63 @@ from pydantic import BaseModel, Field
 
 from app.config import settings
 from .analyzer import ModelUnavailableError, get_analyzer
+from .ollama_client import OllamaClient, OllamaError
+from .video_assessment import AssessmentResult, VideoEvidence, assess_video
+from .taxonomy import CONTENT_SIGNALS, SUBCATEGORIES, TAXONOMY_VERSION
 from app.youtube import YouTubeError, fetch_video_comments, parse_comments
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
+logger = logging.getLogger(__name__)
+
+
+@router.get("/taxonomy")
+def get_taxonomy():
+    """Return stable topic IDs for future preference controls."""
+    return {"version": TAXONOMY_VERSION,
+            "categories": {parent: [f"{parent}.{child}" for child in children]
+                           for parent, children in SUBCATEGORIES.items()},
+            "content_signals": CONTENT_SIGNALS}
 
 
 class CommentAnalysisRequest(BaseModel):
     youtube_response: dict[str, Any]
     negative_threshold: float = Field(default=0.5, gt=0, le=1)
+
+
+class PromptRequest(BaseModel):
+    prompt: str = Field(min_length=1, max_length=32000)
+    system: str | None = Field(default=None, max_length=8000)
+
+
+@router.post("/video-assessment", response_model=AssessmentResult)
+def assess_video_metadata(body: VideoEvidence):
+    """Return the same validated assessment used by the console command."""
+    try:
+        return assess_video(body.title, body.caption, body.sentiment_balance, comments=body.comments)
+    except OllamaError as exc:
+        # Log the sanitized application error, never metadata or model output.
+        logger.warning("Video assessment unavailable: %s", exc)
+        raise HTTPException(status_code=503, detail=str(exc)) from None
+
+
+@router.post("/prompt")
+def prompt_model(body: PromptRequest):
+    """Send a prompt to the configured local Ollama model."""
+    try:
+        return OllamaClient().prompt(body.prompt, body.system)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from None
+    except OllamaError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from None
+
+
+@router.get("/ollama/status")
+def ollama_status():
+    """Check connectivity and installation; does not load or prompt the model."""
+    try:
+        return OllamaClient().status()
+    except OllamaError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from None
 
 
 def _analyze(response: dict, threshold: float) -> dict:

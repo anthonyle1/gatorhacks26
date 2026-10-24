@@ -4,6 +4,12 @@
 
 A Chrome extension that tracks YouTube Shorts viewing activity and analyzes comment sentiment to help users better understand their scrolling habits.
 
+## Local AI prompting
+
+The backend supports local Ollama prompting with `gemma4:e2b` through
+`POST /analysis/prompt`. See [analysis setup and prompt verification](backend/analysis/README.md)
+for installation, configuration, and a standalone prompt command.
+
 ## How to Install the Chrome Extension
 
 ### Step 1: Open Chrome Extensions

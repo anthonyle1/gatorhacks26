@@ -172,4 +172,29 @@ input::placeholder { color: #a0aa98; }
   .score > span { font-size: 8px; }.comment-meta a { margin-left: 0; }.comment-text { font-size: 12px; }
   .score-track { height: 4px; }.comments-footer { padding-inline: 16px; }.empty-state { padding: 40px 20px; }
 }
+.video-assessment-panel { margin-bottom: 26px; }
+.video-assessment-body { padding: 0 23px 23px; font-size: 12px; line-height: 1.8; }
+.video-verdict { display: inline-block; padding: 7px 12px; border-radius: 6px; font-weight: 600; background: #f6f3e8; color: #8c7b40; }
+.video-verdict.yes { background: #fcf0eb; color: #aa624c; }
+.video-verdict.no { background: #ecf5ec; color: #487957; }
+.video-reason, .video-evidence dd { white-space: pre-wrap; overflow-wrap: anywhere; }
+.video-reason { margin-top: 12px; }
+.video-evidence { margin-top: 16px; color: #607752; }
+.video-evidence dt { font-weight: 600; margin-top: 10px; }
+.video-evidence dd { margin: 3px 0 0; max-height: 200px; overflow: auto; }
+.video-assessment-body .error-message { padding: 12px; border-radius: 6px; }
+.category-heading { font-size: 12px; margin-top: 18px; }
+.category-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+.category-tags span { background: #eaf0e4; color: #526b43; border-radius: 5px; padding: 4px 10px; font-size: 11px; }
+.category-reason, .web-sources p { overflow-wrap: anywhere; white-space: pre-wrap; margin-top: 8px; }
+.web-search-status { margin-top: 16px; font-size: 11px; color: #607752; }
+.web-sources { padding-left: 18px; }
+.web-sources li { margin-top: 12px; }
+.web-sources a { color: var(--green); overflow-wrap: anywhere; }
+.topic-breakdown { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 16px; }
+.topic-branch { background: #f8faf4; border: 1px solid var(--border); border-radius: 6px; padding: 12px; }
+.topic-branch h4 { font-size: 12px; margin: 0; }
+.topic-branch ul, .content-signals { padding-left: 18px; margin-top: 8px; }
+.topic-branch li, .content-signals li { margin-top: 9px; }
+.topic-branch li p, .content-signals p { font-size: 11px; overflow-wrap: anywhere; white-space: pre-wrap; }
 @media (prefers-reduced-motion: reduce) { .spinner { animation: none; }button { transition: none; } }
