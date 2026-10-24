@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Healthy Doomscrolling</title>
+
+  <style>
+    body {
+      width: 280px;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      color: #242424;
+    }
+
+    h2 {
+      color: #684378;
+    }
+
+    .stat {
+      background: white;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 10px;
+    }
+
+    .number {
+      font-size: 24px;
+      font-weight: bold;
+      color: #684378;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Healthy Doomscrolling</h2>
+  <p>Your YouTube Shorts activity</p>
+
+  <div class="stat">
+    <p>Time spent scrolling</p>
+    <div class="number" id="duration">0 min</div>
+  </div>
+
+  <div class="stat">
+    <p>Shorts watched</p>
+    <div class="number" id="videoCount">0</div>
+  </div>
+
+  <div class="stat">
+    <p>Current video ID</p>
+    <div id="currentVideo">None</div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
