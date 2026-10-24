@@ -82,6 +82,11 @@ class SentimentAnalyzer:
             label: sum(row["scores"][label] for row in results) / total if total else 0.0
             for label in LABELS
         }
+        non_neutral = counts["positive"] + counts["negative"]
+        # Measure direction among positive/negative labels only, so neutral
+        # comments cannot dilute the signal. No directional labels means unknown.
+        sentiment_balance = ((counts["positive"] - counts["negative"]) / non_neutral
+                             if non_neutral else None)
         is_negative = (
             proportions["negative"] >= negative_threshold and counts["negative"] > counts["positive"]
         ) if total else None
@@ -90,7 +95,7 @@ class SentimentAnalyzer:
             "summary": {
                 "total_comments": total, "counts": counts, "proportions": proportions,
                 "average_scores": averages,
-                "sentiment_balance": averages["positive"] - averages["negative"] if total else None,
+                "sentiment_balance": sentiment_balance,
                 "negative_threshold": negative_threshold,
                 "is_negative_reaction": is_negative,
                 "assessment": "insufficient_data" if not total else "negative" if is_negative else "not_negative",

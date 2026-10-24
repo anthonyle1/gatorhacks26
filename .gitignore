@@ -33,6 +33,10 @@ dist/
 build/
 coverage/
 
+# Allow the built Chrome extension to be shared
+!chrome-react/dist/
+!chrome-react/dist/**
+
 # Packaged Chrome extensions
 *.crx
 

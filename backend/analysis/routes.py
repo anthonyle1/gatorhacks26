@@ -1,15 +1,17 @@
+import asyncio
 import logging
 from typing import Annotated, Any
 
 from fastapi import APIRouter, HTTPException, Path, Query
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field
+from pymongo.errors import PyMongoError
 
 from app.config import settings
 from .analyzer import ModelUnavailableError, get_analyzer
 from .ollama_client import OllamaClient, OllamaError
 from .video_assessment import AssessmentResult, VideoEvidence, assess_video
-from .taxonomy import CONTENT_SIGNALS, SUBCATEGORIES, TAXONOMY_VERSION
+from .taxonomy import CONTENT_SIGNALS, SUBCATEGORIES, TAXONOMY_VERSION, NEGATIVE_CONTENT_SIGNALS, POSITIVE_CONTENT_SIGNALS
 from app.youtube import YouTubeError, fetch_video_comments, parse_comments
 from app.services.analysis_storage import save_roberta_analysis
 
@@ -23,7 +25,8 @@ def get_taxonomy():
     return {"version": TAXONOMY_VERSION,
             "categories": {parent: [f"{parent}.{child}" for child in children]
                            for parent, children in SUBCATEGORIES.items()},
-            "content_signals": CONTENT_SIGNALS}
+            "content_signals": CONTENT_SIGNALS,
+            "signal_groups": {"negative": NEGATIVE_CONTENT_SIGNALS, "positive": POSITIVE_CONTENT_SIGNALS}}
 
 
 class CommentAnalysisRequest(BaseModel):
@@ -108,5 +111,16 @@ async def analyze_video(
         "video_id": video_id, "order": "time", "includes_replies": False,
         "max_comments": max_comments, "has_more": bool(response.get("nextPageToken"))
     }
-    await save_roberta_analysis(video_id, result)
+    try:
+        async with asyncio.timeout(5):
+            await save_roberta_analysis(video_id, result)
+        result["storage"] = {"status": "saved"}
+    except (PyMongoError, TimeoutError) as exc:
+        # Preserve computed results while making persistence failure explicit.
+        # Driver error text can contain infrastructure details; log only its type.
+        logger.warning("Analysis storage unavailable (%s)", type(exc).__name__)
+        result["storage"] = {
+            "status": "unavailable",
+            "detail": "Analysis completed, but saving to MongoDB could not be confirmed. Check database connectivity.",
+        }
     return result

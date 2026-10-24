@@ -56,7 +56,7 @@ class AnalysisTests(unittest.TestCase):
         self.assertTrue(summary["is_negative_reaction"])
         self.assertEqual(summary["counts"], {"negative": 2, "neutral": 0, "positive": 1})
         self.assertAlmostEqual(summary["average_scores"]["negative"], 1.7 / 3)
-        self.assertAlmostEqual(summary["sentiment_balance"], -0.7 / 3)
+        self.assertAlmostEqual(summary["sentiment_balance"], -1 / 3)
         self.assertEqual(result["comments"][0]["sentiment"], "negative")
         self.assertEqual(classifier.call_args.kwargs["max_length"], 512)
         self.assertIsNone(classifier.call_args.kwargs["top_k"])
@@ -72,6 +72,32 @@ class AnalysisTests(unittest.TestCase):
             with self.subTest(labels=labels, threshold=threshold):
                 result, _ = self.analyze_labels(labels, threshold)
                 self.assertEqual(result["summary"]["is_negative_reaction"], expected)
+
+    def test_balance_excludes_neutral_comments(self):
+        cases = [
+            (["negative"] * 10 + ["neutral"] * 90, -1.0),
+            (["negative"] * 10, -1.0),
+            (["positive"] * 3 + ["negative"] + ["neutral"] * 96, 0.5),
+            (["negative", "positive"] + ["neutral"] * 10, 0.0),
+            (["positive"] + ["neutral"] * 99, 1.0),
+            (["negative"] + ["neutral"] * 99, -1.0),
+            (["neutral"] * 100, None),
+            ([], None),
+        ]
+        for labels, expected in cases:
+            with self.subTest(expected=expected, count=len(labels)):
+                # Give this test a single batch so the mock aligns with inputs.
+                analyzer = SentimentAnalyzer(Mock(return_value=[scores(label) for label in labels]), batch_size=100)
+                result = analyzer.analyze([Comment(str(i), "text") for i in range(len(labels))])
+                self.assertEqual(result["summary"]["sentiment_balance"], expected)
+
+    def test_balance_depends_on_counts_rather_than_confidence(self):
+        low_confidence = [
+            [{"label": "negative", "score": 0.35}, {"label": "neutral", "score": 0.33}, {"label": "positive", "score": 0.32}],
+            scores("positive"),
+        ]
+        result = SentimentAnalyzer(Mock(return_value=low_confidence)).analyze([Comment("a", "text"), Comment("b", "text")])
+        self.assertEqual(result["summary"]["sentiment_balance"], 0.0)
 
     def test_empty_input_does_not_load_model(self):
         analyzer = SentimentAnalyzer()
