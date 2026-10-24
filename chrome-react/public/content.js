@@ -1,5 +1,5 @@
 
-console.log("Healthy Doomscrolling is running!");
+console.log("Healthy Doomscrolling is running! (comments-once v3)");
 
 // ========================================
 // 1. SESSION TRACKING
@@ -52,7 +52,6 @@ function getCurrentVideo() {
     hostname === "www.instagram.com" ||
     hostname === "instagram.com"
   ) {
-    // Matches /reel/ID/ and /reels/ID/
     const match = path.match(/^\/reels?\/([^/]+)/);
 
     if (match) {
@@ -90,7 +89,7 @@ async function trackScrolling() {
     platform !== currentPlatform;
 
   if (changed) {
-    // Finish tracking the previous video
+    // Finish tracking previous video
     if (currentVideoId && videoStartedAt) {
       sendVideoEvent(
         currentVideoId,
@@ -385,33 +384,41 @@ function sendInstagramComments(videoId, comments) {
 // 9. AUTOMATIC INSTAGRAM COMMENT COLLECTION
 // ========================================
 
-let lastProcessedReel = null;
 let processingReel = false;
+
+// Tracks the Reel currently being viewed
+let activeReelId = null;
+
+// Reels whose comments were already auto-opened
+const openedReels = new Set();
 
 const sleep = ms =>
   new Promise(resolve => setTimeout(resolve, ms));
 
 function getInstagramDialog() {
-  return document.querySelector(
-    'div[role="dialog"]'
-  );
+  return document.querySelector('div[role="dialog"]');
 }
 
 async function processInstagramReel() {
   const reel = getCurrentVideo();
 
-  if (
-    !reel ||
-    reel.platform !== "instagram"
-  ) {
+  if (!reel || reel.platform !== "instagram") {
     return;
   }
 
   const reelId = reel.videoId;
 
+  // Detect navigation to another Reel
+  if (reelId !== activeReelId) {
+    console.log("Switched to Reel:", reelId);
+    activeReelId = reelId;
+  }
+
+  // Never reopen a Reel's comments automatically
+  // after they've already been opened.
   if (
     processingReel ||
-    reelId === lastProcessedReel
+    openedReels.has(reelId)
   ) {
     return;
   }
@@ -419,7 +426,7 @@ async function processInstagramReel() {
   processingReel = true;
 
   try {
-    // Wait for Instagram to update the active Reel
+    // Give Instagram time to update the Reel
     await sleep(700);
 
     if (getCurrentVideo()?.videoId !== reelId) {
@@ -429,9 +436,7 @@ async function processInstagramReel() {
     const activeVideo = getActiveInstagramVideo();
 
     if (!activeVideo) {
-      console.log(
-        "No active Instagram video found"
-      );
+      console.log("No active Instagram video found");
       return;
     }
 
@@ -440,33 +445,35 @@ async function processInstagramReel() {
 
     if (!button) {
       console.log(
-        "Could not find the active Reel's comment button"
+        "Could not find active Reel comment button"
       );
       return;
     }
 
-    // Avoid reading comments left open from another Reel
+    // Don't interfere with an existing dialog
     if (getInstagramDialog()) {
-      console.log(
-        "Existing comment dialog detected. " +
-        "Close it before processing a new Reel."
-      );
       return;
     }
+
+    // IMPORTANT: Remember this Reel before clicking.
+    // Closing comments won't cause another click.
+    openedReels.add(reelId);
 
     console.log(
-      "Opening comments for Reel:",
+      "Opening comments once for Reel:",
       reelId
     );
 
     button.click();
 
     let comments = [];
+    let dialogAppeared = false;
 
     // Wait up to 4 seconds for comments
     for (let attempt = 0; attempt < 10; attempt++) {
       await sleep(400);
 
+      // Stop if the user scrolled away
       if (getCurrentVideo()?.videoId !== reelId) {
         console.log(
           "Reel changed during comment collection"
@@ -477,9 +484,19 @@ async function processInstagramReel() {
       const dialog = getInstagramDialog();
 
       if (!dialog) {
+        // The user may have closed the comments.
+        if (dialogAppeared) {
+          console.log(
+            "Comments manually closed:",
+            reelId
+          );
+          return;
+        }
+
         continue;
       }
 
+      dialogAppeared = true;
       comments = getInstagramComments(dialog);
 
       if (comments.length > 0) {
@@ -495,36 +512,25 @@ async function processInstagramReel() {
       return;
     }
 
-    // Verify that we're still viewing the same Reel
     if (getCurrentVideo()?.videoId !== reelId) {
       return;
     }
 
-    console.log(
-      "Instagram Reel ID:",
-      reelId
-    );
+    console.log("Instagram Reel ID:", reelId);
+    console.log("Extracted comments:", comments);
 
-    console.log(
-      "Extracted comments:",
-      comments
-    );
-
-    // Send comments to FastAPI through background.js
+    // Send comments to FastAPI via background.js
     const uploaded = await sendInstagramComments(
       reelId,
       comments
     );
 
     if (uploaded) {
-      lastProcessedReel = reelId;
-
       console.log(
         "Successfully processed Reel:",
         reelId
       );
     }
-
   } catch (error) {
     console.error(
       "Instagram comment processing error:",
