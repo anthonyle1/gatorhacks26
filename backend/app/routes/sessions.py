@@ -82,7 +82,7 @@ async def save_video_events(session_id: str, payload: VideoEventBatch, backgroun
     result = await db.video_events.bulk_write(operations, ordered=True)
 
     # Queue analysis for newly encountered videos.
-    video_ids = {event["video_id"] for event in documents}
+    video_ids = {event["video_id"] for event in documents if event["platform"] == "youtube"}
 
     queued_count = 0
 

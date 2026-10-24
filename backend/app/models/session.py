@@ -1,5 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel, Field, field_validator
+from typing import Literal
 
 
 class SessionCreate(BaseModel):
@@ -18,6 +19,7 @@ class VideoEvent(BaseModel):
     interest_match: int | None = Field(
         default=None, ge=1, le=5
     )
+    platform: Literal["youtube", "instagram"] = "youtube"
 
     @field_validator("started_at", "ended_at")
     @classmethod
