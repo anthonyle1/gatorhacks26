@@ -113,3 +113,20 @@ class LocalReviewTests(unittest.TestCase):
         self.jobs.update(self.session_id, token, status="complete")
         self.jobs.update(self.session_id, token)
         self.assertEqual(self.jobs.get(self.session_id)["status"], "complete")
+
+
+    def test_one_video_exception_preserves_all_video_classifications(self):
+        self.model_patches()
+        self.jobs.enqueue(self.session_id, {"events": [event(), event(source="clip2", event_id="event2")], "instagram": []})
+        def analyze(video, previous=None):
+            if video["source_id"] == "clip1":
+                raise RuntimeError("Private provider details")
+            video["analysis"] = {"status": "complete", "sentiment": None, "comments": [], "errors": []}
+            return video
+        with patch("app.services.local_sessions.analyze_video", side_effect=analyze):
+            asyncio.run(process_local_session(self.session_id, self.jobs))
+        result = self.jobs.view(self.session_id)
+        self.assertEqual(result["status"], "partial")
+        self.assertEqual(len(result["videos"]), 2)
+        self.assertEqual(set(result["assignments"]), {"instagram:clip1", "instagram:clip2"})
+        self.assertNotIn("Private provider details", str(result))

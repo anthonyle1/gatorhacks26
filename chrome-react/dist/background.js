@@ -23,6 +23,7 @@ async function getOrCreateSession() {
 }
 
 async function queueEvent(event) {
+  if (!["youtube", "instagram"].includes(event.platform || "youtube")) throw new Error("Unsupported video platform");
   const state = await chrome.storage.local.get("pendingEvents");
   const events = state.pendingEvents || [];
   if (!events.some(item => item.event_id === event.event_id)) events.push(event);

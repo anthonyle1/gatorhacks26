@@ -289,7 +289,7 @@ class InstagramEvidenceTests(unittest.TestCase):
         self.client = TestClient(app)
 
     def test_instagram_sentiment_and_metadata_are_persisted(self):
-        with patch("app.instagram.db") as database, patch("app.instagram.get_analyzer") as analyzer:
+        with patch("app.instagram.db") as database, patch("app.instagram.get_analyzer") as analyzer, patch("app.instagram.save_roberta_analysis", new_callable=AsyncMock) as save:
             database.instagram_evidence.find_one = AsyncMock(return_value=None)
             database.instagram_evidence.update_one = AsyncMock()
             analyzer.return_value.analyze.return_value = {"summary": {"sentiment_balance": 1},
@@ -299,9 +299,10 @@ class InstagramEvidenceTests(unittest.TestCase):
             evidence = database.instagram_evidence.update_one.call_args.args[1]["$set"]
             self.assertEqual(evidence["metadata"]["title"], "K-pop dance")
             self.assertEqual(evidence["model_results"]["roberta"]["summary"]["sentiment_balance"], 1)
+            save.assert_awaited_once_with("instagram:reel1", analyzer.return_value.analyze.return_value)
 
     def test_raw_evidence_is_kept_when_sentiment_model_is_unavailable(self):
-        with patch("app.instagram.db") as database, patch("app.instagram.get_analyzer") as analyzer:
+        with patch("app.instagram.db") as database, patch("app.instagram.get_analyzer") as analyzer, patch("app.instagram.save_roberta_analysis", new_callable=AsyncMock) as save:
             database.instagram_evidence.find_one = AsyncMock(return_value=None)
             database.instagram_evidence.update_one = AsyncMock()
             analyzer.return_value.analyze.side_effect = ModelUnavailableError("Unavailable")
@@ -309,3 +310,21 @@ class InstagramEvidenceTests(unittest.TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertFalse(response.json()["sentiment_available"])
             self.assertEqual(database.instagram_evidence.update_one.call_args.args[1]["$set"]["comments"], ["Nice song"])
+
+
+    def test_instagram_readback_uses_the_same_evidence_collection(self):
+        with patch("app.instagram.db") as database:
+            document = {"video_id": "reel1", "comments": ["Nice song"]}
+            database.instagram_evidence.find_one = AsyncMock(return_value=document)
+            response = self.client.get("/instagram/comments/reel1")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), document)
+
+    def test_unchanged_cleaned_samples_reuse_stored_sentiment(self):
+        with patch("app.instagram.db") as database, patch("app.instagram.get_analyzer") as analyzer:
+            database.instagram_evidence.find_one = AsyncMock(return_value={"comments": ["Nice song"], "model_results": {"roberta": {"summary": {"sentiment_balance": 1}}}})
+            database.instagram_evidence.update_one = AsyncMock()
+            response = self.client.post("/instagram/comments", json={"video_id": "reel1", "comments": [" Nice song ", "Nice song"]})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["comment_count"], 1)
+        analyzer.assert_not_called()

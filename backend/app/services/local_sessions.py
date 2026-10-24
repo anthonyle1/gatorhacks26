@@ -166,7 +166,14 @@ def build_review(jobs, job, token):
     videos = []
     for video in aggregate(json.loads(job["payload"])):
         cached = previous.get(video["video_id"])
-        videos.append(cached if cached and cached.get("analysis", {}).get("status") == "complete" else analyze_video(video, cached))
+        try:
+            analyzed = cached if cached and cached.get("analysis", {}).get("status") == "complete" else analyze_video(video, cached)
+        except Exception as error:
+            logger.warning("Individual video analysis unavailable (%s)", type(error).__name__)
+            analyzed = video
+            analyzed["analysis"] = {"status": "failed", "sentiment": None, "comments": [],
+                "errors": ["Individual analysis could not complete; the video is retained for session classification."]}
+        videos.append(analyzed)
         jobs.update(session_id, token, videos=videos)
     result = classify_session_data(session_id, LOCAL_USER, videos, store=jobs.store)
     status = result["status"]

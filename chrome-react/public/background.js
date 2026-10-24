@@ -23,6 +23,7 @@ async function getOrCreateSession() {
 }
 
 async function queueEvent(event) {
+  if (!["youtube", "instagram"].includes(event.platform || "youtube")) throw new Error("Unsupported video platform");
   const state = await chrome.storage.local.get("pendingEvents");
   const events = state.pendingEvents || [];
   if (!events.some(item => item.event_id === event.event_id)) events.push(event);
@@ -30,48 +31,6 @@ async function queueEvent(event) {
   await chrome.storage.local.set({ pendingEvents: events });
   return { recorded: events.length };
 }
-const PLATFORM_NAMES = {
-  youtube: "youtube_shorts",
-  instagram: "instagram_reels"
-};
-
-async function getOrCreateSession(platform) {
-  const data = await chrome.storage.local.get(
-    "backendSessionIds"
-  );
-
-  const sessionIds = data.backendSessionIds || {};
-
-  if (sessionIds[platform]) {
-    return sessionIds[platform];
-  }
-
-  const result = await apiRequest("/sessions", {
-    method: "POST",
-    body: JSON.stringify({
-      user_id: USER_ID,
-      platform: PLATFORM_NAMES[platform],
-      goal_minutes: 15
-    })
-  });
-
-  sessionIds[platform] = result.session_id;
-
-  await chrome.storage.local.set({
-    backendSessionIds: sessionIds
-  });
-
-  return result.session_id;
-}
-
-async function queueEvent(event) {
-  if (!PLATFORM_NAMES[event.platform]) {
-    throw new Error("Unsupported video platform");
-  }
-
-  const data = await chrome.storage.local.get(
-    "pendingEvents"
-  );
 
 async function recordComments(message) {
   const state = await chrome.storage.local.get(["localReelEvidence", "trackingPaused", "finishPending"]);
@@ -122,68 +81,6 @@ async function finishSnapshot() {
       snapshot = { events, instagram: Object.values(state.localReelEvidence || {}).filter(item => reels.has(item.video_id)) };
       // Keep the exact snapshot for an idempotent retry if the reply is lost.
       await chrome.storage.local.set({ localSessionSnapshot: snapshot });
-async function syncEvents() {
-  let synced = 0;
-
-  while (true) {
-    const stored = await chrome.storage.local.get(
-      "pendingEvents"
-    );
-
-    const events = stored.pendingEvents || [];
-
-    if (events.length === 0) break;
-
-    // Group uploads by platform so each batch
-    // belongs to the correct session.
-    const platform = events[0].platform || "youtube";
-
-    const batch = events
-      .filter(event =>
-        (event.platform || "youtube") === platform
-      )
-      .slice(0, 100)
-      .map(event => ({
-        ...event,
-        platform
-      }));
-
-    const sessionId =
-      await getOrCreateSession(platform);
-
-    await apiRequest(
-      `/sessions/${sessionId}/events`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          events: batch
-        })
-      }
-    );
-
-    const uploadedIds = new Set(
-      batch.map(event => event.event_id)
-    );
-
-    await chrome.storage.local.set({
-      pendingEvents: events.filter(
-        event => !uploadedIds.has(event.event_id)
-      )
-    });
-
-    synced += batch.length;
-  }
-
-  return { synced };
-}
-
-// Prevent simultaneous writes from overlapping.
-let syncQueue = Promise.resolve();
-
-chrome.runtime.onMessage.addListener(
-  (message, sender, sendResponse) => {
-    if (message.type !== "VIDEO_EVENT") {
-      return false;
     }
     const result = await apiRequest(`/local-sessions/${encodeURIComponent(sessionId)}/finish`, { method: "POST", body: JSON.stringify(snapshot) });
     await chrome.storage.local.set({ lastCompletedLocalSessionId: sessionId, finishPending: false, pendingEvents: [], localReelEvidence: {} });
@@ -203,33 +100,6 @@ async function sessionControl(message) {
     const tabs = await sessionTabs();
     await Promise.allSettled(tabs.map(tab => chrome.tabs.sendMessage(tab.id, { type: "RESUME_SESSION" })));
     return { status: "active" };
-    syncQueue = syncQueue
-      .catch(() => {})
-      .then(async () => {
-        await queueEvent(message.event);
-        return syncEvents();
-      });
-
-    syncQueue
-      .then(result => {
-        sendResponse({
-          success: true,
-          ...result
-        });
-      })
-      .catch(error => {
-        console.error(
-          "Video synchronization failed:",
-          error
-        );
-
-        sendResponse({
-          success: false,
-          error: error.message
-        });
-      });
-
-    return true;
   }
   const state = await chrome.storage.local.get(["lastCompletedLocalSessionId", "lastSessionReview"]);
   if (!state.lastCompletedLocalSessionId) return null;
