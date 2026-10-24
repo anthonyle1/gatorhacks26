@@ -5,8 +5,10 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 
 from app.youtube import router as youtube_router
+from app.instagram import router as instagram_router
 from app.database import ping_database
 from app.routes.sessions import router as sessions_router
+from app.routes.videos import router as videos_router
 from analysis.routes import router as analysis_router
 
 # Load environment variables
@@ -18,6 +20,8 @@ app = FastAPI(title="Healthy Doomscrolling API")
 app.include_router(sessions_router)
 app.include_router(youtube_router)
 app.include_router(analysis_router)
+app.include_router(instagram_router)
+app.include_router(videos_router)
 
 @app.get("/")
 def root():
