@@ -17,9 +17,36 @@ type Analysis = {
   sample: { video_id: string; order: string; includes_replies: boolean; max_comments: number; has_more: boolean }
 }
 type Run = { data: Analysis; seconds: number; completedAt: string }
+type WebSource = { title: string; url: string; content: string }
+type SpecificLabel = { id: string; evidence: string }
+type VideoAssessment = {
+  negative_for_user: 'yes' | 'no' | 'uncertain'; reason: string
+  categories: string[]; category_reason: string
+  subcategories: SpecificLabel[]; content_signals: SpecificLabel[]; taxonomy_version: string
+  web_search: { status: 'disabled' | 'used' | 'no_results' | 'unavailable'; warning: string | null; sources: WebSource[] }
+}
+type AssessmentComment = Pick<Comment, 'text' | 'sentiment' | 'confidence'>
+type VideoEvidence = { title: string; caption: string; sentiment_balance: number | null; comments: AssessmentComment[] }
+
+function sampleAssessmentComments(comments: Comment[]): AssessmentComment[] {
+  // Round-robin across labels for contrasting reactions, preserving sample order
+  // within each label. This sample does not estimate audience proportions.
+  const groups = sentiments.map(label => comments.filter(comment => comment.sentiment === label))
+  const sampled: AssessmentComment[] = []
+  for (let index = 0; sampled.length < 12 && groups.some(group => index < group.length); index++) {
+    for (const group of groups) {
+      if (group[index] && sampled.length < 12) {
+        const { text, sentiment, confidence } = group[index]
+        sampled.push({ text: Array.from(text).slice(0, 300).join(''), sentiment, confidence })
+      }
+    }
+  }
+  return sampled
+}
 
 const percent = (value: number) => `${(value * 100).toFixed(1)}%`
 const title = (value: string) => value.charAt(0).toUpperCase() + value.slice(1)
+const labelName = (value: string) => title(value.replaceAll('_', ' '))
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
@@ -35,11 +62,50 @@ function isAnalysis(value: unknown): value is Analysis {
   return typeof value.model === 'string' && typeof summary.total_comments === 'number'
     && hasScores(summary.counts) && hasScores(summary.proportions) && hasScores(summary.average_scores)
     && typeof summary.negative_threshold === 'number'
+    && (summary.sentiment_balance === null || (typeof summary.sentiment_balance === 'number' && Number.isFinite(summary.sentiment_balance) && Math.abs(summary.sentiment_balance) <= 1))
     && (typeof summary.is_negative_reaction === 'boolean' || summary.is_negative_reaction === null)
     && typeof sample.video_id === 'string' && typeof sample.max_comments === 'number' && typeof sample.has_more === 'boolean'
     && comments.every(comment => isRecord(comment) && typeof comment.text === 'string'
       && (comment.id === null || typeof comment.id === 'string')
       && sentiments.includes(comment.sentiment as Sentiment) && typeof comment.confidence === 'number' && hasScores(comment.scores))
+}
+
+async function fetchJson(url: string, options: RequestInit): Promise<unknown> {
+  const response = await fetch(url, options)
+  let body: unknown
+  try { body = await response.json() } catch { throw new Error('The API did not return JSON. Check the backend on port 8000.') }
+  if (!response.ok) throw new Error(isRecord(body) && typeof body.detail === 'string' ? body.detail : `Request failed (HTTP ${response.status}). Check the backend terminal.`)
+  return body
+}
+
+function isVideoAssessment(value: unknown): value is VideoAssessment {
+  return isRecord(value) && ['yes', 'no', 'uncertain'].includes(String(value.negative_for_user))
+    && typeof value.reason === 'string' && value.reason.trim().length > 0 && value.reason.length <= 600
+    && Array.isArray(value.categories) && value.categories.length <= 5
+    && value.categories.every(category => typeof category === 'string' && /^[a-z_]{1,32}$/.test(category))
+    && typeof value.category_reason === 'string' && value.category_reason.trim().length > 0 && value.category_reason.length <= 400
+    && hasSpecificLabels(value.subcategories, 8) && hasSpecificLabels(value.content_signals, 4)
+    && value.subcategories.every(tag => (value.categories as string[]).includes(tag.id.split('.')[0]))
+    && typeof value.taxonomy_version === 'string'
+    && isRecord(value.web_search) && ['disabled', 'used', 'no_results', 'unavailable'].includes(String(value.web_search.status))
+    && (value.web_search.warning === null || typeof value.web_search.warning === 'string')
+    && Array.isArray(value.web_search.sources) && value.web_search.sources.length <= 3
+    && value.web_search.sources.every(source => isRecord(source) && typeof source.title === 'string'
+      && typeof source.content === 'string' && typeof source.url === 'string' && safeSourceUrl(source.url))
+}
+
+function hasSpecificLabels(value: unknown, limit: number): value is SpecificLabel[] {
+  return Array.isArray(value) && value.length <= limit
+    && value.every(tag => isRecord(tag) && typeof tag.id === 'string' && /^[a-z_.]{1,80}$/.test(tag.id)
+      && typeof tag.evidence === 'string' && tag.evidence.trim().length > 0 && tag.evidence.length <= 180)
+    && new Set(value.map(tag => tag.id)).size === value.length
+}
+
+function safeSourceUrl(value: string): boolean {
+  try {
+    const url = new URL(value)
+    return ['http:', 'https:'].includes(url.protocol) && !url.username && !url.password
+  } catch { return false }
 }
 
 function Icon({ name, size = 20 }: { name: 'play' | 'arrow' | 'search' | 'activity' | 'download' | 'check'; size?: number }) {
@@ -62,6 +128,10 @@ function App() {
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [run, setRun] = useState<Run | null>(null)
+  const [assessment, setAssessment] = useState<VideoAssessment | null>(null)
+  const [evidence, setEvidence] = useState<VideoEvidence | null>(null)
+  const [assessmentError, setAssessmentError] = useState('')
+  const [assessing, setAssessing] = useState(false)
   const [filter, setFilter] = useState<Sentiment | 'all'>('all')
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState('original')
@@ -88,6 +158,7 @@ function App() {
     const timer = window.setTimeout(() => { timedOut = true; request.abort() }, 600_000)
     const started = performance.now()
     setError(''); setNotice(''); setRun(null); setRunning(true); setElapsed(0)
+    setAssessment(null); setEvidence(null); setAssessmentError(''); setAssessing(false)
     setFilter('all'); setSearch(''); setSort('original')
     try {
       const params = new URLSearchParams({ max_comments: String(sampleSize), negative_threshold: String(threshold / 100) })
@@ -101,6 +172,25 @@ function App() {
       }
       if (!isAnalysis(body)) throw new Error('Unexpected analysis response. Check that the backend exposes /analysis/videos/{video_id}.')
       setRun({ data: body, seconds: (performance.now() - started) / 1000, completedAt: new Date().toLocaleTimeString() })
+      setAssessing(true)
+      try {
+        const metadata = await fetchJson(`/api/youtube/video/${id}`, { signal: request.signal })
+        if (!isRecord(metadata) || typeof metadata.title !== 'string' || typeof metadata.description !== 'string') {
+          throw new Error('The video metadata response is missing its title or description.')
+        }
+        const input: VideoEvidence = { title: metadata.title, caption: metadata.description, sentiment_balance: body.summary.sentiment_balance, comments: sampleAssessmentComments(body.comments) }
+        setEvidence(input)
+        const result = await fetchJson('/api/analysis/video-assessment', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(input), signal: request.signal,
+        })
+        if (!isVideoAssessment(result)) throw new Error('The model returned an invalid video assessment.')
+        setAssessment(result)
+      } catch (cause) {
+        setAssessmentError(request.signal.aborted
+          ? timedOut ? 'Video assessment exceeded the request time limit. Comment results are available below.' : 'Video assessment cancelled. Comment results are still available.'
+          : cause instanceof Error ? cause.message : 'Video assessment failed.')
+      } finally { setAssessing(false) }
     } catch (cause) {
       if (request.signal.aborted) {
         if (timedOut) setError('The request exceeded 10 minutes. The first run may need to download the model. Check the backend terminal before retrying.')
@@ -127,7 +217,7 @@ function App() {
 
   function download() {
     if (!run) return
-    const url = URL.createObjectURL(new Blob([JSON.stringify(run.data, null, 2)], { type: 'application/json' }))
+    const url = URL.createObjectURL(new Blob([JSON.stringify({ ...run.data, video_assessment: assessment, video_evidence: evidence, video_assessment_error: assessmentError || null }, null, 2)], { type: 'application/json' }))
     const link = document.createElement('a')
     link.href = url; link.download = `comment-analysis-${run.data.sample.video_id}.json`; link.click()
     window.setTimeout(() => URL.revokeObjectURL(url), 1000)
@@ -155,7 +245,7 @@ function App() {
             </div>
             <div className="form-footer"><span><span className="tiny-dot" /> Real comments. Local model inference.</span><div>{running && <button type="button" className="button secondary" onClick={() => controller.current?.abort()}>Cancel</button>}<button className="button primary" disabled={running} type="submit">{running ? <><span className="spinner" /> Analyzing · {elapsed}s</> : <>Run analysis <Icon name="arrow" size={18} /></>}</button></div></div>
           </form>
-          {running && <p className="run-message" role="status">Fetching comments and running sentiment inference. The first run downloads model weights and can take several minutes.</p>}
+          {running && <p className="run-message" role="status">{assessing ? 'Comment analysis complete. Assessing the video title, description, and a sample of audience comments with the local Ollama model.' : 'Fetching comments and running sentiment inference. The first run downloads model weights and can take several minutes.'}</p>}
           {error && <div className="error-message" role="alert"><strong>Analysis couldn’t complete.</strong> {error}</div>}
           {notice && <p className="run-message" role="status">{notice}</p>}
         </section>
@@ -179,6 +269,28 @@ function App() {
             ]).map(check => <div className="check-row" key={check.label}><span className={`check-indicator ${check.pass === null ? 'pending' : check.pass ? 'passed' : 'failed'}`}>{check.pass === null ? '·' : check.pass ? <Icon name="check" size={14} /> : '!'}</span><div><strong>{check.label}</strong><p>{check.detail}</p></div><small>{check.pass === null ? (data ? 'N/A' : 'Pending') : check.pass ? 'Pass' : 'Fail'}</small></div>)}
           </section>
         </div>
+        <section className="panel video-assessment-panel" aria-labelledby="video-assessment-heading">
+          <div className="section-heading"><h2 id="video-assessment-heading">Video assessment</h2><span className="subtle">Local Ollama model</span></div>
+          <div className="video-assessment-body" aria-live="polite" aria-busy={assessing}>
+            {assessing ? <p role="status">Assessing the title, description, sampled comments, and sentiment score…</p>
+              : assessment ? <><span className={`video-verdict ${assessment.negative_for_user}`}>Potentially negative for user: {assessment.negative_for_user.toUpperCase()}</span><p className="video-reason">{assessment.reason}</p>
+                <h3 className="category-heading">Video categories</h3>
+                <div className="category-tags">{assessment.categories.length ? assessment.categories.map(category => <span key={category}>{title(category.replaceAll('_', ' '))}</span>) : <span>Topic uncertain</span>}</div>
+                <p className="category-reason">{assessment.category_reason}</p>
+                <div className="topic-breakdown">{assessment.categories.map(category => <div className="topic-branch" key={category}><h4>{labelName(category)}</h4>{assessment.subcategories.some(tag => tag.id.startsWith(`${category}.`)) ? <ul>{assessment.subcategories.filter(tag => tag.id.startsWith(`${category}.`)).map(tag => <li key={tag.id}><strong>{labelName(tag.id.split('.')[1])}</strong><p>{tag.evidence}</p></li>)}</ul> : <p className="field-hint">No specific subcategory supported by the supplied evidence.</p>}</div>)}</div>
+                <h3 className="category-heading">Content signals to review</h3>
+                {assessment.content_signals.length ? <ul className="content-signals">{assessment.content_signals.map(tag => <li key={tag.id}><strong>{labelName(tag.id)}</strong><p>{tag.evidence}</p></li>)}</ul> : <p className="field-hint">No supported content signals identified in the supplied data. This does not establish safety.</p>}
+                <p className="field-hint">You can later choose a whole category or a specific subcategory to avoid. Content signals describe presentation or behavior separately from topics. Preference matching and blocking are not enabled yet.</p>
+                <p className="web-search-status">{assessment.web_search.status === 'used' ? 'Web context included' : assessment.web_search.status === 'no_results' ? 'Web search returned no results; using video metadata' : assessment.web_search.status === 'unavailable' ? 'Web search unavailable; using video metadata' : 'Web search disabled; using video metadata'}</p>
+                {assessment.web_search.warning && <p className="field-hint">{assessment.web_search.warning}</p>}
+                {assessment.web_search.sources.length > 0 && <details className="video-evidence"><summary>Search sources supplied to the model</summary><ul className="web-sources">{assessment.web_search.sources.map((source, index) => <li key={`${source.url}-${index}`}><a href={source.url} target="_blank" rel="noreferrer">{source.title || source.url}</a><p>{source.content}</p></li>)}</ul><p className="field-hint">These sources provided context; they do not verify the video's content.</p></details>}
+              </>
+                : !assessmentError && <p>Run an analysis to see the video assessment alongside audience sentiment.</p>}
+            {assessmentError && <div className="error-message" role="alert"><strong>Video assessment unavailable.</strong> {assessmentError} Comment sentiment results remain available.</div>}
+            {evidence && <details className="video-evidence"><summary>Inputs used for the assessment</summary><dl><dt>Video title</dt><dd>{evidence.title}</dd><dt>Caption source</dt><dd>YouTube video description (no transcript is fetched)</dd><dt>Description</dt><dd>{evidence.caption || 'No description available.'}</dd><dt>Sentiment balance</dt><dd>{evidence.sentiment_balance === null ? 'Unavailable: no usable comments' : evidence.sentiment_balance.toFixed(3)}</dd><dt>Audience comments supplied ({evidence.comments.length})</dt><dd>{evidence.comments.length ? <><p>Up to 12 comments sampled across sentiment labels; each limited to 300 characters. This sample does not represent audience proportions.</p><ul>{evidence.comments.map((comment, index) => <li key={index}><strong>{title(comment.sentiment)} · {percent(comment.confidence)} confidence</strong><p>{comment.text}</p></li>)}</ul></> : 'No comments available.'}</dd></dl></details>}
+            <p className="field-hint">Tentative assessment of supplied metadata; individual effects are unknown. Audience sentiment alone does not establish harm.</p>
+          </div>
+        </section>
         <section className="panel comments-panel" aria-labelledby="comments-heading">
           <div className="section-heading"><h2 id="comments-heading"><span className="step">03</span> The conversation <span className="count-badge">{data?.comments.length ?? 0}</span></h2><button className="text-button" onClick={download} disabled={!data}><Icon name="download" size={16} /> Export JSON</button></div>
           <div className="comment-toolbar"><div className="filters" role="group" aria-label="Filter comments by sentiment">{(['all', ...sentiments] as const).map(label => <button key={label} className={filter === label ? 'selected' : ''} aria-pressed={filter === label} onClick={() => setFilter(label)}>{title(label)}{data && <span>{label === 'all' ? data.comments.length : data.summary.counts[label]}</span>}</button>)}</div><div className="comment-tools"><label className="search-box"><Icon name="search" size={16} /><input aria-label="Search comment text" placeholder="Search comments…" value={search} onChange={e => setSearch(e.target.value)} /></label><select aria-label="Sort comments" value={sort} onChange={e => setSort(e.target.value)}><option value="original">Sample order</option><option value="confidence">Highest confidence</option><option value="negative">Most negative</option></select></div></div>
