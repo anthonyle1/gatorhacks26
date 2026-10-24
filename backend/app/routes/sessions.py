@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException
-from pymongo.errors import BulkWriteError
+from pymongo import UpdateOne
 
 from app.database import db
 from app.models.session import (
@@ -81,7 +81,7 @@ async def save_video_events(
         document["session_id"] = session_id
         documents.append(document)
 
-    ids = [event["event_id"] for event in documents]
+    ids = [doc["event_id"] for doc in documents]
 
     if len(ids) != len(set(ids)):
         raise HTTPException(
@@ -89,19 +89,41 @@ async def save_video_events(
             detail="Duplicate event IDs in request"
         )
 
-    try:
-        await db.video_events.insert_many(
-            documents, ordered=True
-        )
-    except BulkWriteError:
+    # Never overwrite another session's event.
+    existing = await db.video_events.find(
+        {"event_id": {"$in": ids}},
+        {"_id": 0, "event_id": 1, "session_id": 1}
+    ).to_list(length=len(ids))
+
+    if any(
+        doc["session_id"] != session_id
+        for doc in existing
+    ):
         raise HTTPException(
             status_code=409,
-            detail="An event ID already exists"
+            detail="Event ID belongs to another session"
         )
+
+    operations = [
+        UpdateOne(
+            {"event_id": doc["event_id"]},
+            {"$setOnInsert": doc},
+            upsert=True
+        )
+        for doc in documents
+    ]
+
+    result = await db.video_events.bulk_write(
+        operations,
+        ordered=True
+    )
 
     return {
         "session_id": session_id,
-        "saved_events": len(documents)
+        "saved_events": result.upserted_count,
+        "already_existed": (
+            len(documents) - result.upserted_count
+        )
     }
 
 

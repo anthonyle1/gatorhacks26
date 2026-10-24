@@ -1,10 +1,16 @@
-
 {
   "manifest_version": 3,
   "name": "Healthy Doomscrolling",
   "version": "1.0.0",
   "description": "Track your YouTube Shorts scrolling habits",
   "permissions": ["storage"],
+  "host_permissions": [
+    "http://localhost:8000/*",
+    "http://127.0.0.1:8000/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
       "matches": ["https://www.youtube.com/*"],
