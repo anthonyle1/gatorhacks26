@@ -64,3 +64,12 @@ h1 {
   font-size: 13px;
   overflow-wrap: anywhere;
 }
+
+.review-page { width: min(100%, 1000px); margin: 0 auto; }
+.branch-videos { padding-left: 18px; list-style: disc; }
+a { color: #644077; overflow-wrap: anywhere; }
+.video-results { padding-left: 22px; }
+.video-result { padding: 8px 0 16px; margin-bottom: 15px; border-bottom: 1px solid #dfd3e9; font-size: 13px; line-height: 1.6; }
+.video-result h3 { margin: 8px 0; font-size: 15px; }
+.video-meta, .analysis-note { color: #75617e; font-size: 12px; }
+.video-result details { margin-top: 10px; }

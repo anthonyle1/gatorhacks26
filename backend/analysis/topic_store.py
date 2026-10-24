@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import re
 import sqlite3
-from uuid import uuid4
+from uuid import uuid4, uuid5, NAMESPACE_URL
 
 STORE_PATH = Path(__file__).resolve().parents[1] / ".cache" / "session_topics.sqlite3"
 
@@ -114,6 +114,9 @@ class TopicStore:
                 proposal = proposals[key]
                 parent_id = resolve(proposal.parent_key) if proposal.parent_key else None
                 category = self._category(connection, user_id, proposal.existing_category_id) if proposal.existing_category_id else None
+                if normalized(proposal.name) == "generalother":
+                    category = self._category(connection, user_id, self._fallback_category(connection, user_id))
+                    parent_id = category["parent_id"]
                 # An omitted ancestor in a bounded batch must not silently detach
                 # an existing branch or change inherited preferences.
                 if category and parent_id is None:
@@ -146,6 +149,19 @@ class TopicStore:
                 for video_id in node.video_ids:
                     assignments.setdefault(video_id, set()).add(category_id)
         return {video_id: sorted(ids) for video_id, ids in assignments.items()}
+
+    def fallback_category(self, user_id):
+        """A stable catch-all guarantees coverage without guessing a subject."""
+        with self.connection() as connection:
+            return self._fallback_category(connection, user_id)
+
+    def _fallback_category(self, connection, user_id):
+        category_id = str(uuid5(NAMESPACE_URL, f"gatorhacks26:general-other:{user_id}"))
+        connection.execute(
+            "INSERT OR IGNORE INTO categories (id,user_id,name,description,parent_id) VALUES (?,?,?,?,NULL)",
+            (category_id, user_id, "General / Other",
+             "Videos without a reliably established topic, including insufficient metadata or unavailable model classification."))
+        return self._category(connection, user_id, category_id)["id"]
 
     def save_session(self, session_id, user_id, result):
         with self.connection() as connection:

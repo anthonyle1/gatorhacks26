@@ -10,7 +10,7 @@ from app.services.analysis_jobs import (queue_video_analysis, process_video_anal
 from app.services.session_analysis import process_session_analysis
 from analysis.topic_store import TopicStore
 from fastapi.concurrency import run_in_threadpool
-from pydantic import BaseModel, Field, ConfigDict, model_validator
+from app.models.session_categories import CategoryEdit, TopicPreference
 
 router = APIRouter(prefix="/sessions", tags=["Sessions"])
 
@@ -169,12 +169,6 @@ async def retry_taxonomy(session_id: str, background_tasks: BackgroundTasks):
     return {"session_id": session_id, "taxonomy_status": "pending"}
 
 
-class TopicPreference(BaseModel):
-    model_config = ConfigDict(extra="forbid", strict=True)
-    category_id: str = Field(min_length=1, max_length=80)
-    reduce: bool
-
-
 @router.patch("/{session_id}/taxonomy/preferences")
 async def topic_preference(session_id: str, body: TopicPreference):
     session = await require_session(session_id, completed=True)
@@ -184,24 +178,6 @@ async def topic_preference(session_id: str, body: TopicPreference):
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from None
     return await run_in_threadpool(store.view, session_id, session["user_id"])
-
-
-class CategoryEdit(BaseModel):
-    model_config = ConfigDict(extra="forbid", strict=True)
-    name: str | None = Field(default=None, min_length=1, max_length=80)
-    parent_id: str | None = Field(default=None, min_length=1, max_length=80)
-    move: bool = False
-    merge_into: str | None = Field(default=None, min_length=1, max_length=80)
-
-    @model_validator(mode="after")
-    def one_operation(self):
-        if sum((self.name is not None, self.move, self.merge_into is not None)) != 1:
-            raise ValueError("Choose one rename, move, or merge operation")
-        if self.name is not None and (not self.name.strip() or any(ord(c) < 32 for c in self.name)):
-            raise ValueError("Category name must be readable")
-        if self.name is not None:
-            self.name = self.name.strip()
-        return self
 
 
 @router.patch("/{session_id}/taxonomy/categories/{category_id}")

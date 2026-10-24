@@ -174,8 +174,9 @@ class PersistentTaxonomyTests(unittest.TestCase):
         client.prompt.side_effect = respond
         result = classify_session_data("partial", "user", videos, store=self.store, client=client)
         self.assertEqual(result["status"], "partial")
-        self.assertEqual(result["tree"][0]["video_count"], 12)
-        self.assertEqual(result["unclassified_video_ids"], ["v12"])
+        self.assertEqual(sum(node["video_count"] for node in result["tree"]), 13)
+        self.assertEqual(result["unclassified_video_ids"], [])
+        self.assertEqual(result["fallback_video_ids"], ["v12"])
         client.prompt.reset_mock()
         client.prompt.side_effect = None
         client.prompt.return_value = {"response": json.dumps({"topics": [topic("valorant", "Valorant", videos=["v12"])], "unclassified_video_ids": []})}
@@ -194,11 +195,45 @@ class PersistentTaxonomyTests(unittest.TestCase):
         self.assertEqual(view["tree"][0]["id"], root["id"])
         self.assertEqual(view["reduce_video_ids"], ["v3"])
 
+    def test_all_provider_failures_still_classify_every_video(self):
+        client = Mock()
+        client.prompt.side_effect = OllamaError("Model unavailable")
+        videos = [{"video_id": "v1", "title": "A clip", "caption": ""},
+                  {"video_id": "v2", "title": "", "caption": ""}]
+        result = classify_session_data("failure", "user", videos, store=self.store, client=client)
+        self.assertEqual(set(result["assignments"]), {"v1", "v2"})
+        self.assertEqual(result["tree"][0]["video_count"], 2)
+        self.assertEqual(result["tree"][0]["name"], "General / Other")
+        self.assertEqual(result["status"], "failed")
+        self.assertTrue(result["errors"])
+
+    def test_model_abstentions_use_a_stable_fallback_category(self):
+        client = Mock()
+        client.prompt.return_value = {"response": json.dumps({"topics": [], "unclassified_video_ids": ["v1"]})}
+        videos = [{"video_id": "v1", "title": "An ambiguous clip", "caption": ""}]
+        first = classify_session_data("first", "user", videos, store=self.store, client=client)
+        second = classify_session_data("second", "user", videos, store=self.store, client=client)
+        self.assertEqual(first["assignments"]["v1"], second["assignments"]["v1"])
+        self.assertEqual(first["unclassified_video_ids"], [])
+        self.assertEqual(first["fallback_video_ids"], ["v1"])
+
+    def test_model_and_application_fallback_share_one_category(self):
+        client = Mock()
+        client.prompt.return_value = {"response": json.dumps({"topics": [topic("other", "General / Other", videos=["v1"])], "unclassified_video_ids": []})}
+        videos = [{"video_id": "v1", "title": "An ambiguous clip", "caption": ""},
+                  {"video_id": "v2", "title": "", "caption": ""}]
+        result = classify_session_data("mixed-fallback", "user", videos, store=self.store, client=client)
+        self.assertEqual(len(result["tree"]), 1)
+        self.assertEqual(result["tree"][0]["video_count"], 2)
+        self.assertEqual(result["assignments"]["v1"], result["assignments"]["v2"])
+
     def test_comments_alone_do_not_trigger_topic_model_calls(self):
         client = Mock()
         result = classify_session_data("empty", "user", [{"video_id": "v1", "title": "", "caption": "", "comments": ["Must be about gaming"]}], store=self.store, client=client)
         self.assertEqual(result["status"], "insufficient_data")
-        self.assertEqual(result["unclassified_video_ids"], ["v1"])
+        self.assertEqual(result["unclassified_video_ids"], [])
+        self.assertEqual(result["tree"][0]["name"], "General / Other")
+        self.assertEqual(result["tree"][0]["video_ids"], ["v1"])
         client.prompt.assert_not_called()
 
 

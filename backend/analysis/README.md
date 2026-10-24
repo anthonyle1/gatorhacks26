@@ -1,6 +1,6 @@
 # Analysis and completed-session topics
 
-While scrolling, the extension records video identities, dwell time, and available titles/captions. The backend caches YouTube metadata and RoBERTa comment sentiment. Instagram's comment endpoint persists its available metadata, sampled comments, and sentiment separately. No topic discovery runs on event upload or on an individual video assessment.
+While scrolling, the extension records video identities, dwell time, and available titles/captions. The extension keeps events and captured Instagram comments in Chrome storage. On completion the local backend fetches available YouTube metadata/comments, computes RoBERTa sentiment, assesses individual content, and discovers session topics without MongoDB. No topic discovery runs on event upload or on an individual video assessment.
 
 **Finish and review session** uploads the last video, completes the backend session, and queues topic discovery. Gemma groups the session's videos into a dynamic tree. The React extension shows expandable branches, unique video counts, source videos, saved **See less** preferences, and the validated session JSON. Selecting a parent includes descendants; selecting a child affects that branch. Preferences persist for future matching. The extension does not yet hide videos or modify platform recommendations.
 
@@ -16,11 +16,9 @@ python -m pip install -r requirements.txt
 Copy-Item .env.example .env # Only if .env does not already exist
 ```
 
-Configure `MONGODB_URI`, `MONGODB_DB`, and `YOUTUBE_API_KEY` in `backend/.env`. Session creation, event storage, and job state require a working MongoDB connection. Create the extension's existing demo user once:
+Configure `YOUTUBE_API_KEY` in `backend/.env` for YouTube metadata and comment fetching. The extension's default review path requires **no MongoDB URI, connection, or seeded user**. Without a YouTube key, captured title/caption data can still support topics; missing comment/context results are explicitly marked unavailable.
 
-```powershell
-python seed_demo_user.py
-```
+`MONGODB_URI`/`MONGODB_DB` are optional for legacy `/sessions`, `/videos`, and Instagram persistence endpoints. `MONGODB_SESSION_JOBS_ENABLED=true` enables recovery of legacy MongoDB jobs; it defaults to false. The local session worker runs independently.
 
 Install Ollama and download the configured local model:
 
@@ -46,7 +44,7 @@ Gemini requires a server-side key with access to the configured model. After a l
 python -m uvicorn app.main:app --reload --port 8000
 ```
 
-`GET /health` checks database connectivity; failures return JSON with HTTP 503. Check MongoDB/Atlas connectivity if it fails. The model checks below work independently of MongoDB:
+`GET /local-sessions/health` verifies local storage and returns `mongodb_required: false`. The older `GET /health` checks MongoDB only; its 503 does not block extension session reviews. The model checks below work independently of MongoDB:
 
 ```powershell
 python -m analysis.ollama_client --check
@@ -88,7 +86,21 @@ python -m analysis.video_assessment --title "A React tutorial" --caption "Buildi
 
 `OLLAMA_WEB_SEARCH_ENABLED=true` and server-side `OLLAMA_API_KEY` optionally enable the existing bounded web search for individual content assessment. Search is disabled by default. Session discovery does not issue web searches; it uses collected evidence and supported metadata. The model cannot choose URLs, run tools, or execute commands.
 
-Completed sessions use these endpoints:
+The extension now uses these MongoDB-free endpoints:
+
+| Request | Behavior |
+| --- | --- |
+| `POST /local-sessions/{uuid}/finish` | Accept an immutable snapshot of `events` (existing video event format) and optional `instagram` evidence, persist locally, and queue analysis. Returns 202 immediately. Repeating an identical snapshot is safe; changing it under the same ID returns 409. |
+| `GET /local-sessions/{uuid}/taxonomy` | Read progress, the topic tree, unique video counts, and individual `videos[].analysis` results. |
+| `POST /local-sessions/{uuid}/taxonomy/retry` | Retry a partial/failed review, preserving successful work and reusing unchanged model evidence. |
+| `PATCH /local-sessions/{uuid}/taxonomy/preferences` | Save a category preference. |
+| `PATCH /local-sessions/{uuid}/taxonomy/categories/{id}` | Rename, move, or merge a local category. |
+
+Local review jobs and results use the same `backend/.cache/session_topics.sqlite3` file as category identities. Each video's analysis contains its content assessment (including provider/fallback flags), sentiment summary, bounded comment sample, and explicit errors for unavailable evidence/providers. Failures preserve videos and available results; they do not fabricate scores or discard the whole summary. Video identities, repeat-view counts, and dwell time remain separate from topic membership. Individual assessments do not output topic labels.
+
+A local worker polls pending jobs every 10 seconds and renews processing leases every 30 seconds. Expired leases older than 15 minutes can be resumed after restart. Successful individual assessments are reused on retries with unchanged evidence; topic batches are checkpointed by evidence fingerprint. Closing the popup does not interrupt backend work. The latest fetched summary is cached in Chrome for offline viewing. Reopening a popup after a backend restart will refresh it from local storage.
+
+Legacy MongoDB sessions remain available separately through these endpoints:
 
 | Request | Behavior |
 | --- | --- |
@@ -106,7 +118,7 @@ Each accepted batch reports provider/model/fallback provenance in `batches`; `fa
 
 ## Dynamic identities and bounded discovery
 
-`session_classification.py` discovers topics from the completed session, with no fixed topic list. It requests meaningful variable depth, reusable genres/game titles/interests, and supported distinctions rather than categories describing individual clips. The eight-level depth limit is a safety ceiling, not a required hierarchy shape. Comments alone cannot make a metadata-free video eligible.
+`session_classification.py` discovers topics from the completed session, with no fixed topic list. It requests meaningful variable depth, reusable genres/game titles/interests, and supported distinctions rather than categories describing individual clips. Sparse groups use general supported categories (for example Programming, Gaming, or Music). The prompt normally asks for at least two distinct related videos before creating a niche label; repeat views do not provide extra support. Larger sessions may mix broad categories for isolated interests with niche branches for recurring interests. This is model guidance, not a hard-coded topic list or a guarantee of perfect granularity. The eight-level depth limit is a safety ceiling, not a required hierarchy shape. Comments alone cannot make a metadata-free video eligible.
 
 Large sessions are split into batches of at most 12 videos and 7,000 serialized evidence characters. Individual evidence fields are excerpted; identities are retained. Each batch includes up to 24 candidate categories within a separate 5,000-character budget. Discovery uses a 16,384-token context window and bounded output. Thus large sessions require multiple bounded calls after completion, rather than one call per video. Earlier batches feed the persistent catalog used by later batches. Grouping quality depends on available excerpts and model output.
 
@@ -118,7 +130,7 @@ Structured JSON is validated before persistence: duplicate keys, unknown IDs, ex
 
 MongoDB records pending/processing/final session status. An atomic claim prevents duplicate workers. Startup recovery polls every 30 seconds; processing leases older than 15 minutes are retried, with a heartbeat while work runs. Successful batch checkpoints avoid repeated inference on explicit retries. Insufficient metadata produces an explicit result without calling the topic model. Finishing does not wait for every in-flight per-video sentiment job; discovery uses evidence available at collection time and fetches missing YouTube metadata when possible.
 
-The current extension still uses the existing `demo_user` identity. Category operations are scoped to the owning session/user, but this development app does not provide account authentication.
+Local reviews use the `local_extension` catalog on this backend; legacy MongoDB sessions retain their existing user identities. This development app does not provide account authentication.
 
 ## Checks
 
@@ -130,3 +142,7 @@ python -m pytest tests -q -p no:cacheprovider
 ```
 
 Tests cover content-only assessment, strict output handling, fallback provenance, session lifecycle, hierarchy integrity, identity reuse, parent/child preference behavior, catalog edits, input bounds, partial retries, and batch caching. Provider failure tests use mocks; they do not establish hosted service availability.
+
+## Guaranteed video coverage
+
+Every nonempty completed review assigns every video to at least one category. Broad, supported topics are preferred when niche evidence is sparse. Videos without usable metadata, model abstentions, and videos in failed provider batches are assigned by application code to a stable **General / Other** category. This category describes an unavailable topic, rather than inventing one. `fallback_video_ids` identifies these application-assigned videos; `unclassified_video_ids` is empty in completed review results. Provider errors and partial/failed/insufficient-data status remain visible, and retry can replace the fallback with a supported topic. Historical saved reviews are not regenerated automatically.

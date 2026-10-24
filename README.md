@@ -20,7 +20,7 @@ npm ci
 npm run build
 ```
 
-Start the backend and seed its demo user using [the analysis setup](backend/analysis/README.md).
+Start the backend and Ollama using [the analysis setup](backend/analysis/README.md). The extension records sessions locally and shows completed reviews without MongoDB.
 
 ### Step 1: Open Chrome Extensions
 1. Open Google Chrome.
@@ -40,7 +40,7 @@ Start the backend and seed its demo user using [the analysis setup](backend/anal
 2. Click the **puzzle-piece icon** in Chrome's toolbar.
 3. Select the **Healthy Doomscrolling** extension to open its popup.
 4. Scroll through videos, then select **Finish and review session** in the popup.
-5. Expand topic branches and select **See less** to save preferences. Parent selections include descendants; child selections affect that branch only. These preferences do not yet modify the platform feed.
+5. Expand topic branches to see videos, inspect **Analyzed video results**, or click **Open full summary**. Select **See less** to save preferences. Parent selections include descendants; child selections affect that branch only. These preferences do not yet modify the platform feed.
 
 ## Updating the Extension
 

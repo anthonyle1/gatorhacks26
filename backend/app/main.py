@@ -17,6 +17,8 @@ from app.routes.sessions import router as sessions_router
 from app.routes.videos import router as videos_router
 from analysis.routes import router as analysis_router
 from app.services.session_analysis import recover_session_jobs
+from app.routes.local_sessions import router as local_sessions_router
+from app.services.local_sessions import recover_local_sessions
 
 # Load environment variables
 load_dotenv()
@@ -24,13 +26,17 @@ load_dotenv()
 # Initialize FastAPI
 @asynccontextmanager
 async def lifespan(application):
-    worker = asyncio.create_task(recover_session_jobs())
+    workers = [asyncio.create_task(recover_local_sessions())]
+    if os.getenv("MONGODB_SESSION_JOBS_ENABLED", "false").lower() == "true":
+        workers.append(asyncio.create_task(recover_session_jobs()))
     try:
         yield
     finally:
-        worker.cancel()
-        with suppress(asyncio.CancelledError):
-            await worker
+        for worker in workers:
+            worker.cancel()
+        for worker in workers:
+            with suppress(asyncio.CancelledError):
+                await worker
 
 
 app = FastAPI(title="Healthy Doomscrolling API", lifespan=lifespan)
@@ -49,6 +55,7 @@ async def topic_storage_error(request: Request, exc: sqlite3.Error):
     return JSONResponse(status_code=503, content={"detail": "Persistent topic storage is unavailable."})
 
 app.include_router(sessions_router)
+app.include_router(local_sessions_router)
 app.include_router(youtube_router)
 app.include_router(analysis_router)
 app.include_router(instagram_router)
