@@ -1,0 +1,131 @@
+import io
+import json
+import unittest
+from unittest.mock import Mock, patch
+from urllib.error import HTTPError
+
+from analysis.analyzer import SentimentAnalyzer, preprocess
+from analysis.youtube import Comment, YouTubeError, fetch_video_comments, parse_comments
+
+
+def resource(comment_id, text):
+    return {"id": comment_id, "snippet": {"textOriginal": text}}
+
+
+def scores(label):
+    return [{"label": key.title(), "score": 0.8 if key == label else 0.1}
+            for key in ("negative", "neutral", "positive")]
+
+
+class ParsingTests(unittest.TestCase):
+    def test_threads_replies_duplicates_and_empty_text(self):
+        response = {"items": [
+            {"snippet": {"topLevelComment": resource("a", "top")},
+             "replies": {"comments": [resource("b", "reply")]}},
+            resource("a", "duplicate"), resource("c", "  "),
+        ]}
+        self.assertEqual(parse_comments(response), [Comment("a", "top"), Comment("b", "reply")])
+
+    def test_html_fallback_and_original_text_preserved(self):
+        response = {"items": [
+            {"id": "a", "snippet": {"textDisplay": "Bad<br>video &amp; <b>editing</b>"}},
+            resource("b", "I <3 this &amp; that"),
+        ]}
+        self.assertEqual([c.text for c in parse_comments(response)],
+                         ["Bad video & editing", "I <3 this &amp; that"])
+
+    def test_invalid_response(self):
+        for response in ({}, {"items": None}, {"items": [{}]},
+                         {"items": [{"snippet": {}}]}):
+            with self.subTest(response=response), self.assertRaises(ValueError):
+                parse_comments(response)
+
+    def test_preprocessing(self):
+        self.assertEqual(preprocess("Hey @alice see https://example.com"), "Hey @user see http")
+
+
+class AnalysisTests(unittest.TestCase):
+    def analyze_labels(self, labels, threshold=0.5):
+        classifier = Mock(return_value=[scores(label) for label in labels])
+        result = SentimentAnalyzer(classifier).analyze(
+            [Comment(str(i), f"comment {i}") for i in range(len(labels))], threshold)
+        return result, classifier
+
+    def test_negative_majority_scores_and_balance(self):
+        result, classifier = self.analyze_labels(["negative", "negative", "positive"])
+        summary = result["summary"]
+        self.assertTrue(summary["is_negative_reaction"])
+        self.assertEqual(summary["counts"], {"negative": 2, "neutral": 0, "positive": 1})
+        self.assertAlmostEqual(summary["average_scores"]["negative"], 1.7 / 3)
+        self.assertAlmostEqual(summary["sentiment_balance"], -0.7 / 3)
+        self.assertEqual(result["comments"][0]["sentiment"], "negative")
+        self.assertEqual(classifier.call_args.kwargs["max_length"], 512)
+        self.assertIsNone(classifier.call_args.kwargs["top_k"])
+
+    def test_neutral_positive_ties_and_threshold(self):
+        for labels, threshold, expected in [
+            (["neutral"] * 3, 0.5, False),
+            (["positive"] * 3, 0.5, False),
+            (["negative", "positive"], 0.5, False),
+            (["negative", "neutral"], 0.5, True),
+            (["negative", "neutral"], 0.75, False),
+        ]:
+            with self.subTest(labels=labels, threshold=threshold):
+                result, _ = self.analyze_labels(labels, threshold)
+                self.assertEqual(result["summary"]["is_negative_reaction"], expected)
+
+    def test_empty_input_does_not_load_model(self):
+        analyzer = SentimentAnalyzer()
+        with patch.object(analyzer, "_load") as load:
+            summary = analyzer.analyze_response({"items": []})["summary"]
+        load.assert_not_called()
+        self.assertIsNone(summary["is_negative_reaction"])
+        self.assertIsNone(summary["sentiment_balance"])
+        self.assertEqual(summary["assessment"], "insufficient_data")
+
+    def test_batching_keeps_comment_ids_aligned(self):
+        classifier = Mock(side_effect=[[scores("negative"), scores("positive")], [scores("neutral")]])
+        result = SentimentAnalyzer(classifier, batch_size=2).analyze(
+            [Comment(str(i), "text") for i in range(3)])
+        self.assertEqual([row["id"] for row in result["comments"]], ["0", "1", "2"])
+        self.assertEqual(classifier.call_count, 2)
+
+    def test_invalid_threshold(self):
+        for threshold in (0, -1, 1.1, float("nan")):
+            with self.assertRaises(ValueError):
+                SentimentAnalyzer().analyze([], threshold)
+
+
+class YouTubeTests(unittest.TestCase):
+    @patch("analysis.youtube.urlopen")
+    def test_pagination_and_sample_limit(self, urlopen):
+        first = {"items": [{"snippet": {"topLevelComment": resource(str(i), "text")}}
+                           for i in range(100)], "nextPageToken": "page2"}
+        second = {"items": [{"snippet": {"topLevelComment": resource("100", "last")}}],
+                  "nextPageToken": "page3"}
+        urlopen.side_effect = [io.BytesIO(json.dumps(page).encode()) for page in (first, second)]
+        result = fetch_video_comments("abcdefghijk", "test-key", 101)
+        self.assertEqual(len(parse_comments(result)), 101)
+        self.assertEqual(result["nextPageToken"], "page3")
+        self.assertIn("pageToken=page2", urlopen.call_args.args[0])
+        self.assertIn("maxResults=1&", urlopen.call_args.args[0] + "&")
+
+    @patch("analysis.youtube.urlopen")
+    def test_upstream_error_does_not_leak_key(self, urlopen):
+        urlopen.side_effect = HTTPError("https://example.com?key=secret", 403, "denied", {}, None)
+        with self.assertRaises(YouTubeError) as raised:
+            fetch_video_comments("abcdefghijk", "secret")
+        self.assertNotIn("secret", str(raised.exception))
+        self.assertIn("403", str(raised.exception))
+
+    @patch("analysis.youtube.urlopen")
+    def test_empty_and_malformed_upstream_response(self, urlopen):
+        urlopen.return_value = io.BytesIO(b'{"items": []}')
+        self.assertEqual(fetch_video_comments("abcdefghijk", "key")["items"], [])
+        urlopen.return_value = io.BytesIO(b'{"unexpected": true}')
+        with self.assertRaises(YouTubeError):
+            fetch_video_comments("abcdefghijk", "key")
+
+
+if __name__ == "__main__":
+    unittest.main()
