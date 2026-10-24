@@ -1,11 +1,13 @@
 from typing import Annotated, Any
 
 from fastapi import APIRouter, HTTPException, Path, Query
+from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field
 
 from app.config import settings
 from .analyzer import ModelUnavailableError, get_analyzer
 from app.youtube import YouTubeError, fetch_video_comments, parse_comments
+from app.services.analysis_storage import save_roberta_analysis
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
 
@@ -38,21 +40,23 @@ def analyze_comments(body: CommentAnalysisRequest):
 
 
 @router.get("/videos/{video_id}")
-def analyze_video(
+async def analyze_video(
     video_id: Annotated[str, Path(pattern=r"^[A-Za-z0-9_-]{11}$")],
     max_comments: Annotated[int, Query(ge=1, le=1000)] = 100,
     negative_threshold: Annotated[float, Query(gt=0, le=1)] = 0.5,
 ):
-    """Analyze a bounded sample of newest top-level comments (excludes replies)."""
+    """Analyze video comments and save results to MongoDB."""
+
     if not settings.youtube_api_key:
         raise HTTPException(status_code=503, detail="YOUTUBE_API_KEY is not configured.")
     try:
-        response = fetch_video_comments(video_id, settings.youtube_api_key, max_comments)
+        response = await run_in_threadpool(fetch_video_comments, video_id, settings.youtube_api_key, max_comments)
     except YouTubeError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from None
-    result = _analyze(response, negative_threshold)
+    result = await run_in_threadpool(_analyze, response, negative_threshold)
     result["sample"] = {
         "video_id": video_id, "order": "time", "includes_replies": False,
-        "max_comments": max_comments, "has_more": bool(response.get("nextPageToken")),
+        "max_comments": max_comments, "has_more": bool(response.get("nextPageToken"))
     }
+    await save_roberta_analysis(video_id, result)
     return result
