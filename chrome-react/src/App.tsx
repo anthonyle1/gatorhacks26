@@ -23,7 +23,7 @@ function VideoResult({ video }: { video: Video }) {
     <details><summary>Video analysis JSON</summary><pre>{JSON.stringify(video, null, 2)}</pre></details>
   </li>;
 }
-type Review = { video_count?: number; analyzed_count?: number; offline?: boolean; session_id: string; status: string; tree: Topic[]; videos: Video[]; fallback_used: boolean; unclassified_video_ids?: string[]; fallback_video_ids?: string[]; reduce_video_ids?: string[]; detail?: string; errors?: {detail: string}[] };
+type Review = { video_count?: number; global_video_count?: number; tree_videos?: Video[]; analyzed_count?: number; offline?: boolean; session_id: string; status: string; tree: Topic[]; videos: Video[]; fallback_used: boolean; unclassified_video_ids?: string[]; fallback_video_ids?: string[]; reduce_video_ids?: string[]; detail?: string; errors?: {detail: string}[] };
 type Activity = { durationSeconds: number; videoCount: number; currentVideoId: string | null; currentPlatform: string | null };
 const emptyActivity: Activity = { durationSeconds: 0, videoCount: 0, currentVideoId: null, currentPlatform: null };
 const available = typeof chrome !== "undefined" && Boolean(chrome.runtime?.id);
@@ -67,7 +67,7 @@ function TopicBranch({ node, options, videos, busy, select, edit }: { node: Topi
 
 function App() {
   const [activity, setActivity] = useState<Activity>(emptyActivity);
-  const [paused, setPaused] = useState(false);
+  const [paused, setPaused] = useState(true);
   const [unfinished, setUnfinished] = useState(false);
   const [review, setReview] = useState<Review | null>(null);
   const [busy, setBusy] = useState(false);
@@ -87,7 +87,7 @@ function App() {
         const state = await chrome.storage.local.get(["scrollingSession", "trackingPaused", "localSessionId", "pendingEvents", "finishPending"]);
         if (!disposed && generation === version.current) {
           setActivity((state.scrollingSession as Activity) || emptyActivity);
-          setPaused(Boolean(state.trackingPaused));
+          setPaused(state.trackingPaused !== false);
           setUnfinished(Boolean(state.finishPending) || Boolean(state.localSessionId) || (Array.isArray(state.pendingEvents) && state.pendingEvents.length > 0));
         }
         const result = await request<Review | null>("SESSION_TAXONOMY");
@@ -114,8 +114,12 @@ function App() {
   async function select(id: string, reduce: boolean) { await mutate(async () => setReview(await request<Review>("TOPIC_PREFERENCE", { category_id: id, reduce }))); }
   async function edit(id: string, change: Change) { await mutate(async () => setReview(await request<Review>("EDIT_TOPIC_CATEGORY", { category_id: id, change }))); }
   async function retry() { await mutate(async () => { await request("RETRY_SESSION_TAXONOMY"); setReview(current => current ? { ...current, status: "pending" } : current); }); }
+  async function resetTree() {
+    if (!window.confirm("Reset the entire saved tree? All categories, video memberships, and See less preferences will be removed. Individual video analyses are kept.")) return;
+    await mutate(async () => { await request("RESET_TOPIC_TREE"); setReview(await request<Review | null>("SESSION_TAXONOMY")); });
+  }
   const options = flatten(review?.tree || []);
-  const videos = new Map((review?.videos || []).map(video => [video.video_id, video]));
+  const videos = new Map([...(review?.tree_videos || []), ...(review?.videos || [])].map(video => [video.video_id, video]));
   const processing = review && ["pending", "processing"].includes(review.status);
 
   const fullPage = new URLSearchParams(window.location.search).get("view") === "summary";
@@ -125,13 +129,14 @@ function App() {
       {paused && !unfinished && <button disabled={busy} onClick={() => void start()}>Start a new session</button>}
     </section>
     {error && <p className="error" role="alert">{error}</p>}
-    <section className="stat-card"><h2>Your session topics</h2>
+    <section className="stat-card"><h2>Your topic tree</h2><p>Saved across sessions. New sessions add videos to existing categories and grow new branches when needed.</p>
+      <button disabled={!available || busy || !!processing} onClick={() => void resetTree()}>Reset entire tree</button>
       {!review && <p>Finish a scrolling session to discover related topics. Videos are assessed individually without topic labels while you scroll.</p>}
       {review && available && !fullPage && <button onClick={() => void chrome.tabs.create({ url: chrome.runtime.getURL("popup.html?view=summary") })}>Open full summary</button>}
-      {processing && <p role="status">Analyzed {review.analyzed_count ?? review.videos.length} of {review.video_count ?? review.videos.length} videos. Preparing your session tree. You can close this popup and come back.</p>}
+      {processing && <p role="status">Analyzed {review.analyzed_count ?? review.videos.length} of {review.video_count ?? review.videos.length} videos. Updating your saved tree. You can close this popup and come back.</p>}
       {review?.detail && <p className="analysis-note" role="status">{review.detail}</p>}
       {review?.fallback_used && <p className="fallback" role="status">Gemini fallback used for part or all of this classification.</p>}
-      {review && !processing && <><p>{review.video_count ?? review.videos.length} unique videos reviewed. Expand a category and select <strong>See less</strong> using its checkbox. Selecting a parent includes its descendants.</p>
+      {review && <><p>{review.global_video_count ?? review.videos.length} unique videos across sessions. Expand a category and select <strong>See less</strong> using its checkbox. Selecting a parent includes its descendants.</p>
         {review.tree.length > 0 ? <ul className="topic-tree">{review.tree.map(node => <TopicBranch key={node.id} node={node} options={options} videos={videos} busy={busy} select={select} edit={edit} />)}</ul> : <p>No supported topic grouping is available yet.</p>}
         {(review.fallback_video_ids?.length || 0) > 0 && <p className="analysis-note">{review.fallback_video_ids!.length} videos received a General / Other classification because a reliable topic was unavailable. Every video is included in the tree.</p>}
         {(review.unclassified_video_ids?.length || 0) > 0 && <details><summary>{review.unclassified_video_ids!.length} videos without a supported topic</summary><ul>{review.unclassified_video_ids!.map(id => <li key={id}>{videos.get(id)?.title || id}</li>)}</ul></details>}
@@ -141,7 +146,7 @@ function App() {
         <details><summary>Session JSON</summary><pre>{JSON.stringify(review, null, 2)}</pre></details>
       </>}
     </section>
-    {review && <section className="stat-card"><h2>Analyzed video results</h2><p>{review.videos.length} results available{processing ? " so far" : ""}. Expand a result to inspect its comments or JSON.</p>
+    {review && <section className="stat-card"><h2>This session's video results</h2><p>{review.videos.length} results available{processing ? " so far" : ""}. Expand a result to inspect its comments or JSON.</p>
       {review.videos.length ? <ol className="video-results">{review.videos.map(video => <VideoResult key={video.video_id} video={video} />)}</ol> : <p>{processing ? "The first video is being analyzed." : "This session has no analyzed videos."}</p>}
     </section>}
   </main>;

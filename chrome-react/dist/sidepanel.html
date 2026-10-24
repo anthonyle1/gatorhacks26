@@ -31,12 +31,19 @@
         </a>
       </header>
 
-      <!-- Now playing -->
-      <section class="card" aria-labelledby="now-heading">
-        <span class="eyebrow" id="now-heading">Now playing</span>
-        <span class="now__title" id="now-title"></span>
-        <div class="now__badge" id="now-badge"></div>
-        <span class="note" id="now-note"></span>
+      <!-- Session controls -->
+      <section class="card session-card" aria-labelledby="session-heading">
+        <div class="card__row">
+          <span class="eyebrow" id="session-heading">Session tracking</span>
+          <span class="note-sm" id="session-status" role="status">Loading...</span>
+        </div>
+        <div class="card__row">
+          <span class="session__stats" id="session-stats">0:00 &middot; 0 videos</span>
+          <button class="btn btn--dark" id="session-toggle" type="button" disabled>Start tracking</button>
+        </div>
+        <span class="note" id="session-note">Start a session to track YouTube Shorts and Instagram Reels.</span>
+        <p class="session__error" id="session-error" role="alert" hidden></p>
+        <a class="session__review" id="session-review" href="popup.html?view=summary" target="_blank" rel="noopener" hidden>Review latest session</a>
       </section>
 
       <!-- Today so far -->
@@ -69,6 +76,8 @@
 
         <span class="eyebrow">Needs attention</span>
         <div class="branches" id="branches"></div>
+        <button class="btn btn--outline" id="tree-reset" type="button">Reset entire tree</button>
+        <span class="note" id="tree-reset-status" role="status" hidden></span>
 
         <a class="link-card" id="full-tree-link" href="#" target="_blank" rel="noopener">
           <span>See your full tree and prune in detail</span>

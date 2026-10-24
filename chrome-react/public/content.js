@@ -547,7 +547,7 @@ async function processInstagramReel() {
 
 async function startTracking(reset = false) {
   const state = await chrome.storage.local.get("trackingPaused");
-  if (state.trackingPaused) return;
+  if (state.trackingPaused !== false) return;
   clearInterval(trackingInterval);
   clearInterval(commentInterval);
   if (reset) {

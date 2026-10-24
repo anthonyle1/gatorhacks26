@@ -98,10 +98,17 @@ async function finishSnapshot() {
 }
 
 async function sessionControl(message) {
+  if (message.type === "RESET_TOPIC_TREE") {
+    const result = await apiRequest("/local-sessions/taxonomy", { method: "DELETE" });
+    await chrome.storage.local.remove("lastSessionReview");
+    await chrome.storage.local.set({ prunePruned: {}, pruneTreeReset: true });
+    return result;
+  }
   if (message.type === "FINISH_SESSION") return finishScrollingSession();
   if (message.type === "START_SESSION") {
-    const state = await chrome.storage.local.get("finishPending");
+    const state = await chrome.storage.local.get(["finishPending", "trackingPaused", "localSessionId"]);
     if (state.finishPending) throw new Error("Finish the recorded session before starting another.");
+    if (state.trackingPaused === false && state.localSessionId) return { status: "active" };
     await getOrCreateSession();
     await chrome.storage.local.set({ trackingPaused: false, scrollingSession: { durationSeconds: 0, videoCount: 0, currentVideoId: null, currentPlatform: null } });
     const tabs = await sessionTabs();
@@ -115,6 +122,7 @@ async function sessionControl(message) {
     try {
       const review = await apiRequest(base);
       await chrome.storage.local.set({ lastSessionReview: review });
+      if (review.global_video_count > 0) await chrome.storage.local.set({ pruneTreeReset: false });
       return review;
     } catch (error) {
       if (state.lastSessionReview?.session_id === state.lastCompletedLocalSessionId) return { ...state.lastSessionReview, offline: true, detail: "Showing the last saved summary. Start the backend to refresh results." };
@@ -127,7 +135,7 @@ async function sessionControl(message) {
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (!["FINISH_SESSION", "START_SESSION", "SESSION_TAXONOMY", "RETRY_SESSION_TAXONOMY", "TOPIC_PREFERENCE", "EDIT_TOPIC_CATEGORY"].includes(message?.type)) return false;
+  if (!["RESET_TOPIC_TREE", "FINISH_SESSION", "START_SESSION", "SESSION_TAXONOMY", "RETRY_SESSION_TAXONOMY", "TOPIC_PREFERENCE", "EDIT_TOPIC_CATEGORY"].includes(message?.type)) return false;
   sessionControl(message).then(data => sendResponse({ success: true, data })).catch(error => sendResponse({ success: false, error: error.message }));
   return true;
 });

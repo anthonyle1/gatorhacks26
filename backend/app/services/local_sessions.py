@@ -40,6 +40,13 @@ class LocalSessions:
             row = connection.execute("SELECT * FROM local_review_jobs WHERE id=?", (session_id,)).fetchone()
         return dict(row) if row else None
 
+    def reset_tree(self):
+        with self.store.connection() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            if connection.execute("SELECT 1 FROM local_review_jobs WHERE status IN ('pending','processing') LIMIT 1").fetchone():
+                raise ValueError("Wait for session analysis to finish before resetting the tree.")
+            self.store.reset_tree(LOCAL_USER, connection=connection)
+
     def enqueue(self, session_id, payload):
         encoded = json.dumps(payload, sort_keys=True)
         with self.store.connection() as connection:

@@ -129,6 +129,72 @@ class PersistentTaxonomyTests(unittest.TestCase):
         self.store.save_session("s2", "user", {"assignments": assignments})
         self.assertEqual(TopicStore(self.path).view("s2", "user")["assignments"]["v3"], [existing])
 
+    def test_global_tree_survives_reopen_and_updates_historical_reviews(self):
+        root, ai, children = self.example()
+        existing = children["AI Companions"]["id"]
+        nodes = discovery([topic("friend", "AI Companions", videos=["v3"], existing=existing)],
+                          ["v3"], known=[existing])
+        self.store.save_session("s2", "user", {"assignments": self.store.apply_discovery("user", nodes),
+            "videos": [{"video_id": "v3", "title": "AI friend"}]})
+        reopened = TopicStore(self.path)
+        for session_id in ("s1", "s2"):
+            view = reopened.view(session_id, "user")
+            self.assertEqual(view["tree_scope"], "global")
+            self.assertEqual(view["global_video_count"], 3)
+            self.assertEqual(view["tree"][0]["video_ids"], ["v1", "v2", "v3"])
+            self.assertEqual(view["tree"][0]["id"], root["id"])
+        self.assertEqual(set(reopened.view("s2", "user")["assignments"]), {"v3"})
+        pending = reopened.view("not-classified-yet", "user")
+        self.assertEqual(pending["status"], "pending")
+        self.assertEqual(pending["global_video_count"], 3)
+        self.assertIsNone(reopened.view("not-classified-yet", "other-user"))
+
+    def test_repeated_video_moves_to_latest_category_without_double_counting(self):
+        _, _, children = self.example()
+        target = children["AI Art"]["id"]
+        self.store.save_session("s2", "user", {"assignments": {"v1": [target]}, "completed_at": "2026-10-24T12:00:00Z"})
+        view = self.store.view("s1", "user")
+        self.assertEqual(view["global_video_count"], 2)
+        self.assertEqual(view["tree_assignments"]["v1"], [target])
+        branches = {node["name"]: node for node in view["tree"][0]["children"][0]["children"]}
+        self.assertEqual(branches["AI Companions"]["video_count"], 0)
+        self.assertEqual(branches["AI Art"]["video_count"], 2)
+        # Retrying an older session can provide newer evidence than s2.
+        original = children["AI Companions"]["id"]
+        self.store.save_session("s1", "user", {"assignments": {"v1": [original]}, "completed_at": "2026-10-24T13:00:00Z"})
+        self.assertEqual(self.store.view("s2", "user")["tree_assignments"]["v1"], [original])
+
+    def test_candidate_retrieval_includes_matching_branch_ancestors(self):
+        root, ai, children = self.example()
+        catalog = self.store.candidates("user", "AI Companions", limit=3)
+        self.assertEqual({row["id"] for row in catalog}, {root["id"], ai["id"], children["AI Companions"]["id"]})
+
+    def test_reset_clears_history_preferences_and_cached_batches_for_only_this_user(self):
+        root, _, _ = self.example()
+        self.store.set_preference("user", root["id"], True)
+        self.store.save_batch("s1", "user", "fingerprint", {"assignments": {"v1": [root["id"]]}})
+        other = self.store.apply_discovery("other", discovery([topic("music", "Music", videos=["v4"])], ["v4"]))
+        self.store.save_session("other-session", "other", {"assignments": other})
+        self.store.reset_tree("user")
+        view = TopicStore(self.path).view("s1", "user")
+        self.assertEqual(view["tree"], [])
+        self.assertEqual(view["assignments"], {})
+        self.assertEqual(view["global_video_count"], 0)
+        self.assertEqual(view["selected_category_ids"], [])
+        self.assertEqual(self.store.candidates("user"), [])
+        self.assertIsNone(self.store.cached_batch("s1", "user", "fingerprint"))
+        self.assertEqual(self.store.view("other-session", "other")["global_video_count"], 1)
+
+    def test_discovery_cannot_reparent_a_reused_category(self):
+        root, ai, children = self.example()
+        chosen = children["AI Companions"]["id"]
+        nodes = discovery([topic("tech", "Technology", existing=root["id"]),
+                           topic("friend", "AI Friends", "tech", ["v3"], chosen)],
+                          ["v3"], known=[root["id"], chosen])
+        self.store.apply_discovery("user", nodes)
+        catalog = {row["id"]: row for row in self.store.candidates("user")}
+        self.assertEqual(catalog[chosen]["parent_id"], ai["id"])
+
     def test_renames_merges_and_moves_preserve_preferences(self):
         root, ai, children = self.example()
         chosen = children["AI Companions"]["id"]
@@ -183,7 +249,7 @@ class PersistentTaxonomyTests(unittest.TestCase):
         result = classify_session_data("partial", "user", videos, store=self.store, client=client)
         client.prompt.assert_called_once()
         self.assertEqual(result["status"], "complete")
-        self.assertEqual(result["tree"][0]["video_count"], 13)
+        self.assertEqual(next(node for node in result["tree"] if node["name"] == "Valorant")["video_count"], 13)
 
     def test_reused_branch_keeps_ancestors_missing_from_a_batch(self):
         root, ai, children = self.example()
@@ -193,7 +259,7 @@ class PersistentTaxonomyTests(unittest.TestCase):
         self.store.save_session("s2", "user", {"assignments": self.store.apply_discovery("user", result)})
         view = self.store.view("s2", "user")
         self.assertEqual(view["tree"][0]["id"], root["id"])
-        self.assertEqual(view["reduce_video_ids"], ["v3"])
+        self.assertEqual(view["reduce_video_ids"], ["v1", "v2", "v3"])
 
     def test_all_provider_failures_still_classify_every_video(self):
         client = Mock()

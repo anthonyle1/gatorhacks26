@@ -21,6 +21,15 @@ def local_health():
     return {"status": "ok", "storage": "local", "mongodb_required": False}
 
 
+@router.delete("/taxonomy")
+def reset_tree():
+    try:
+        LocalSessions().reset_tree()
+    except ValueError as error:
+        raise HTTPException(409, str(error)) from None
+    return {"status": "reset", "tree": [], "global_video_count": 0}
+
+
 class ReelEvidence(BaseModel):
     model_config = ConfigDict(extra="forbid")
     video_id: str = Field(min_length=1, max_length=120)

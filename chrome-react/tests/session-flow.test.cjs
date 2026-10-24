@@ -14,6 +14,7 @@ function background(failUpload = false) {
     crypto: { randomUUID: () => SESSION_ID },
     console: { log() {}, error() {} },
     chrome: {
+      sidePanel: { async setPanelBehavior() {} },
       storage: { local: {
         async get(key) { return Object.fromEntries((Array.isArray(key) ? key : [key]).map(name => [name, structuredClone(state[name])])); },
         async set(values) { Object.assign(state, structuredClone(values)); },
@@ -61,6 +62,25 @@ test('finish captures the last video and submits one MongoDB-free session snapsh
   assert.equal(JSON.parse(calls[0].options.body).events[0].event_id, 'final-event');
 });
 
+test('Start enables tracking offline and repeated Start preserves active session counters', async () => {
+  const { context, state, calls } = background(true);
+  await context.sessionControl({ type: 'START_SESSION' });
+  assert.equal(state.localSessionId, SESSION_ID);
+  assert.equal(state.trackingPaused, false);
+  assert.equal(state.scrollingSession.durationSeconds, 0);
+  state.scrollingSession.durationSeconds = 42;
+  await context.sessionControl({ type: 'START_SESSION' });
+  assert.equal(state.scrollingSession.durationSeconds, 42);
+  assert.equal(calls.length, 0);
+});
+
+test('Start preserves a session waiting for Finish to retry', async () => {
+  const { context, state } = background();
+  state.finishPending = true;
+  await assert.rejects(context.sessionControl({ type: 'START_SESSION' }), /Finish the recorded session/);
+  assert.equal(state.trackingPaused, undefined);
+});
+
 test('concurrent and repeated Finish requests submit only one snapshot', async () => {
   const { context, calls } = background();
   await Promise.all([context.finishScrollingSession(), context.finishScrollingSession()]);
@@ -90,17 +110,33 @@ test('the latest saved review remains readable when the backend is offline', asy
   assert.equal(result.videos[0].title, 'A video');
 });
 
-function content() {
+test('tree reset clears cached tree only after the backend succeeds', async () => {
+  const setup = background(true);
+  setup.state.lastSessionReview = { tree: [{ id: 'old' }] };
+  setup.state.prunePruned = { old: true };
+  await assert.rejects(setup.context.sessionControl({ type: 'RESET_TOPIC_TREE' }));
+  assert.equal(setup.state.lastSessionReview.tree[0].id, 'old');
+  setup.fail(false);
+  await setup.context.sessionControl({ type: 'RESET_TOPIC_TREE' });
+  assert.equal(setup.calls[1].url, 'http://localhost:8000/local-sessions/taxonomy');
+  assert.equal(setup.calls[1].options.method, 'DELETE');
+  assert.equal(setup.state.lastSessionReview, undefined);
+  assert.deepEqual(setup.state.prunePruned, {});
+  assert.equal(setup.state.pruneTreeReset, true);
+});
+
+function content(trackingPaused = true) {
   const listeners = [];
   const messages = [];
+  const intervals = [];
   const context = {
     console: { log() {}, warn() {}, error() {} },
     crypto: { randomUUID: () => 'stable-event-id' },
-    setInterval() { return 1; }, clearInterval() {},
+    setInterval(callback) { intervals.push(callback); return intervals.length; }, clearInterval() {},
     window: { location: { hostname: 'www.youtube.com', pathname: '/shorts/first' }, addEventListener() {} },
     document: { title: 'First video title', hidden: false, querySelector() { return null; } },
     chrome: {
-      storage: { local: { async get() { return { trackingPaused: true }; }, async set() {} } },
+      storage: { local: { async get() { return { trackingPaused }; }, async set() {} } },
       runtime: {
         lastError: undefined,
         onMessage: { addListener(listener) { listeners.push(listener); } },
@@ -110,8 +146,17 @@ function content() {
   };
   vm.createContext(context);
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/content.js'), 'utf8'), context);
-  return { context, listeners, messages };
+  return { context, listeners, messages, intervals };
 }
+
+test('a fresh install waits for Start before running tracking intervals', async () => {
+  const idle = content(null);
+  await idle.context.startTracking();
+  assert.equal(idle.intervals.length, 0);
+  const active = content(false);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(active.intervals.length, 2);
+});
 
 test('navigation sends the previous video metadata with its original identity', async () => {
   const { context, messages } = content();

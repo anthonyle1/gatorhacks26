@@ -45,8 +45,8 @@ button {
 .panel {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 20px 20px 28px;
+  gap: 10px;
+  padding: 12px 12px 18px;
   min-width: 320px;
 }
 
@@ -68,8 +68,8 @@ button {
   letter-spacing: -0.3px;
 }
 .icon-btn {
-  width: 44px;
-  height: 44px;
+  width: 34px;
+  height: 34px;
   flex-shrink: 0;
   border-radius: 12px;
   border: 1px solid var(--border);
@@ -89,11 +89,11 @@ button {
 .card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 16px;
+  border-radius: 12px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 .card__row {
   display: flex;
@@ -131,27 +131,16 @@ button {
   line-height: 1.45;
 }
 
-/* ---------- Now playing ---------- */
-#now-heading + .now__title {
-  margin-top: -2px;
+/* ---------- Session controls ---------- */
+.session__stats {
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
-.card:has(#now-heading) {
-  gap: 10px;
-}
-.now__title {
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 1.35;
-  overflow-wrap: anywhere;
-}
-.now__badge {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.now__badge:empty {
-  display: none;
-}
+.session-card .btn { flex-shrink: 0; }
+.session__error { margin: 0; color: #973b32; font-size: 12px; overflow-wrap: anywhere; }
+.session__review { font-size: 12px; font-weight: 600; text-underline-offset: 3px; }
+.btn:disabled { opacity: .55; cursor: default; }
 
 /* ---------- Chips ---------- */
 .chip {
@@ -222,7 +211,7 @@ button {
 /* ---------- Tree ---------- */
 .tree {
   width: 100%;
-  max-width: 340px;
+  max-width: 220px;
   aspect-ratio: 340 / 330;
   align-self: center;
 }
@@ -256,8 +245,8 @@ button {
   font-weight: 600;
 }
 .btn {
-  min-height: 44px;
-  padding: 0 14px;
+  min-height: 34px;
+  padding: 0 10px;
   border-radius: 12px;
   border: 0;
   font-size: 13px;
@@ -277,7 +266,7 @@ button {
   color: var(--ink);
 }
 .link-card {
-  min-height: 48px;
+  min-height: 38px;
   border-radius: 12px;
   background: #eef6ef;
   border: 1px solid #b9d8c1;
@@ -305,7 +294,7 @@ button {
 .cal__grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 6px;
+  gap: 4px;
 }
 .cal__week {
   font-size: 12px;
@@ -314,7 +303,7 @@ button {
   text-align: center;
 }
 .cal__cell {
-  height: 40px;
+  height: 30px;
   border-radius: 8px;
   display: flex;
   align-items: center;
