@@ -12,6 +12,11 @@ The API still requires the existing `MONGODB_URI` setting at startup.
 Analysis does not read or write MongoDB. Add `YOUTUBE_API_KEY` to `backend/.env`
 only if you want the API to fetch comments itself.
 
+YouTube parsing and fetching are shared through `app/youtube.py`. Both the
+analysis video route and `/youtube/comments/{video_id}` use its fetcher. The
+YouTube comments route keeps its top-ten ranking by likes within a relevance
+sample; the analysis route samples newest comments with pagination.
+
 The first nonempty request downloads the public model from Hugging Face. Later
 requests reuse it in memory and subsequent starts use the Hugging Face disk cache.
 Inference runs locally on CPU. Long comments are truncated to 512 model tokens;

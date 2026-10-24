@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 from app.config import settings
 from .analyzer import ModelUnavailableError, get_analyzer
-from .youtube import YouTubeError, fetch_video_comments, parse_comments
+from app.youtube import YouTubeError, fetch_video_comments, parse_comments
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
 

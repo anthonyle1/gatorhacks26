@@ -1,11 +1,10 @@
-import io
-import json
 import unittest
 from unittest.mock import Mock, patch
-from urllib.error import HTTPError
+
+import httpx
 
 from analysis.analyzer import SentimentAnalyzer, preprocess
-from analysis.youtube import Comment, YouTubeError, fetch_video_comments, parse_comments
+from app.youtube import Comment, YouTubeError, fetch_video_comments, parse_comments
 
 
 def resource(comment_id, text):
@@ -97,32 +96,39 @@ class AnalysisTests(unittest.TestCase):
 
 
 class YouTubeTests(unittest.TestCase):
-    @patch("analysis.youtube.urlopen")
-    def test_pagination_and_sample_limit(self, urlopen):
+    @patch("app.youtube.httpx.Client")
+    def test_pagination_and_sample_limit(self, client_class):
         first = {"items": [{"snippet": {"topLevelComment": resource(str(i), "text")}}
                            for i in range(100)], "nextPageToken": "page2"}
         second = {"items": [{"snippet": {"topLevelComment": resource("100", "last")}}],
                   "nextPageToken": "page3"}
-        urlopen.side_effect = [io.BytesIO(json.dumps(page).encode()) for page in (first, second)]
+        client = client_class.return_value.__enter__.return_value
+        client.get.side_effect = [Mock(json=Mock(return_value=page)) for page in (first, second)]
         result = fetch_video_comments("abcdefghijk", "test-key", 101)
         self.assertEqual(len(parse_comments(result)), 101)
         self.assertEqual(result["nextPageToken"], "page3")
-        self.assertIn("pageToken=page2", urlopen.call_args.args[0])
-        self.assertIn("maxResults=1&", urlopen.call_args.args[0] + "&")
+        self.assertEqual(client.get.call_args.kwargs["params"]["pageToken"], "page2")
+        self.assertEqual(client.get.call_args.kwargs["params"]["maxResults"], 1)
+        self.assertEqual(client.get.call_args.kwargs["params"]["order"], "time")
 
-    @patch("analysis.youtube.urlopen")
-    def test_upstream_error_does_not_leak_key(self, urlopen):
-        urlopen.side_effect = HTTPError("https://example.com?key=secret", 403, "denied", {}, None)
+    @patch("app.youtube.httpx.Client")
+    def test_upstream_error_does_not_leak_key(self, client_class):
+        request = httpx.Request("GET", "https://example.com?key=secret")
+        response = httpx.Response(403, request=request)
+        client = client_class.return_value.__enter__.return_value
+        client.get.side_effect = httpx.HTTPStatusError("denied", request=request, response=response)
         with self.assertRaises(YouTubeError) as raised:
             fetch_video_comments("abcdefghijk", "secret")
         self.assertNotIn("secret", str(raised.exception))
         self.assertIn("403", str(raised.exception))
+        self.assertEqual(raised.exception.status_code, 403)
 
-    @patch("analysis.youtube.urlopen")
-    def test_empty_and_malformed_upstream_response(self, urlopen):
-        urlopen.return_value = io.BytesIO(b'{"items": []}')
+    @patch("app.youtube.httpx.Client")
+    def test_empty_and_malformed_upstream_response(self, client_class):
+        client = client_class.return_value.__enter__.return_value
+        client.get.return_value.json.return_value = {"items": []}
         self.assertEqual(fetch_video_comments("abcdefghijk", "key")["items"], [])
-        urlopen.return_value = io.BytesIO(b'{"unexpected": true}')
+        client.get.return_value.json.return_value = {"unexpected": True}
         with self.assertRaises(YouTubeError):
             fetch_video_comments("abcdefghijk", "key")
 

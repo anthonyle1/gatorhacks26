@@ -3,7 +3,7 @@
 from functools import lru_cache
 from threading import Lock
 
-from .youtube import Comment, parse_comments
+from app.youtube import Comment, parse_comments
 
 MODEL_ID = "cardiffnlp/twitter-roberta-base-sentiment-latest"
 LABELS = ("negative", "neutral", "positive")

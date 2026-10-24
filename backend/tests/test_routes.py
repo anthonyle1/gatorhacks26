@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 with patch.dict(os.environ, {"MONGODB_URI": "mongodb://localhost:27017"}):
     from analysis.routes import router
 from analysis.analyzer import ModelUnavailableError, SentimentAnalyzer
-from analysis.youtube import YouTubeError
+from app.youtube import YouTubeError
 
 
 class RouteTests(unittest.TestCase):
