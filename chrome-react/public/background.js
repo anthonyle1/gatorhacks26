@@ -1,5 +1,12 @@
 const API_BASE = "http://localhost:8000";
 
+// Open the Prune side panel when the toolbar icon is clicked.
+chrome.sidePanel
+  .setPanelBehavior({ openPanelOnActionClick: true })
+  .catch(error => {
+    console.error("Side panel setup failed:", error);
+  });
+
 async function apiRequest(path, options = {}) {
   const response = await fetch(`${API_BASE}${path}`, {
     ...options,

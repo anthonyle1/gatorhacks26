@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Prune</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Inter:wght@400;500;600&display=swap"
+    />
+    <link rel="stylesheet" href="sidepanel.css" />
+  </head>
+  <body>
+    <main class="panel">
+      <header class="head">
+        <div class="brand">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2E6B45" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 21v-7" />
+            <path d="M12 14c-4 0-7-3-7-8 5 0 7 3 7 8z" />
+            <path d="M12 14c0-4 2.5-7 7-7 0 4.5-3 7-7 7z" />
+          </svg>
+          <span class="brand__name">Prune</span>
+        </div>
+        <a class="icon-btn" id="settings-link" href="#" target="_blank" rel="noopener" aria-label="Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F3A2E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
+          </svg>
+        </a>
+      </header>
+
+      <!-- Now playing -->
+      <section class="card" aria-labelledby="now-heading">
+        <span class="eyebrow" id="now-heading">Now playing</span>
+        <span class="now__title" id="now-title"></span>
+        <div class="now__badge" id="now-badge"></div>
+        <span class="note" id="now-note"></span>
+      </section>
+
+      <!-- Today so far -->
+      <section class="card" aria-labelledby="today-heading">
+        <div class="card__row card__row--baseline">
+          <span class="eyebrow" id="today-heading">Today so far</span>
+          <span class="note-sm" id="today-count"></span>
+        </div>
+        <div class="meter" id="meter" role="img" aria-label="How hostile your Shorts have been today">
+          <div class="meter__seg meter__seg--calm"></div>
+          <div class="meter__seg meter__seg--some"></div>
+          <div class="meter__seg meter__seg--heavy"></div>
+          <div class="meter__marker" id="meter-marker" hidden></div>
+        </div>
+        <div class="meter__labels"><span>Calm</span><span>Some</span><span>Heavy</span></div>
+        <span class="today__summary" id="today-summary"></span>
+      </section>
+
+      <!-- Feed tree -->
+      <section class="card" aria-labelledby="tree-heading">
+        <div class="card__row">
+          <span class="h2" id="tree-heading">Your feed tree</span>
+          <span class="chip chip--sm" id="tree-health"></span>
+        </div>
+        <span class="note">
+          Each branch is a kind of content you watch. Withered branches are where the hostility grows. Prune them to
+          clean up your feed.
+        </span>
+        <div class="tree" id="tree"></div>
+
+        <span class="eyebrow">Needs attention</span>
+        <div class="branches" id="branches"></div>
+
+        <a class="link-card" id="full-tree-link" href="#" target="_blank" rel="noopener">
+          <span>See your full tree and prune in detail</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F3A2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M7 17 17 7" />
+            <path d="M8 7h9v9" />
+          </svg>
+        </a>
+        <span class="fine">Showing your biggest categories only. The full garden opens on the Prune website.</span>
+      </section>
+
+      <!-- Calendar -->
+      <section class="card" aria-labelledby="cal-heading">
+        <div class="card__row">
+          <span class="h2" id="cal-heading"></span>
+          <div class="cal__nav">
+            <button class="icon-btn" id="cal-prev" type="button" aria-label="Previous month">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F3A2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+            </button>
+            <button class="icon-btn" id="cal-next" type="button" aria-label="Next month">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F3A2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+            </button>
+          </div>
+        </div>
+        <div class="cal__week" aria-hidden="true">
+          <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+        </div>
+        <div class="cal__grid" id="cal-grid"></div>
+        <div class="cal__legend">
+          <span><i class="swatch swatch--calm"></i>Calm</span>
+          <span><i class="swatch swatch--some"></i>Some</span>
+          <span><i class="swatch swatch--heavy"></i>Heavy</span>
+        </div>
+        <span class="note">Tap a day to see your tree on that day.</span>
+      </section>
+
+      <div class="foot">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B6B62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 16v-4" />
+          <path d="M12 8h.01" />
+        </svg>
+        <span>
+          Hostility means comments that demean or attack a real person. Scores are estimated by AI from each video's
+          comments. <a id="measure-link" href="#" target="_blank" rel="noopener">How we measure this</a>
+        </span>
+      </div>
+    </main>
+
+    <script src="sidepanel.js"></script>
+  </body>
+</html>
