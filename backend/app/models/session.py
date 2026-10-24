@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 from pydantic import BaseModel, Field, field_validator
 from typing import Literal
 
@@ -12,6 +13,9 @@ class SessionCreate(BaseModel):
 class VideoEvent(BaseModel):
     event_id: str = Field(min_length=1)
     video_id: str = Field(min_length=1)
+    platform: Literal["youtube", "instagram"] = "youtube"
+    title: str = Field(default="", max_length=1000)
+    caption: str = Field(default="", max_length=16000)
     sequence_number: int = Field(ge=1)
     started_at: datetime
     ended_at: datetime | None = None

@@ -6,7 +6,7 @@ from app.config import settings
 from app.database import db
 from app.services.analysis_storage import save_roberta_analysis
 from analysis.analyzer import get_analyzer
-from app.youtube import fetch_video_comments
+from app.youtube import fetch_video_comments, fetch_video_metadata, YouTubeError
 
 logger = logging.getLogger(__name__)
 
@@ -43,21 +43,18 @@ async def process_video_analysis(video_id: str):
         if not settings.youtube_api_key:
             raise RuntimeError("YOUTUBE_API_KEY is not configured")
 
+        metadata = await run_in_threadpool(fetch_video_metadata, video_id, settings.youtube_api_key)
+        await db.video_analyses.update_one({"video_id": video_id}, {"$set": {"metadata": metadata, "platform": "youtube"}})
+
         # YouTube fetching is synchronous.
-        response = await run_in_threadpool(
-            fetch_video_comments, video_id, settings.youtube_api_key, 20
-        )
+        try:
+            response = await run_in_threadpool(fetch_video_comments, video_id, settings.youtube_api_key, 20)
+        except YouTubeError:
+            # Metadata can still support session topics when comments are disabled.
+            response = {"items": []}
 
         # Model inference is also synchronous.
         result = await run_in_threadpool(get_analyzer().analyze_response, response)
-
-        # No comments means there's no sentiment to assess.
-        if result["summary"]["total_comments"] == 0:
-            await db.video_analyses.update_one(
-                {"video_id": video_id},
-                {"$set": {"analysis_status": "unavailable"}}
-            )
-            return
 
         await save_roberta_analysis(video_id, result)
 

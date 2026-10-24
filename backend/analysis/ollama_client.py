@@ -12,7 +12,6 @@ from dotenv import load_dotenv
 
 DEFAULT_MODEL = "gemma4:e2b"
 
-
 class OllamaError(RuntimeError):
     """Ollama is unavailable or could not complete a prompt."""
 

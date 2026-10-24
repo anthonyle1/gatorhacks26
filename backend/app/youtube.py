@@ -151,6 +151,21 @@ class YouTubeError(RuntimeError):
         self.status_code = status_code
 
 
+def fetch_video_metadata(video_id: str, api_key: str) -> dict:
+    try:
+        with httpx.Client(timeout=20) as client:
+            response = client.get("https://www.googleapis.com/youtube/v3/videos",
+                                  params={"part": "snippet", "id": video_id, "key": api_key})
+            response.raise_for_status()
+            items = response.json().get("items", [])
+            if not items:
+                raise YouTubeError("Video metadata is unavailable", status_code=404)
+            snippet = items[0]["snippet"]
+            return {"title": snippet.get("title", "")[:1000], "caption": snippet.get("description", "")[:16000]}
+    except (httpx.HTTPError, ValueError, KeyError, TypeError):
+        raise YouTubeError("Could not fetch video metadata; check availability and API configuration") from None
+
+
 def fetch_video_comments(
     video_id: str, api_key: str, max_comments: int = 100, *, order: str = "time"
 ) -> dict:
