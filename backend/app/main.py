@@ -7,6 +7,7 @@ from fastapi import FastAPI, HTTPException
 
 from app.youtube import router as youtube_router
 from app.database import ping_database
+from app.routes.sessions import router as sessions_router
 
 # Load environment variables
 load_dotenv()
@@ -14,8 +15,15 @@ load_dotenv()
 # Initialize FastAPI
 app = FastAPI(title="Healthy Doomscrolling API")
 
-# Register YouTube comments endpoint from youtube.py
+app.include_router(sessions_router)
 app.include_router(youtube_router)
+
+@app.get("/")
+def root():
+    return {
+        "message": "Healthy Doomscrolling API",
+        "status": "running"
+    }
 
 # YouTube API key
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
