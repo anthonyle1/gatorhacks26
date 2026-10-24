@@ -10,6 +10,7 @@ from app.database import ping_database
 from app.routes.sessions import router as sessions_router
 from app.routes.videos import router as videos_router
 from analysis.routes import router as analysis_router
+from app.routes.hostility import router as hostility_router
 
 # Load environment variables
 load_dotenv()
@@ -22,6 +23,7 @@ app.include_router(youtube_router)
 app.include_router(analysis_router)
 app.include_router(instagram_router)
 app.include_router(videos_router)
+app.include_router(hostility_router)
 
 @app.get("/")
 def root():
