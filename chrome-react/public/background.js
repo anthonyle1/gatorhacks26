@@ -20,39 +20,45 @@ async function apiRequest(path, options = {}) {
   return response.json();
 }
 
-// Create a backend session if one does not exist.
-async function getOrCreateSession() {
+const PLATFORM_NAMES = {
+  youtube: "youtube_shorts",
+  instagram: "instagram_reels"
+};
+
+async function getOrCreateSession(platform) {
   const data = await chrome.storage.local.get(
-    "backendSessionId"
+    "backendSessionIds"
   );
 
-  if (data.backendSessionId) {
-    return data.backendSessionId;
+  const sessionIds = data.backendSessionIds || {};
+
+  if (sessionIds[platform]) {
+    return sessionIds[platform];
   }
 
   const result = await apiRequest("/sessions", {
     method: "POST",
     body: JSON.stringify({
       user_id: USER_ID,
-      platform: "youtube_shorts",
+      platform: PLATFORM_NAMES[platform],
       goal_minutes: 15
     })
   });
 
-  await chrome.storage.local.set({
-    backendSessionId: result.session_id
-  });
+  sessionIds[platform] = result.session_id;
 
-  console.log(
-    "Backend session created:",
-    result.session_id
-  );
+  await chrome.storage.local.set({
+    backendSessionIds: sessionIds
+  });
 
   return result.session_id;
 }
 
-// Save an event locally before uploading.
 async function queueEvent(event) {
+  if (!PLATFORM_NAMES[event.platform]) {
+    throw new Error("Unsupported video platform");
+  }
+
   const data = await chrome.storage.local.get(
     "pendingEvents"
   );
@@ -70,34 +76,34 @@ async function queueEvent(event) {
   });
 }
 
-// Upload locally stored events.
 async function syncEvents() {
-  const data = await chrome.storage.local.get(
-    "pendingEvents"
-  );
-
-  const pending = data.pendingEvents || [];
-
-  if (pending.length === 0) {
-    return { synced: 0 };
-  }
-
-  const sessionId = await getOrCreateSession();
-
-  // Backend accepts at most 100 events per batch.
   let synced = 0;
 
   while (true) {
     const stored = await chrome.storage.local.get(
       "pendingEvents"
     );
+
     const events = stored.pendingEvents || [];
 
-    if (events.length === 0) {
-      break;
-    }
+    if (events.length === 0) break;
 
-    const batch = events.slice(0, 100);
+    // Group uploads by platform so each batch
+    // belongs to the correct session.
+    const platform = events[0].platform || "youtube";
+
+    const batch = events
+      .filter(event =>
+        (event.platform || "youtube") === platform
+      )
+      .slice(0, 100)
+      .map(event => ({
+        ...event,
+        platform
+      }));
+
+    const sessionId =
+      await getOrCreateSession(platform);
 
     await apiRequest(
       `/sessions/${sessionId}/events`,
@@ -113,23 +119,19 @@ async function syncEvents() {
       batch.map(event => event.event_id)
     );
 
-    const remaining = events.filter(
-      event => !uploadedIds.has(event.event_id)
-    );
-
     await chrome.storage.local.set({
-      pendingEvents: remaining
+      pendingEvents: events.filter(
+        event => !uploadedIds.has(event.event_id)
+      )
     });
 
     synced += batch.length;
   }
 
-  console.log("Events synced:", synced);
-
   return { synced };
 }
 
-// Serialize messages to avoid overlapping writes.
+// Prevent simultaneous writes from overlapping.
 let syncQueue = Promise.resolve();
 
 chrome.runtime.onMessage.addListener(
@@ -154,7 +156,7 @@ chrome.runtime.onMessage.addListener(
       })
       .catch(error => {
         console.error(
-          "Backend synchronization failed:",
+          "Video synchronization failed:",
           error
         );
 
