@@ -1,340 +1,409 @@
-video_id,feed,category,n_comments,negative_share,hostility_rate,level
--AKbl_Rai1M,conflict,kpop live vocals,194,0.093,0.0,calm
--CcFhRP3Zk8,conflict,influencer drama,175,0.549,0.411,heavy
--T5vRERtMro,conflict,who did it better kpop,186,0.059,0.0,calm
--mXoROKX8Vk,conflict,influencer drama,194,0.51,0.255,heavy
--nmRlTogqrQ,normal,unknown,194,0.242,0.0,calm
-01VnVAcRCEI,normal,unknown,191,0.115,0.0,calm
-0IpqIp5AxHc,normal,unknown,195,0.369,0.0,calm
-0Ux6KO8JYE4,conflict,what I eat in a day,43,0.07,0.0,calm
-1Vx7EmNOl24,conflict,kpop dance practice,182,0.011,0.005,calm
-1jwzqrNFRCo,normal,unknown,85,0.435,0.0,calm
-1sFHss7ZkvE,conflict,kpop dance practice,198,0.056,0.0,calm
-27dWxNT_rRg,conflict,what I eat in a day,77,0.143,0.0,calm
-2QDrAKdnw_g,conflict,worst youtuber apology videos,48,0.771,0.385,heavy
-2X9QoWcICd0,conflict,kpop dance practice,195,0.067,0.0,calm
-2phgJGo9fv4,normal,unknown,115,0.07,0.0,calm
-2q1eK59pkGE,normal,unknown,108,0.519,0.415,heavy
-3-4xEVg_R_Q,normal,unknown,32,0.375,0.0,calm
-3Qy4wT2WXP0,conflict,who did it better kpop,35,0.257,0.129,heavy
-3gprdSxOBD4,conflict,influencer drama,128,0.078,0.0,calm
-3yRsBv8cFps,normal,unknown,192,0.182,0.061,some
-4IpOEug7OWM,normal,unknown,76,0.553,0.0,calm
-4QE3uqhJPCw,normal,unknown,39,0.256,0.0,calm
-4Rq5z_lw-MY,conflict,influencer drama,194,0.567,0.284,heavy
-4azDK-3FPww,normal,unknown,53,0.113,0.0,calm
-4pHzStTtrJY,conflict,kpop dance practice,196,0.066,0.033,some
-5GODPQBB2xA,conflict,influencer drama,49,0.204,0.051,some
-5IP-JuUx4pE,normal,unknown,192,0.448,0.179,heavy
-5KolIvelmJI,conflict,what I eat in a day,190,0.111,0.0,calm
-5OaSecZbqU4,conflict,worst youtuber apology videos,196,0.449,0.337,heavy
-5QhzdokHT8E,normal,unknown,180,0.217,0.217,heavy
-5bcy6M36VvE,normal,unknown,195,0.236,0.236,heavy
-5fWJGsUYbuk,normal,unknown,195,0.215,0.0,calm
-5fwFdzYcEcQ,normal,unknown,197,0.244,0.0,calm
-5wj962skosI,conflict,kpop dance practice,197,0.066,0.0,calm
-6GabtuSHJSE,conflict,worst youtuber apology videos,131,0.435,0.218,heavy
-6hgBsv8ebAE,conflict,kpop fancam,169,0.101,0.0,calm
-74ygh85wzl8,normal,unknown,197,0.477,0.239,heavy
-7MVYNSRDvqc,conflict,kpop dance practice,200,0.04,0.0,calm
-7kjNEOFiWPQ,conflict,kpop fancam,118,0.068,0.0,calm
-7xbwN734PRg,conflict,kpop dance practice,186,0.086,0.086,some
-888u0m9DyDU,conflict,outfit of the day,150,0.1,0.06,some
-89am3Ae1kuk,conflict,what I eat in a day,187,0.091,0.0,calm
-8Dh4hP0GFwU,normal,unknown,51,0.275,0.0,calm
-8RG4dhuvAWk,normal,unknown,115,0.383,0.096,some
-8W5TWR74Mms,conflict,kpop dance practice,196,0.036,0.0,calm
-8ch3EwjNuZQ,conflict,kpop live vocals,145,0.103,0.103,heavy
-8mLsh1nBz3Q,normal,unknown,135,0.57,0.285,heavy
-8r3OsHfKI2I,normal,unknown,191,0.236,0.0,calm
-912uK-RJRy8,normal,unknown,194,0.211,0.0,calm
-93QxCAiVki8,conflict,who did it better kpop,70,0.029,0.029,calm
-97FTrekxsvI,conflict,kpop live vocals,177,0.412,0.0,calm
-9AP2eQ0m9f8,normal,unknown,197,0.457,0.0,calm
-9KZh6_83x8E,normal,unknown,23,0.435,0.0,calm
-9bLxmvYUYhw,conflict,what I eat in a day,155,0.026,0.0,calm
-A74gdgznqZY,conflict,who did it better kpop,198,0.313,0.0,calm
-A81_6xf5AIs,conflict,what I eat in a day,33,0.061,0.0,calm
-ARfn9QKOl4E,normal,unknown,176,0.193,0.0,calm
-Abw4AEsGqAY,normal,unknown,183,0.355,0.118,heavy
-Ag5OE3tZcYk,normal,unknown,121,0.223,0.0,calm
-BBw-lJivY5Q,normal,unknown,26,0.231,0.115,heavy
-BWk2M9mCAy4,conflict,influencer drama,195,0.595,0.198,heavy
-B_2ujESOdVo,normal,unknown,130,0.631,0.0,calm
-BwM4qJZtu7M,conflict,kpop live vocals,182,0.209,0.104,heavy
-ByeFGzwq9pE,normal,unknown,187,0.396,0.079,some
-CDA4gM_I2I0,normal,unknown,44,0.341,0.114,heavy
-CVBqbfZFL0M,conflict,kpop fancam,194,0.412,0.103,heavy
-CoLqLEjNYwc,conflict,worst youtuber apology videos,43,0.628,0.314,heavy
-D2ZSRKx41s8,conflict,worst youtuber apology videos,73,0.644,0.0,calm
-DQjRyF9fVFM,conflict,influencer drama,88,0.67,0.67,heavy
-DSopPk5Dmtk,conflict,worst youtuber apology videos,198,0.606,0.0,calm
-DfR2S-qmKfM,conflict,kpop fancam,40,0.2,0.0,calm
-DsObQDD-1n0,normal,unknown,189,0.344,0.0,calm
-E0d63gIV2qI,conflict,kpop live vocals,161,0.248,0.083,some
-EBDoYmEAnXQ,conflict,what I eat in a day,42,0.119,0.0,calm
-EHKeXZgYn0I,conflict,kpop live vocals,20,0.05,0.0,calm
-EWfmbhaKH8M,normal,unknown,193,0.249,0.041,some
-Ei9yM2BnKtw,normal,unknown,21,0.238,0.0,calm
-EnkccTB3OxM,conflict,kpop live vocals,195,0.138,0.138,heavy
-Epw0BSz54rQ,conflict,outfit of the day,190,0.037,0.0,calm
-Eqh-KUBM9pA,conflict,kpop live vocals,89,0.09,0.0,calm
-F1KgsNj907U,normal,unknown,33,0.303,0.0,calm
-FQbgQr2Uz-8,conflict,kpop dance practice,183,0.049,0.0,calm
-FULWOtqChAc,conflict,kpop dance practice,142,0.31,0.0,calm
-G-gH7Ojch_0,normal,unknown,46,0.239,0.0,calm
-G60zVFwmf04,conflict,what I eat in a day,198,0.081,0.016,calm
-GElYCFkr7xU,conflict,worst youtuber apology videos,197,0.635,0.212,heavy
-GFxy_iy4cdA,normal,unknown,39,0.308,0.308,heavy
-GOTnxwp3hkA,conflict,what I eat in a day,161,0.13,0.0,calm
-GcwpcK3eqqQ,conflict,kpop live vocals,186,0.081,0.0,calm
-GlvsnVnw5ms,conflict,worst youtuber apology videos,162,0.506,0.253,heavy
-GnvlpgCZ9WQ,normal,unknown,39,0.231,0.231,heavy
-Go5yfL8SfBI,normal,unknown,60,0.35,0.0,calm
-H-srUzlcZH0,normal,unknown,193,0.176,0.0,calm
-ITwGzlD6ilc,normal,unknown,104,0.298,0.298,heavy
-IyTQoLnWMhs,conflict,worst youtuber apology videos,155,0.503,0.0,calm
-JNfmmwXXHhU,conflict,outfit of the day,196,0.214,0.0,calm
-JNlNM_tlres,conflict,what I eat in a day,192,0.24,0.0,calm
-JODIlxvhhdM,conflict,kpop fancam,129,0.14,0.035,some
-JTP7OXqagZg,conflict,kpop live vocals,171,0.24,0.144,heavy
-JzwBK6Xe5MQ,normal,unknown,60,0.133,0.0,calm
-KS0LhlB6ESk,conflict,what I eat in a day,172,0.064,0.0,calm
-KUkvNNFKY1U,conflict,what I eat in a day,57,0.158,0.0,calm
-Kbnd-4AXfXA,normal,unknown,193,0.508,0.0,calm
-Kj7KHmInL5U,conflict,kpop dance practice,187,0.016,0.0,calm
-LI5ZR0RBxqE,conflict,influencer drama,26,0.231,0.154,heavy
-LIeZfSXVzck,conflict,influencer drama,139,0.518,0.259,heavy
-LLAqxiP5iLc,conflict,kpop dance practice,174,0.259,0.0,calm
-LLqTJZuaIaE,conflict,kpop live vocals,174,0.379,0.379,heavy
-LmOo7jTLxJQ,conflict,kpop fancam,184,0.429,0.0,calm
-MCKFdxYYRps,conflict,kpop dance practice,199,0.065,0.0,calm
-MKPl3UCZuPQ,normal,unknown,85,0.482,0.0,calm
-MQddDRHeGS8,normal,unknown,172,0.517,0.0,calm
-NHuYYlqphCA,normal,unknown,195,0.395,0.0,calm
-NJgvYjHgo-g,conflict,kpop fancam,27,0.148,0.0,calm
-NSE8uC3ZwC4,conflict,worst youtuber apology videos,196,0.469,0.469,heavy
-Nf6RnVybKTM,normal,unknown,76,0.355,0.118,heavy
-NiCAk_VMkTc,conflict,kpop live vocals,185,0.151,0.0,calm
-Nj3cDHxiIec,conflict,worst youtuber apology videos,119,0.471,0.0,calm
-Nv4q__IwasQ,conflict,kpop dance practice,178,0.073,0.0,calm
-O34NhVbFNGg,conflict,kpop fancam,184,0.152,0.152,heavy
-O96UmhbL7wA,normal,unknown,24,0.417,0.417,heavy
-OAGAw4fRQyE,conflict,worst youtuber apology videos,26,0.423,0.0,calm
-OGeWYj-0e40,conflict,who did it better kpop,195,0.395,0.0,calm
-OJXpONo57AQ,conflict,influencer drama,178,0.528,0.264,heavy
-OXHI5vACvig,normal,unknown,189,0.143,0.0,calm
-OiQrVMZYEnI,conflict,worst youtuber apology videos,152,0.362,0.06,some
-On6Bicyx2N4,conflict,what I eat in a day,184,0.217,0.072,some
-OuQ2phq5VO0,conflict,what I eat in a day,116,0.276,0.0,calm
-OvnRhoE5rRQ,normal,unknown,173,0.237,0.0,calm
-P4Z5L18ZmNE,conflict,kpop dance practice,192,0.073,0.0,calm
-PhF5BpG8ov4,normal,unknown,134,0.119,0.0,calm
-PhLAnjFcwJ8,conflict,influencer drama,199,0.176,0.176,heavy
-PpMBjx_H8MQ,conflict,influencer drama,171,0.462,0.185,heavy
-Q21I0FIrBEw,normal,unknown,193,0.233,0.058,some
-Q9bF4Vk2_30,normal,unknown,198,0.111,0.0,calm
-R7EkX9n_o_o,conflict,outfit of the day,90,0.378,0.094,some
-RG5XEG5ymXI,normal,unknown,54,0.222,0.0,calm
-RGnVSUmVUyo,conflict,kpop live vocals,191,0.105,0.052,some
-RK52DuFILAk,conflict,worst youtuber apology videos,194,0.119,0.03,calm
-RKc2AWfUbQU,normal,unknown,197,0.203,0.0,calm
-RLlSuxvZHpE,conflict,kpop dance practice,169,0.047,0.0,calm
-RhqJc418n2w,normal,unknown,195,0.174,0.0,calm
-SQB0FxBb1ZY,conflict,influencer drama,35,0.486,0.324,heavy
-SXhIJ6R1KkI,conflict,worst youtuber apology videos,195,0.262,0.131,heavy
-TcdjVQNDDc4,conflict,outfit of the day,95,0.095,0.063,some
-Tnguqp5WcYc,normal,unknown,143,0.51,0.34,heavy
-TqMDnKJLV0o,conflict,what I eat in a day,184,0.239,0.0,calm
-Ty6R6HH4zcM,conflict,kpop fancam,56,0.107,0.0,calm
-UTkZvRfDnfo,conflict,worst youtuber apology videos,175,0.594,0.297,heavy
-UcJPwLP7Bcw,conflict,influencer drama,171,0.345,0.115,heavy
-UrxxmuOiQAw,normal,unknown,45,0.311,0.0,calm
-VD8c-6p1N8A,conflict,what I eat in a day,194,0.299,0.0,calm
-VaiQeA1Nc5s,conflict,what I eat in a day,196,0.347,0.347,heavy
-Vb9mqaaD2uk,normal,unknown,182,0.44,0.147,heavy
-VhSYspeCY3g,normal,unknown,191,0.188,0.0,calm
-VlrGbGUF5_U,conflict,kpop dance practice,188,0.032,0.0,calm
-Vw8M_hU5F4A,normal,unknown,189,0.19,0.0,calm
-W4UUO7zbTwM,normal,unknown,47,0.447,0.0,calm
-WD_ZDwOYAls,normal,unknown,151,0.397,0.0,calm
-WLklsykfalU,normal,unknown,86,0.326,0.326,heavy
-WTzybZBG8MI,conflict,who did it better kpop,185,0.146,0.0,calm
-W_mHq29IQqA,conflict,kpop dance practice,185,0.043,0.022,calm
-X2LYgspI--Y,normal,unknown,192,0.286,0.0,calm
-X2ieqzw_JfE,conflict,kpop dance practice,185,0.059,0.03,calm
-X3Axj04lub0,normal,unknown,154,0.344,0.0,calm
-X7rTazlYZ1M,normal,unknown,191,0.209,0.052,some
-XA703oppN9g,conflict,who did it better kpop,158,0.108,0.022,calm
-XKxT4AwOAxI,normal,unknown,140,0.143,0.036,some
-XNhdaGmO6Lg,normal,unknown,159,0.22,0.073,some
-XYjb9Zrwv-w,normal,unknown,27,0.667,0.167,heavy
-XjbOHz-_uOM,conflict,worst youtuber apology videos,195,0.764,0.764,heavy
-Xvs3Et1CFKA,conflict,what I eat in a day,158,0.146,0.036,some
-YSMt9g5nTTM,normal,unknown,109,0.349,0.0,calm
-Yk-vMTvXUvg,conflict,influencer drama,24,0.417,0.0,calm
-YlmxUXsli4g,conflict,what I eat in a day,188,0.122,0.0,calm
-Yp5Ck3cQOm0,conflict,kpop fancam,113,0.035,0.0,calm
-Z1CB31T30Q8,conflict,influencer drama,79,0.19,0.0,calm
-Z1DnpaPm8Gk,normal,unknown,52,0.365,0.122,heavy
-ZWYPgpYsIxY,normal,unknown,188,0.5,0.0,calm
-ZbrLm3gHkis,normal,unknown,179,0.307,0.0,calm
-ZvmfD6XwS1U,normal,unknown,176,0.244,0.0,calm
-_0oQjaSTcI8,conflict,influencer drama,199,0.377,0.0,calm
-_3q96ysfk4c,conflict,kpop dance practice,186,0.022,0.022,calm
-_BiKRsVx1GY,normal,unknown,27,0.407,0.0,calm
-_D2tH1GH5M4,conflict,kpop live vocals,192,0.031,0.0,calm
-_JA3HmtkmUQ,conflict,what I eat in a day,190,0.1,0.1,some
-_J_ESSZ2G3w,conflict,worst youtuber apology videos,196,0.23,0.0,calm
-_YZCYlxsQSk,conflict,outfit of the day,46,0.304,0.152,heavy
-_efkH42nxCA,normal,unknown,191,0.168,0.0,calm
-_g8VdeK23do,conflict,what I eat in a day,193,0.026,0.013,calm
-_in5C2cS7yU,conflict,what I eat in a day,30,0.133,0.0,calm
-_k91Z9S-KIM,conflict,kpop live vocals,199,0.101,0.05,some
-_zZbZCMuaJw,normal,unknown,191,0.188,0.0,calm
-aBDxtgxDuzM,normal,unknown,200,0.335,0.0,calm
-aH_zRoV2RoM,normal,unknown,168,0.363,0.0,calm
-aIQK-7KehWg,normal,unknown,39,0.513,0.513,heavy
-aXTl3bTwrlA,conflict,what I eat in a day,157,0.057,0.0,calm
-ajD4KPP66As,conflict,kpop live vocals,190,0.395,0.263,heavy
-b2-P-nqndY0,conflict,worst youtuber apology videos,46,0.304,0.0,calm
-bD9aJN48kuE,conflict,kpop dance practice,187,0.037,0.0,calm
-bJvK8dMRBJQ,normal,unknown,182,0.181,0.0,calm
-bPjrHu60278,conflict,kpop dance practice,199,0.07,0.0,calm
-bU0Pcj1oAPs,conflict,worst youtuber apology videos,194,0.505,0.0,calm
-bZDEFkNXd3M,conflict,influencer drama,186,0.538,0.0,calm
-b_QJAnsJGW4,conflict,worst youtuber apology videos,21,0.476,0.317,heavy
-bnflGaEAKus,conflict,kpop fancam,81,0.198,0.0,calm
-bo716H1ZKt8,conflict,kpop live vocals,190,0.516,0.516,heavy
-buFQulSu-C4,conflict,kpop dance practice,198,0.03,0.0,calm
-c7wgQmKYxiI,conflict,influencer drama,64,0.578,0.347,heavy
-cVwvPFTYhSA,conflict,influencer drama,129,0.256,0.0,calm
-cf1-zl3C4dg,conflict,outfit of the day,179,0.156,0.0,calm
-czWrc0mD0Ko,conflict,what I eat in a day,191,0.115,0.029,calm
-dAf-hccCas4,conflict,what I eat in a day,185,0.124,0.0,calm
-dFMHj07SwEQ,normal,unknown,179,0.307,0.102,heavy
-dS08cipb1Sg,normal,unknown,170,0.412,0.412,heavy
-du0S1WXmzIw,conflict,kpop live vocals,176,0.102,0.034,some
-eFIrKPlRqrI,conflict,who did it better kpop,53,0.566,0.0,calm
-eZWxJwZ2B4k,conflict,worst youtuber apology videos,134,0.657,0.328,heavy
-eeuzQ9e3Kqo,conflict,kpop live vocals,189,0.286,0.286,heavy
-fQRbkvMBuqE,normal,unknown,199,0.075,0.019,calm
-fejVxJ2X8_k,conflict,kpop dance practice,194,0.036,0.0,calm
-fh5kx1SLS24,normal,unknown,185,0.476,0.095,some
-gBIC9yaw9WI,normal,unknown,144,0.201,0.201,heavy
-gBKXf6390Ew,conflict,what I eat in a day,84,0.131,0.065,some
-gGLR4QjwL3g,conflict,kpop dance practice,194,0.036,0.0,calm
-gQFjrgfI5hM,conflict,kpop dance practice,155,0.265,0.066,some
-gVVx-K6h25Q,normal,unknown,177,0.508,0.0,calm
-g_AOsEeNsf0,normal,unknown,169,0.237,0.0,calm
-gbV02kdRvxM,conflict,worst youtuber apology videos,78,0.282,0.141,heavy
-gbia8fYuwNM,normal,unknown,200,0.21,0.0,calm
-h2AleUKjDPY,conflict,kpop live vocals,167,0.174,0.174,heavy
-h2H6uG_deM8,normal,unknown,195,0.344,0.0,calm
-h2vOMeKN-fQ,conflict,kpop live vocals,200,0.06,0.02,calm
-hE7kLOJBGh0,conflict,kpop live vocals,133,0.203,0.0,calm
-hRYl0quPKYw,normal,unknown,149,0.255,0.0,calm
-hg0BYDEeQIk,conflict,kpop live vocals,184,0.228,0.057,some
-hl78-6WSqPc,conflict,worst youtuber apology videos,199,0.271,0.0,calm
-hsBGFWWrFxw,normal,unknown,185,0.265,0.0,calm
-i1n3S1ZyUkE,conflict,worst youtuber apology videos,193,0.192,0.0,calm
-i2rqPaoY2eQ,conflict,influencer drama,197,0.396,0.396,heavy
-iFQBjnQAEO0,normal,unknown,89,0.303,0.152,heavy
-iLUuJWvGb_0,conflict,kpop live vocals,104,0.192,0.0,calm
-iMfh5buRIGo,conflict,kpop dance practice,188,0.027,0.0,calm
-iTDewTYR4L8,conflict,kpop live vocals,198,0.025,0.0,calm
-iuxEdIszWkw,conflict,kpop dance practice,199,0.06,0.0,calm
-jLQCU5DzWt0,conflict,kpop dance practice,163,0.276,0.055,some
-jZWbU0rST74,normal,unknown,192,0.146,0.0,calm
-j_OG11CKtSw,conflict,what I eat in a day,164,0.11,0.027,calm
-ja0AQnXmGTI,conflict,what I eat in a day,53,0.226,0.0,calm
-jbN6hYnO1FU,normal,unknown,194,0.242,0.081,some
-jkFQszmeQrI,conflict,worst youtuber apology videos,153,0.562,0.141,heavy
-jvBj0aNbxqU,normal,unknown,181,0.254,0.0,calm
-jwJbEwORnds,normal,unknown,33,0.212,0.0,calm
-k-guxBHcG-E,normal,unknown,180,0.367,0.183,heavy
-k4ooS9mHAug,conflict,kpop dance practice,143,0.098,0.0,calm
-kTkFToUFdi0,normal,unknown,187,0.31,0.0,calm
-kVpt4NgUitA,conflict,kpop dance practice,180,0.189,0.0,calm
-l2mbrL8s_Z4,conflict,kpop live vocals,195,0.072,0.072,some
-l4uOzy4Z6pg,conflict,influencer drama,48,0.375,0.0,calm
-lGPuVHFXUs8,normal,unknown,190,0.105,0.105,heavy
-lNKxLEuOAUE,normal,unknown,188,0.245,0.082,some
-lVf-Z0ZkNX4,conflict,influencer drama,190,0.463,0.232,heavy
-lZRhPhbOIzw,conflict,kpop dance practice,197,0.051,0.0,calm
-l_P2ckwofDM,conflict,kpop dance practice,190,0.021,0.0,calm
-ln7U2csEj-g,conflict,kpop dance practice,187,0.048,0.024,calm
-lnKsDDYWH54,normal,unknown,26,0.231,0.0,calm
-m0mNkmSr2r0,conflict,who did it better kpop,179,0.128,0.0,calm
-mHNIdsQ9-wE,normal,unknown,194,0.108,0.0,calm
-mN2LDs7KmUk,normal,unknown,162,0.265,0.088,some
-m_m3H5NzTfo,normal,unknown,123,0.341,0.0,calm
-madxwuSbDKk,normal,unknown,198,0.242,0.0,calm
-mwvLhrH_ORY,normal,unknown,180,0.306,0.102,heavy
-n1EdZUOpmxc,conflict,outfit of the day,159,0.214,0.0,calm
-nZwnjjEdT44,normal,unknown,187,0.176,0.029,calm
-nhz4JuYp3bQ,normal,unknown,190,0.321,0.0,calm
-nk-5a8zskFU,normal,unknown,156,0.147,0.0,calm
-nzXNPQ6y1yA,conflict,influencer drama,175,0.44,0.0,calm
-oIxjsYqa9VQ,conflict,who did it better kpop,85,0.412,0.069,some
-oJTjAymSJ0k,conflict,kpop dance practice,31,0.226,0.0,calm
-oWQEqQYA7gg,conflict,worst youtuber apology videos,82,0.561,0.28,heavy
-p2DF0QBai44,conflict,influencer drama,193,0.187,0.093,some
-p3cb2Xsylbg,conflict,worst youtuber apology videos,165,0.436,0.087,some
-pDbrBOOj-js,normal,unknown,129,0.271,0.0,calm
-pG6PswaNApE,normal,unknown,33,0.394,0.0,calm
-pIACr06eJ_U,normal,unknown,194,0.165,0.0,calm
-pXPRQQlufOc,normal,unknown,171,0.386,0.257,heavy
-pb_Nhf3jbdU,normal,unknown,35,0.371,0.0,calm
-q5qNp3kEhZE,conflict,influencer drama,163,0.644,0.0,calm
-qQ2ZSKXSCH8,normal,unknown,60,0.25,0.125,heavy
-qTAdNOi0NUg,normal,unknown,161,0.168,0.0,calm
-qaTU8HOBbQY,conflict,outfit of the day,23,0.174,0.0,calm
-qmw7sdZw5_o,conflict,kpop live vocals,146,0.541,0.0,calm
-r8CluuHB5A8,conflict,who did it better kpop,97,0.351,0.175,heavy
-rEIOXTkYmp4,conflict,kpop live vocals,197,0.137,0.069,some
-rkfmOk1SHVc,conflict,outfit of the day,63,0.19,0.0,calm
-rt7XMkGdXn0,normal,unknown,21,0.143,0.0,calm
-s1dvLmkWEcg,normal,unknown,194,0.273,0.0,calm
-s3_BX6CWAZ0,conflict,kpop dance practice,109,0.101,0.0,calm
-sOyJOCMruA8,normal,unknown,84,0.369,0.0,calm
-tEsPQ4R7GcI,conflict,worst youtuber apology videos,58,0.621,0.155,heavy
-tOuYfO2JJ1U,conflict,kpop fancam,122,0.139,0.0,calm
-tTqnf0IKBSQ,conflict,kpop fancam,64,0.234,0.067,some
-tWfmJc2telk,conflict,influencer drama,107,0.421,0.0,calm
-ttCCHFcMD2o,normal,unknown,183,0.202,0.0,calm
-uB_c1bwQUBw,normal,unknown,183,0.497,0.0,calm
-uwusXaQJ2PY,conflict,kpop live vocals,172,0.11,0.0,calm
-vSa9ge5-Q-0,conflict,who did it better kpop,189,0.286,0.071,some
-vhc2HQSsAu8,normal,unknown,196,0.5,0.2,heavy
-vof7GCsGPW4,normal,unknown,83,0.133,0.0,calm
-vsd-BrvTiio,conflict,outfit of the day,60,0.1,0.0,calm
-vuE_gty-Ya4,conflict,who did it better kpop,184,0.201,0.0,calm
-wOEM2N6Da78,normal,unknown,40,0.7,0.0,calm
-wSWCXWdA8xY,normal,unknown,170,0.382,0.0,calm
-we3gF-yPRcw,conflict,worst youtuber apology videos,57,0.351,0.0,calm
-x1YowEkx4JE,conflict,kpop live vocals,177,0.113,0.0,calm
-x1fts57Pnf8,conflict,what I eat in a day,29,0.069,0.0,calm
-x2-xw86LrgY,conflict,kpop fancam,173,0.451,0.0,calm
-xCpSeyzLEEM,conflict,what I eat in a day,191,0.073,0.0,calm
-xKxiLf6Q-Eo,conflict,kpop live vocals,105,0.219,0.0,calm
-xTCigUGa_zg,normal,unknown,192,0.307,0.154,heavy
-xVZiWANBfnM,conflict,kpop live vocals,66,0.091,0.045,some
-xXsvi7XH7mk,normal,unknown,187,0.198,0.0,calm
-x_EbW6fpeEs,conflict,kpop dance practice,197,0.041,0.016,calm
-xiKxoNm0FN8,conflict,worst youtuber apology videos,192,0.484,0.242,heavy
-xrm7PP1mbtI,conflict,kpop dance practice,194,0.103,0.0,calm
-xyQQNKZo9JE,normal,unknown,194,0.16,0.0,calm
-y2toppFRf4s,conflict,influencer drama,36,0.361,0.181,heavy
-y385-jAKmu4,normal,unknown,20,0.1,0.0,calm
-y7cgsUptVFo,conflict,kpop live vocals,170,0.041,0.041,some
-yCKyobq1734,conflict,who did it better kpop,41,0.146,0.073,some
-yDguQmBiwEw,normal,unknown,185,0.249,0.0,calm
-ySVPOrA0iw4,normal,unknown,86,0.547,0.0,calm
-yV7mJx7mu5c,conflict,influencer drama,151,0.053,0.0,calm
-zDjb0-neUe8,normal,unknown,94,0.117,0.117,heavy
-zMHWKpy8Y1o,conflict,what I eat in a day,197,0.157,0.079,some
-zNJbxMcvRnU,conflict,influencer drama,194,0.082,0.082,some
-zwroDRwp2Cg,normal,unknown,181,0.47,0.0,calm
-zxTRXPXIr2w,conflict,influencer drama,189,0.693,0.347,heavy
-zzGb1L5S_Nc,conflict,kpop live vocals,192,0.12,0.08,some
+video_id,feed,category,n_comments,negative_share,hostility_rate,level,sampled
+-AKbl_Rai1M,conflict,kpop live vocals,194,0.093,0.012,calm,15
+-CcFhRP3Zk8,conflict,influencer drama,175,0.549,0.366,heavy,15
+-T5vRERtMro,conflict,who did it better kpop,186,0.059,0.011,calm,11
+-mXoROKX8Vk,conflict,influencer drama,194,0.51,0.34,heavy,15
+-nmRlTogqrQ,normal,unknown,194,0.242,0.048,some,15
+01VnVAcRCEI,normal,unknown,191,0.115,0.031,some,15
+0IpqIp5AxHc,normal,unknown,195,0.369,0.049,some,15
+0Ux6KO8JYE4,conflict,what I eat in a day,43,0.07,0.0,calm,3
+117YIIFqsG4,conflict,kpop dance practice,197,0.015,0.005,calm,3
+1Vx7EmNOl24,conflict,kpop dance practice,182,0.011,0.005,calm,2
+1jwzqrNFRCo,normal,unknown,85,0.435,0.116,heavy,15
+1sFHss7ZkvE,conflict,kpop dance practice,198,0.056,0.005,calm,11
+27dWxNT_rRg,conflict,what I eat in a day,77,0.143,0.0,calm,11
+2AtPl1HacvY,conflict,kpop live vocals,43,0.256,0.093,some,11
+2QDrAKdnw_g,conflict,worst youtuber apology videos,48,0.771,0.565,heavy,15
+2X9QoWcICd0,conflict,kpop dance practice,195,0.067,0.005,calm,13
+2phgJGo9fv4,normal,unknown,115,0.07,0.0,calm,8
+2q1eK59pkGE,normal,unknown,108,0.519,0.242,heavy,15
+3-4xEVg_R_Q,normal,unknown,32,0.375,0.031,some,12
+3Qy4wT2WXP0,conflict,who did it better kpop,35,0.257,0.114,heavy,9
+3gprdSxOBD4,conflict,influencer drama,128,0.078,0.016,calm,10
+3yRsBv8cFps,normal,unknown,192,0.182,0.061,some,15
+47zCMcgaHos,conflict,what I eat in a day,20,0.0,0.0,calm,0
+4IpOEug7OWM,normal,unknown,76,0.553,0.147,heavy,15
+4QE3uqhJPCw,normal,unknown,39,0.256,0.0,calm,10
+4Rq5z_lw-MY,conflict,influencer drama,194,0.567,0.265,heavy,15
+4azDK-3FPww,normal,unknown,53,0.113,0.019,calm,6
+4pHzStTtrJY,conflict,kpop dance practice,196,0.066,0.02,calm,13
+4q8YoHevH5I,conflict,outfit of the day,23,0.0,0.0,calm,0
+5GODPQBB2xA,conflict,influencer drama,49,0.204,0.061,some,10
+5IP-JuUx4pE,normal,unknown,192,0.448,0.06,some,15
+5KolIvelmJI,conflict,what I eat in a day,190,0.111,0.022,calm,15
+5OaSecZbqU4,conflict,worst youtuber apology videos,196,0.449,0.21,heavy,15
+5QhzdokHT8E,normal,unknown,180,0.217,0.116,heavy,15
+5bcy6M36VvE,normal,unknown,195,0.236,0.047,some,15
+5fWJGsUYbuk,normal,unknown,195,0.215,0.014,calm,15
+5fwFdzYcEcQ,normal,unknown,197,0.244,0.049,some,15
+5wj962skosI,conflict,kpop dance practice,197,0.066,0.0,calm,13
+6GabtuSHJSE,conflict,worst youtuber apology videos,131,0.435,0.145,heavy,15
+6hgBsv8ebAE,conflict,kpop fancam,169,0.101,0.013,calm,15
+6qetebpIBok,normal,unknown,156,0.205,0.068,some,15
+74ygh85wzl8,normal,unknown,197,0.477,0.095,some,15
+7MVYNSRDvqc,conflict,kpop dance practice,200,0.04,0.01,calm,8
+7esHNYGmrw4,conflict,kpop fancam,31,0.032,0.0,calm,1
+7kjNEOFiWPQ,conflict,kpop fancam,118,0.068,0.0,calm,8
+7nVvIrG-OTs,conflict,kpop live vocals,182,0.066,0.0,calm,12
+7xbwN734PRg,conflict,kpop dance practice,186,0.086,0.029,calm,15
+888u0m9DyDU,conflict,outfit of the day,150,0.1,0.033,some,15
+89am3Ae1kuk,conflict,what I eat in a day,187,0.091,0.006,calm,15
+8Dh4hP0GFwU,normal,unknown,51,0.275,0.118,heavy,14
+8RG4dhuvAWk,normal,unknown,115,0.383,0.102,heavy,15
+8W5TWR74Mms,conflict,kpop dance practice,196,0.036,0.0,calm,7
+8ch3EwjNuZQ,conflict,kpop live vocals,145,0.103,0.028,calm,15
+8eDIdpg2ymg,conflict,kpop fancam,56,0.143,0.018,calm,8
+8mLsh1nBz3Q,normal,unknown,135,0.57,0.19,heavy,15
+8p8CY02AhNE,conflict,influencer drama,47,0.17,0.043,some,8
+8r3OsHfKI2I,normal,unknown,191,0.236,0.031,some,15
+912uK-RJRy8,normal,unknown,194,0.211,0.014,calm,15
+93QxCAiVki8,conflict,who did it better kpop,70,0.029,0.014,calm,2
+97FTrekxsvI,conflict,kpop live vocals,177,0.412,0.275,heavy,15
+9AP2eQ0m9f8,normal,unknown,197,0.457,0.152,heavy,15
+9KZh6_83x8E,normal,unknown,23,0.435,0.043,some,10
+9bLxmvYUYhw,conflict,what I eat in a day,155,0.026,0.0,calm,4
+9bZI5_VXKi8,conflict,who did it better kpop,20,0.0,0.0,calm,0
+9j2o3baNINI,conflict,what I eat in a day,91,0.088,0.011,calm,8
+A74gdgznqZY,conflict,who did it better kpop,198,0.313,0.042,some,15
+A81_6xf5AIs,conflict,what I eat in a day,33,0.061,0.0,calm,2
+ARfn9QKOl4E,normal,unknown,176,0.193,0.026,calm,15
+Abw4AEsGqAY,normal,unknown,183,0.355,0.142,heavy,15
+Ag5OE3tZcYk,normal,unknown,121,0.223,0.045,some,15
+BBw-lJivY5Q,normal,unknown,26,0.231,0.115,heavy,6
+BEmk4QEepUs,conflict,kpop fancam,33,0.0,0.0,calm,0
+BMDfHlibeI8,normal,unknown,196,0.357,0.024,calm,15
+BVQRuLh64S4,normal,unknown,145,0.028,0.0,calm,4
+BWk2M9mCAy4,conflict,influencer drama,195,0.595,0.198,heavy,15
+BXqLAJhIsUw,conflict,influencer drama,188,0.149,0.05,some,15
+B_2ujESOdVo,normal,unknown,130,0.631,0.126,heavy,15
+BwM4qJZtu7M,conflict,kpop live vocals,182,0.209,0.097,some,15
+ByeFGzwq9pE,normal,unknown,187,0.396,0.132,heavy,15
+C8hhYXgiYew,conflict,kpop fancam,61,0.016,0.0,calm,1
+CDA4gM_I2I0,normal,unknown,44,0.341,0.091,some,15
+CVBqbfZFL0M,conflict,kpop fancam,194,0.412,0.137,heavy,15
+CoLqLEjNYwc,conflict,worst youtuber apology videos,43,0.628,0.251,heavy,15
+D0q_bPYMRhQ,conflict,what I eat in a day,33,0.0,0.0,calm,0
+D2ZSRKx41s8,conflict,worst youtuber apology videos,73,0.644,0.343,heavy,15
+DQjRyF9fVFM,conflict,influencer drama,88,0.67,0.447,heavy,15
+DSopPk5Dmtk,conflict,worst youtuber apology videos,198,0.606,0.283,heavy,15
+DfR2S-qmKfM,conflict,kpop fancam,40,0.2,0.0,calm,8
+DsObQDD-1n0,normal,unknown,189,0.344,0.046,some,15
+DtTfQ5NaObU,conflict,kpop live vocals,85,0.0,0.0,calm,0
+E0d63gIV2qI,conflict,kpop live vocals,161,0.248,0.133,heavy,15
+EB0YpsVh4mU,conflict,kpop fancam,45,0.022,0.0,calm,1
+EBDoYmEAnXQ,conflict,what I eat in a day,42,0.119,0.0,calm,5
+EHKeXZgYn0I,conflict,kpop live vocals,20,0.05,0.0,calm,1
+EWfmbhaKH8M,normal,unknown,193,0.249,0.033,some,15
+Ei9yM2BnKtw,normal,unknown,21,0.238,0.0,calm,5
+EnkccTB3OxM,conflict,kpop live vocals,195,0.138,0.037,some,15
+Epw0BSz54rQ,conflict,outfit of the day,190,0.037,0.011,calm,7
+Eqh-KUBM9pA,conflict,kpop live vocals,89,0.09,0.022,calm,8
+F1KgsNj907U,normal,unknown,33,0.303,0.061,some,10
+F2SXRBxcqQ4,conflict,influencer drama,50,0.02,0.0,calm,1
+FAze1yFd6vE,conflict,kpop live vocals,158,0.07,0.013,calm,11
+FQbgQr2Uz-8,conflict,kpop dance practice,183,0.049,0.011,calm,9
+FULWOtqChAc,conflict,kpop dance practice,142,0.31,0.021,calm,15
+G-gH7Ojch_0,normal,unknown,46,0.239,0.087,some,11
+G60zVFwmf04,conflict,what I eat in a day,198,0.081,0.005,calm,15
+GElYCFkr7xU,conflict,worst youtuber apology videos,197,0.635,0.212,heavy,15
+GFxy_iy4cdA,normal,unknown,39,0.308,0.077,some,12
+GI5IhEaeuqk,conflict,outfit of the day,50,0.02,0.0,calm,1
+GOTnxwp3hkA,conflict,what I eat in a day,161,0.13,0.026,calm,15
+GcwpcK3eqqQ,conflict,kpop live vocals,186,0.081,0.022,calm,15
+GlvsnVnw5ms,conflict,worst youtuber apology videos,162,0.506,0.135,heavy,15
+GnvlpgCZ9WQ,normal,unknown,39,0.231,0.103,heavy,9
+Go5yfL8SfBI,normal,unknown,60,0.35,0.07,some,15
+H-srUzlcZH0,normal,unknown,193,0.176,0.023,calm,15
+ITwGzlD6ilc,normal,unknown,104,0.298,0.06,some,15
+IyTQoLnWMhs,conflict,worst youtuber apology videos,155,0.503,0.134,heavy,15
+J9_stwbP37o,normal,unknown,124,0.218,0.044,some,15
+JAgkkSowJiQ,conflict,who did it better kpop,25,0.16,0.08,some,4
+JNfmmwXXHhU,conflict,outfit of the day,196,0.214,0.014,calm,15
+JNlNM_tlres,conflict,what I eat in a day,192,0.24,0.0,calm,15
+JODIlxvhhdM,conflict,kpop fancam,129,0.14,0.019,calm,15
+JR3u3QSpyi0,conflict,kpop fancam,20,0.05,0.0,calm,1
+JTP7OXqagZg,conflict,kpop live vocals,171,0.24,0.096,some,15
+JjPgA5x4ioM,conflict,outfit of the day,62,0.0,0.0,calm,0
+JzwBK6Xe5MQ,normal,unknown,60,0.133,0.033,some,8
+KS0LhlB6ESk,conflict,what I eat in a day,172,0.064,0.0,calm,11
+KUkvNNFKY1U,conflict,what I eat in a day,57,0.158,0.0,calm,9
+Kbnd-4AXfXA,normal,unknown,193,0.508,0.102,heavy,15
+Kj7KHmInL5U,conflict,kpop dance practice,187,0.016,0.0,calm,3
+LFrljxY6VrM,conflict,what I eat in a day,47,0.064,0.0,calm,3
+LI5ZR0RBxqE,conflict,influencer drama,26,0.231,0.115,heavy,6
+LIeZfSXVzck,conflict,influencer drama,139,0.518,0.173,heavy,15
+LLAqxiP5iLc,conflict,kpop dance practice,174,0.259,0.052,some,15
+LLqTJZuaIaE,conflict,kpop live vocals,174,0.379,0.101,heavy,15
+LjFBYyxxSG8,conflict,outfit of the day,29,0.034,0.034,some,1
+LmOo7jTLxJQ,conflict,kpop fancam,184,0.429,0.086,some,15
+MCKFdxYYRps,conflict,kpop dance practice,199,0.065,0.01,calm,13
+MKPl3UCZuPQ,normal,unknown,85,0.482,0.064,some,15
+MQddDRHeGS8,normal,unknown,172,0.517,0.103,heavy,15
+MXQ1hshF0Hk,conflict,kpop fancam,39,0.0,0.0,calm,0
+NHuYYlqphCA,normal,unknown,195,0.395,0.026,calm,15
+NJgvYjHgo-g,conflict,kpop fancam,27,0.148,0.037,some,4
+NSE8uC3ZwC4,conflict,worst youtuber apology videos,196,0.469,0.188,heavy,15
+Nf6RnVybKTM,normal,unknown,76,0.355,0.142,heavy,15
+NiCAk_VMkTc,conflict,kpop live vocals,185,0.151,0.04,some,15
+Nj3cDHxiIec,conflict,worst youtuber apology videos,119,0.471,0.125,heavy,15
+Nv4q__IwasQ,conflict,kpop dance practice,178,0.073,0.006,calm,13
+NwSRCv2FO3o,conflict,kpop live vocals,22,0.0,0.0,calm,0
+O34NhVbFNGg,conflict,kpop fancam,184,0.152,0.101,heavy,15
+O96UmhbL7wA,normal,unknown,24,0.417,0.042,some,10
+O9cbPgFyzJw,conflict,kpop fancam,29,0.0,0.0,calm,0
+OAGAw4fRQyE,conflict,worst youtuber apology videos,26,0.423,0.115,heavy,11
+OGeWYj-0e40,conflict,who did it better kpop,195,0.395,0.026,calm,15
+OJXpONo57AQ,conflict,influencer drama,178,0.528,0.282,heavy,15
+OXHI5vACvig,normal,unknown,189,0.143,0.029,calm,15
+OiQrVMZYEnI,conflict,worst youtuber apology videos,152,0.362,0.121,heavy,15
+On6Bicyx2N4,conflict,what I eat in a day,184,0.217,0.087,some,15
+OuQ2phq5VO0,conflict,what I eat in a day,116,0.276,0.0,calm,15
+OvnRhoE5rRQ,normal,unknown,173,0.237,0.032,some,15
+P4Z5L18ZmNE,conflict,kpop dance practice,192,0.073,0.026,calm,14
+PhF5BpG8ov4,normal,unknown,134,0.119,0.008,calm,15
+PhLAnjFcwJ8,conflict,influencer drama,199,0.176,0.023,calm,15
+PpMBjx_H8MQ,conflict,influencer drama,171,0.462,0.246,heavy,15
+Q21I0FIrBEw,normal,unknown,193,0.233,0.047,some,15
+Q9bF4Vk2_30,normal,unknown,198,0.111,0.015,calm,15
+QHHl9m_6YwU,normal,unknown,187,0.321,0.064,some,15
+QkLvbNueJ3o,conflict,what I eat in a day,50,0.06,0.0,calm,3
+R7EkX9n_o_o,conflict,outfit of the day,90,0.378,0.05,some,15
+RG5XEG5ymXI,normal,unknown,54,0.222,0.019,calm,12
+RGnVSUmVUyo,conflict,kpop live vocals,191,0.105,0.049,some,15
+RK52DuFILAk,conflict,worst youtuber apology videos,194,0.119,0.032,some,15
+RKc2AWfUbQU,normal,unknown,197,0.203,0.041,some,15
+RLlSuxvZHpE,conflict,kpop dance practice,169,0.047,0.006,calm,8
+RQDVkvvEgfs,conflict,kpop fancam,163,0.521,0.278,heavy,15
+RhqJc418n2w,normal,unknown,195,0.174,0.0,calm,15
+Rkkvo-uHZ4k,conflict,kpop live vocals,194,0.082,0.016,calm,15
+SQB0FxBb1ZY,conflict,influencer drama,35,0.486,0.13,heavy,15
+SXhIJ6R1KkI,conflict,worst youtuber apology videos,195,0.262,0.035,some,15
+TcdjVQNDDc4,conflict,outfit of the day,95,0.095,0.021,calm,9
+Tnguqp5WcYc,normal,unknown,143,0.51,0.204,heavy,15
+TqMDnKJLV0o,conflict,what I eat in a day,184,0.239,0.0,calm,15
+Ty6R6HH4zcM,conflict,kpop fancam,56,0.107,0.0,calm,6
+UTkZvRfDnfo,conflict,worst youtuber apology videos,175,0.594,0.277,heavy,15
+UcJPwLP7Bcw,conflict,influencer drama,171,0.345,0.184,heavy,15
+UrxxmuOiQAw,normal,unknown,45,0.311,0.111,heavy,14
+VD8c-6p1N8A,conflict,what I eat in a day,194,0.299,0.04,some,15
+VaiQeA1Nc5s,conflict,what I eat in a day,196,0.347,0.139,heavy,15
+Vb9mqaaD2uk,normal,unknown,182,0.44,0.088,some,15
+VfqGUl0WrJY,normal,unknown,32,0.062,0.031,some,2
+VhSYspeCY3g,normal,unknown,191,0.188,0.013,calm,15
+VlrGbGUF5_U,conflict,kpop dance practice,188,0.032,0.005,calm,6
+Vw8M_hU5F4A,normal,unknown,189,0.19,0.038,some,15
+W4UUO7zbTwM,normal,unknown,47,0.447,0.06,some,15
+WD_ZDwOYAls,normal,unknown,151,0.397,0.053,some,15
+WLklsykfalU,normal,unknown,86,0.326,0.174,heavy,15
+WTzybZBG8MI,conflict,who did it better kpop,185,0.146,0.019,calm,15
+W_mHq29IQqA,conflict,kpop dance practice,185,0.043,0.005,calm,8
+X2LYgspI--Y,normal,unknown,192,0.286,0.076,some,15
+X2ieqzw_JfE,conflict,kpop dance practice,185,0.059,0.011,calm,11
+X3Axj04lub0,normal,unknown,154,0.344,0.069,some,15
+X7rTazlYZ1M,normal,unknown,191,0.209,0.042,some,15
+XA703oppN9g,conflict,who did it better kpop,158,0.108,0.036,some,15
+XKxT4AwOAxI,normal,unknown,140,0.143,0.01,calm,15
+XNhdaGmO6Lg,normal,unknown,159,0.22,0.059,some,15
+XYjb9Zrwv-w,normal,unknown,27,0.667,0.178,heavy,15
+XjbOHz-_uOM,conflict,worst youtuber apology videos,195,0.764,0.509,heavy,15
+XmmfR-cfBME,normal,unknown,118,0.229,0.015,calm,15
+Xvs3Et1CFKA,conflict,what I eat in a day,158,0.146,0.019,calm,15
+YSMt9g5nTTM,normal,unknown,109,0.349,0.046,some,15
+Yk-vMTvXUvg,conflict,influencer drama,24,0.417,0.208,heavy,10
+YlmxUXsli4g,conflict,what I eat in a day,188,0.122,0.024,calm,15
+Yp5Ck3cQOm0,conflict,kpop fancam,113,0.035,0.009,calm,4
+Yt6LZwFtiSw,normal,unknown,190,0.237,0.047,some,15
+Yu88AjzHPq0,conflict,what I eat in a day,31,0.0,0.0,calm,0
+Z1CB31T30Q8,conflict,influencer drama,79,0.19,0.063,some,15
+Z1DnpaPm8Gk,normal,unknown,52,0.365,0.171,heavy,15
+ZWYPgpYsIxY,normal,unknown,188,0.5,0.133,heavy,15
+ZbrLm3gHkis,normal,unknown,179,0.307,0.02,calm,15
+ZjZyQb7C9Ck,conflict,kpop live vocals,170,0.041,0.0,calm,7
+ZvmfD6XwS1U,normal,unknown,176,0.244,0.033,some,15
+_0oQjaSTcI8,conflict,influencer drama,199,0.377,0.075,some,15
+_3q96ysfk4c,conflict,kpop dance practice,186,0.022,0.016,calm,4
+_BiKRsVx1GY,normal,unknown,27,0.407,0.0,calm,11
+_D2tH1GH5M4,conflict,kpop live vocals,192,0.031,0.0,calm,6
+_JA3HmtkmUQ,conflict,what I eat in a day,190,0.1,0.007,calm,15
+_J_ESSZ2G3w,conflict,worst youtuber apology videos,196,0.23,0.0,calm,15
+_Q6elF_5g58,normal,unknown,39,0.077,0.026,calm,3
+_YZCYlxsQSk,conflict,outfit of the day,46,0.304,0.174,heavy,14
+_efkH42nxCA,normal,unknown,191,0.168,0.034,some,15
+_g8VdeK23do,conflict,what I eat in a day,193,0.026,0.01,calm,5
+_in5C2cS7yU,conflict,what I eat in a day,30,0.133,0.0,calm,4
+_k91Z9S-KIM,conflict,kpop live vocals,199,0.101,0.04,some,15
+_zZbZCMuaJw,normal,unknown,191,0.188,0.113,heavy,15
+aBDxtgxDuzM,normal,unknown,200,0.335,0.022,calm,15
+aH_zRoV2RoM,normal,unknown,168,0.363,0.073,some,15
+aIQK-7KehWg,normal,unknown,39,0.513,0.137,heavy,15
+aXTl3bTwrlA,conflict,what I eat in a day,157,0.057,0.006,calm,9
+ajD4KPP66As,conflict,kpop live vocals,190,0.395,0.237,heavy,15
+b2-P-nqndY0,conflict,worst youtuber apology videos,46,0.304,0.0,calm,14
+bD9aJN48kuE,conflict,kpop dance practice,187,0.037,0.005,calm,7
+bJvK8dMRBJQ,normal,unknown,182,0.181,0.073,some,15
+bPjrHu60278,conflict,kpop dance practice,199,0.07,0.0,calm,14
+bU0Pcj1oAPs,conflict,worst youtuber apology videos,194,0.505,0.034,some,15
+bZDEFkNXd3M,conflict,influencer drama,186,0.538,0.215,heavy,15
+b_QJAnsJGW4,conflict,worst youtuber apology videos,21,0.476,0.381,heavy,10
+bnflGaEAKus,conflict,kpop fancam,81,0.198,0.026,calm,15
+bo716H1ZKt8,conflict,kpop live vocals,190,0.516,0.378,heavy,15
+buFQulSu-C4,conflict,kpop dance practice,198,0.03,0.0,calm,6
+c7wgQmKYxiI,conflict,influencer drama,64,0.578,0.347,heavy,15
+cVwvPFTYhSA,conflict,influencer drama,129,0.256,0.051,some,15
+c_DChfJy6PE,conflict,kpop dance practice,193,0.026,0.005,calm,5
+cf1-zl3C4dg,conflict,outfit of the day,179,0.156,0.052,some,15
+czWrc0mD0Ko,conflict,what I eat in a day,191,0.115,0.031,some,15
+dAf-hccCas4,conflict,what I eat in a day,185,0.124,0.008,calm,15
+dFMHj07SwEQ,normal,unknown,179,0.307,0.061,some,15
+dS08cipb1Sg,normal,unknown,170,0.412,0.192,heavy,15
+du0S1WXmzIw,conflict,kpop live vocals,176,0.102,0.034,some,15
+eFIrKPlRqrI,conflict,who did it better kpop,53,0.566,0.075,some,15
+eZWxJwZ2B4k,conflict,worst youtuber apology videos,134,0.657,0.35,heavy,15
+eeuzQ9e3Kqo,conflict,kpop live vocals,189,0.286,0.114,heavy,15
+f5Gund3L0eA,conflict,who did it better kpop,108,0.037,0.028,calm,4
+fQRbkvMBuqE,normal,unknown,199,0.075,0.025,calm,15
+fejVxJ2X8_k,conflict,kpop dance practice,194,0.036,0.01,calm,7
+fh5kx1SLS24,normal,unknown,185,0.476,0.159,heavy,15
+gBIC9yaw9WI,normal,unknown,144,0.201,0.013,calm,15
+gBKXf6390Ew,conflict,what I eat in a day,84,0.131,0.036,some,11
+gBqQWOtKqUM,conflict,kpop live vocals,187,0.091,0.048,some,15
+gCwJfcaj3cc,normal,unknown,24,0.333,0.0,calm,8
+gGLR4QjwL3g,conflict,kpop dance practice,194,0.036,0.0,calm,7
+gQFjrgfI5hM,conflict,kpop dance practice,155,0.265,0.071,some,15
+gVVx-K6h25Q,normal,unknown,177,0.508,0.0,calm,15
+g_AOsEeNsf0,normal,unknown,169,0.237,0.032,some,15
+gbV02kdRvxM,conflict,worst youtuber apology videos,78,0.282,0.038,some,15
+gbia8fYuwNM,normal,unknown,200,0.21,0.0,calm,15
+h2AleUKjDPY,conflict,kpop live vocals,167,0.174,0.116,heavy,15
+h2H6uG_deM8,normal,unknown,195,0.344,0.069,some,15
+h2vOMeKN-fQ,conflict,kpop live vocals,200,0.06,0.01,calm,12
+hE7kLOJBGh0,conflict,kpop live vocals,133,0.203,0.122,heavy,15
+hRYl0quPKYw,normal,unknown,149,0.255,0.017,calm,15
+hg0BYDEeQIk,conflict,kpop live vocals,184,0.228,0.046,some,15
+hl78-6WSqPc,conflict,worst youtuber apology videos,199,0.271,0.018,calm,15
+hsBGFWWrFxw,normal,unknown,185,0.265,0.018,calm,15
+i1n3S1ZyUkE,conflict,worst youtuber apology videos,193,0.192,0.026,calm,15
+i2rqPaoY2eQ,conflict,influencer drama,197,0.396,0.211,heavy,15
+iFQBjnQAEO0,normal,unknown,89,0.303,0.142,heavy,15
+iLUuJWvGb_0,conflict,kpop live vocals,104,0.192,0.09,some,15
+iMfh5buRIGo,conflict,kpop dance practice,188,0.027,0.0,calm,5
+iRXDAHCBMBw,normal,unknown,33,0.212,0.03,some,7
+iTDewTYR4L8,conflict,kpop live vocals,198,0.025,0.01,calm,5
+iuxEdIszWkw,conflict,kpop dance practice,199,0.06,0.005,calm,12
+jLQCU5DzWt0,conflict,kpop dance practice,163,0.276,0.018,calm,15
+jZWbU0rST74,normal,unknown,192,0.146,0.01,calm,15
+j_OG11CKtSw,conflict,what I eat in a day,164,0.11,0.015,calm,15
+ja0AQnXmGTI,conflict,what I eat in a day,53,0.226,0.057,some,12
+jbN6hYnO1FU,normal,unknown,194,0.242,0.032,some,15
+jkFQszmeQrI,conflict,worst youtuber apology videos,153,0.562,0.225,heavy,15
+joaOjsT5Dxo,conflict,kpop dance practice,149,0.0,0.0,calm,0
+jvBj0aNbxqU,normal,unknown,181,0.254,0.136,heavy,15
+jwJbEwORnds,normal,unknown,33,0.212,0.03,some,7
+k-guxBHcG-E,normal,unknown,180,0.367,0.024,calm,15
+k4ooS9mHAug,conflict,kpop dance practice,143,0.098,0.0,calm,14
+k5BQfOTf5iI,conflict,what I eat in a day,35,0.086,0.029,calm,3
+kTkFToUFdi0,normal,unknown,187,0.31,0.021,calm,15
+kVpt4NgUitA,conflict,kpop dance practice,180,0.189,0.025,calm,15
+l2mbrL8s_Z4,conflict,kpop live vocals,195,0.072,0.015,calm,14
+l4uOzy4Z6pg,conflict,influencer drama,48,0.375,0.25,heavy,15
+lGPuVHFXUs8,normal,unknown,190,0.105,0.056,some,15
+lGd_IL_MOn4,conflict,kpop fancam,188,0.059,0.016,calm,11
+lNKxLEuOAUE,normal,unknown,188,0.245,0.049,some,15
+lQtwPoWJNFg,conflict,kpop live vocals,197,0.01,0.005,calm,2
+lVf-Z0ZkNX4,conflict,influencer drama,190,0.463,0.278,heavy,15
+lZRhPhbOIzw,conflict,kpop dance practice,197,0.051,0.005,calm,10
+l_P2ckwofDM,conflict,kpop dance practice,190,0.021,0.0,calm,4
+ln7U2csEj-g,conflict,kpop dance practice,187,0.048,0.005,calm,9
+lnKsDDYWH54,normal,unknown,26,0.231,0.077,some,6
+m0mNkmSr2r0,conflict,who did it better kpop,179,0.128,0.017,calm,15
+mHNIdsQ9-wE,normal,unknown,194,0.108,0.022,calm,15
+mN2LDs7KmUk,normal,unknown,162,0.265,0.035,some,15
+m_m3H5NzTfo,normal,unknown,123,0.341,0.046,some,15
+madxwuSbDKk,normal,unknown,198,0.242,0.065,some,15
+mwvLhrH_ORY,normal,unknown,180,0.306,0.122,heavy,15
+n1EdZUOpmxc,conflict,outfit of the day,159,0.214,0.014,calm,15
+nDIWbZsgvEM,conflict,kpop fancam,31,0.129,0.0,calm,4
+nE7bm4C10zA,conflict,what I eat in a day,20,0.0,0.0,calm,0
+nEioNChYIXM,conflict,what I eat in a day,31,0.0,0.0,calm,0
+nP2Zhj3q5rE,conflict,worst youtuber apology videos,23,0.217,0.043,some,5
+nZwnjjEdT44,normal,unknown,187,0.176,0.047,some,15
+nhz4JuYp3bQ,normal,unknown,190,0.321,0.043,some,15
+nk-5a8zskFU,normal,unknown,156,0.147,0.0,calm,15
+nzXNPQ6y1yA,conflict,influencer drama,175,0.44,0.147,heavy,15
+oIxjsYqa9VQ,conflict,who did it better kpop,85,0.412,0.082,some,15
+oJTjAymSJ0k,conflict,kpop dance practice,31,0.226,0.0,calm,7
+oWQEqQYA7gg,conflict,worst youtuber apology videos,82,0.561,0.337,heavy,15
+p2DF0QBai44,conflict,influencer drama,193,0.187,0.012,calm,15
+p2rJU6RwHpY,conflict,what I eat in a day,158,0.013,0.006,calm,2
+p3cb2Xsylbg,conflict,worst youtuber apology videos,165,0.436,0.175,heavy,15
+pDbrBOOj-js,normal,unknown,129,0.271,0.0,calm,15
+pG6PswaNApE,normal,unknown,33,0.394,0.03,some,13
+pIACr06eJ_U,normal,unknown,194,0.165,0.033,some,15
+pXPRQQlufOc,normal,unknown,171,0.386,0.077,some,15
+pb_Nhf3jbdU,normal,unknown,35,0.371,0.086,some,13
+prt_qMAP2rU,conflict,outfit of the day,134,0.007,0.0,calm,1
+q5qNp3kEhZE,conflict,influencer drama,163,0.644,0.258,heavy,15
+qQ2ZSKXSCH8,normal,unknown,60,0.25,0.05,some,15
+qTAdNOi0NUg,normal,unknown,161,0.168,0.011,calm,15
+qaTU8HOBbQY,conflict,outfit of the day,23,0.174,0.087,some,4
+qmw7sdZw5_o,conflict,kpop live vocals,146,0.541,0.216,heavy,15
+qqUv0CVDlRg,conflict,what I eat in a day,50,0.06,0.0,calm,3
+r8CluuHB5A8,conflict,who did it better kpop,97,0.351,0.07,some,15
+rEIOXTkYmp4,conflict,kpop live vocals,197,0.137,0.055,some,15
+rkfmOk1SHVc,conflict,outfit of the day,63,0.19,0.032,some,12
+rt7XMkGdXn0,normal,unknown,21,0.143,0.048,some,3
+s1dvLmkWEcg,normal,unknown,194,0.273,0.091,some,15
+s3_BX6CWAZ0,conflict,kpop dance practice,109,0.101,0.0,calm,11
+sOyJOCMruA8,normal,unknown,84,0.369,0.0,calm,15
+t0UtzyoChVQ,normal,unknown,182,0.225,0.06,some,15
+t7V0YVkKZ2E,conflict,kpop dance practice,165,0.079,0.012,calm,13
+tEsPQ4R7GcI,conflict,worst youtuber apology videos,58,0.621,0.248,heavy,15
+tLciXcCB7Wg,normal,unknown,49,0.327,0.087,some,15
+tOuYfO2JJ1U,conflict,kpop fancam,122,0.139,0.019,calm,15
+tTqnf0IKBSQ,conflict,kpop fancam,64,0.234,0.047,some,15
+tWfmJc2telk,conflict,influencer drama,107,0.421,0.084,some,15
+tZMwR8NHmDs,conflict,what I eat in a day,36,0.028,0.0,calm,1
+tpLL-Iz848o,conflict,kpop live vocals,114,0.026,0.009,calm,3
+ttCCHFcMD2o,normal,unknown,183,0.202,0.04,some,15
+uB_c1bwQUBw,normal,unknown,183,0.497,0.033,some,15
+uwusXaQJ2PY,conflict,kpop live vocals,172,0.11,0.007,calm,15
+v3PtkIMAq0c,conflict,kpop fancam,109,0.046,0.0,calm,5
+vSa9ge5-Q-0,conflict,who did it better kpop,189,0.286,0.114,heavy,15
+vhc2HQSsAu8,normal,unknown,196,0.5,0.133,heavy,15
+vof7GCsGPW4,normal,unknown,83,0.133,0.0,calm,11
+vsd-BrvTiio,conflict,outfit of the day,60,0.1,0.017,calm,6
+vuE_gty-Ya4,conflict,who did it better kpop,184,0.201,0.067,some,15
+wGNSu6apdaI,conflict,what I eat in a day,43,0.023,0.023,calm,1
+wOEM2N6Da78,normal,unknown,40,0.7,0.093,some,15
+wSWCXWdA8xY,normal,unknown,170,0.382,0.127,heavy,15
+we3gF-yPRcw,conflict,worst youtuber apology videos,57,0.351,0.094,some,15
+wjudjvyML54,conflict,kpop dance practice,188,0.037,0.011,calm,7
+x1YowEkx4JE,conflict,kpop live vocals,177,0.113,0.008,calm,15
+x1fts57Pnf8,conflict,what I eat in a day,29,0.069,0.0,calm,2
+x2-xw86LrgY,conflict,kpop fancam,173,0.451,0.21,heavy,15
+xCpSeyzLEEM,conflict,what I eat in a day,191,0.073,0.0,calm,14
+xEALbJGDdeI,normal,unknown,192,0.224,0.134,heavy,15
+xKxiLf6Q-Eo,conflict,kpop live vocals,105,0.219,0.073,some,15
+xTCigUGa_zg,normal,unknown,192,0.307,0.082,some,15
+xVZiWANBfnM,conflict,kpop live vocals,66,0.091,0.045,some,6
+xXsvi7XH7mk,normal,unknown,187,0.198,0.013,calm,15
+x_EbW6fpeEs,conflict,kpop dance practice,197,0.041,0.01,calm,8
+xep49bud_t8,conflict,who did it better kpop,30,0.067,0.0,calm,2
+xiKxoNm0FN8,conflict,worst youtuber apology videos,192,0.484,0.129,heavy,15
+xrm7PP1mbtI,conflict,kpop dance practice,194,0.103,0.014,calm,15
+xyQQNKZo9JE,normal,unknown,194,0.16,0.0,calm,15
+y2toppFRf4s,conflict,influencer drama,36,0.361,0.139,heavy,13
+y385-jAKmu4,normal,unknown,20,0.1,0.0,calm,2
+y7cgsUptVFo,conflict,kpop live vocals,170,0.041,0.018,calm,7
+yCKyobq1734,conflict,who did it better kpop,41,0.146,0.049,some,6
+yDguQmBiwEw,normal,unknown,185,0.249,0.033,some,15
+ySVPOrA0iw4,normal,unknown,86,0.547,0.073,some,15
+yV7mJx7mu5c,conflict,influencer drama,151,0.053,0.0,calm,8
+ygwbT4bLu0I,normal,unknown,198,0.455,0.091,some,15
+zDjb0-neUe8,normal,unknown,94,0.117,0.032,some,11
+zMHWKpy8Y1o,conflict,what I eat in a day,197,0.157,0.063,some,15
+zNJbxMcvRnU,conflict,influencer drama,194,0.082,0.055,some,15
+zlIf1MCF5NY,conflict,influencer drama,44,0.273,0.136,heavy,12
+zwroDRwp2Cg,normal,unknown,181,0.47,0.125,heavy,15
+zxTRXPXIr2w,conflict,influencer drama,189,0.693,0.323,heavy,15
+zzGb1L5S_Nc,conflict,kpop live vocals,192,0.12,0.072,some,15
