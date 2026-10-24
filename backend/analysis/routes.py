@@ -8,7 +8,7 @@ from app.config import settings
 from .analyzer import ModelUnavailableError, get_analyzer
 from .ollama_client import OllamaClient, OllamaError
 from .video_assessment import AssessmentResult, VideoEvidence, assess_video
-from .taxonomy import CONTENT_SIGNALS, SUBCATEGORIES, TAXONOMY_VERSION
+from .taxonomy import CONTENT_SIGNALS, SUBCATEGORIES, TAXONOMY_VERSION, NEGATIVE_CONTENT_SIGNALS, POSITIVE_CONTENT_SIGNALS
 from app.youtube import YouTubeError, fetch_video_comments, parse_comments
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
@@ -21,7 +21,8 @@ def get_taxonomy():
     return {"version": TAXONOMY_VERSION,
             "categories": {parent: [f"{parent}.{child}" for child in children]
                            for parent, children in SUBCATEGORIES.items()},
-            "content_signals": CONTENT_SIGNALS}
+            "content_signals": CONTENT_SIGNALS,
+            "signal_groups": {"negative": NEGATIVE_CONTENT_SIGNALS, "positive": POSITIVE_CONTENT_SIGNALS}}
 
 
 class CommentAnalysisRequest(BaseModel):

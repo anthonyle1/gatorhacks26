@@ -57,7 +57,7 @@ class OllamaClient:
             "available": any(row.get("name") == self.model or row.get("model") == self.model for row in models),
         }
 
-    def prompt(self, prompt: str, system: str | None = None, *, response_format=None, max_tokens=None, think=None, context_length=None):
+    def prompt(self, prompt: str, system: str | None = None, *, response_format=None, max_tokens=None, think=None, context_length=None, temperature=None):
         if not prompt.strip():
             raise ValueError("Prompt must not be blank.")
         messages = []
@@ -74,6 +74,8 @@ class OllamaClient:
             options["num_predict"] = max_tokens
         if context_length is not None:
             options["num_ctx"] = context_length
+        if temperature is not None:
+            options["temperature"] = temperature
         if options:
             payload["options"] = options
         if think is not None:

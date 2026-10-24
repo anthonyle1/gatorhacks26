@@ -23,6 +23,8 @@ type VideoAssessment = {
   negative_for_user: 'yes' | 'no' | 'uncertain'; reason: string
   categories: string[]; category_reason: string
   subcategories: SpecificLabel[]; content_signals: SpecificLabel[]; taxonomy_version: string
+  signal_polarities: Record<string, 'positive' | 'negative'>
+  provider: 'ollama' | 'gemini'; model: string | null; fallback_used: boolean; fallback_reason: string | null
   web_search: { status: 'disabled' | 'used' | 'no_results' | 'unavailable'; warning: string | null; sources: WebSource[] }
 }
 type AssessmentComment = Pick<Comment, 'text' | 'sentiment' | 'confidence'>
@@ -85,8 +87,14 @@ function isVideoAssessment(value: unknown): value is VideoAssessment {
     && value.categories.every(category => typeof category === 'string' && /^[a-z_]{1,32}$/.test(category))
     && typeof value.category_reason === 'string' && value.category_reason.trim().length > 0 && value.category_reason.length <= 400
     && hasSpecificLabels(value.subcategories, 8) && hasSpecificLabels(value.content_signals, 4)
+    && isRecord(value.signal_polarities) && value.content_signals.every(tag =>
+      ['positive', 'negative'].includes(String((value.signal_polarities as Record<string, unknown>)[tag.id])))
     && value.subcategories.every(tag => (value.categories as string[]).includes(tag.id.split('.')[0]))
     && typeof value.taxonomy_version === 'string'
+    && ['ollama', 'gemini'].includes(String(value.provider))
+    && (value.model === null || typeof value.model === 'string') && typeof value.fallback_used === 'boolean'
+    && (value.fallback_reason === null || typeof value.fallback_reason === 'string')
+    && value.fallback_used === (value.provider === 'gemini')
     && isRecord(value.web_search) && ['disabled', 'used', 'no_results', 'unavailable'].includes(String(value.web_search.status))
     && (value.web_search.warning === null || typeof value.web_search.warning === 'string')
     && Array.isArray(value.web_search.sources) && value.web_search.sources.length <= 3
@@ -211,6 +219,7 @@ function App() {
   const checks = data ? [
     { label: 'YouTube → analyzer', detail: 'The live analysis request completed.', pass: true },
     { label: 'Comment counts', detail: 'Returned comments match the summary and label counts.', pass: data.comments.length === data.summary.total_comments && sentiments.reduce((n, label) => n + data.summary.counts[label], 0) === data.comments.length && sentiments.every(label => data.comments.filter(c => c.sentiment === label).length === data.summary.counts[label]) },
+    { label: 'Non-neutral balance', detail: 'Positive minus negative counts, divided by their sum; neutrals excluded.', pass: data.summary.sentiment_balance === (data.summary.counts.positive + data.summary.counts.negative ? (data.summary.counts.positive - data.summary.counts.negative) / (data.summary.counts.positive + data.summary.counts.negative) : null) },
     { label: 'Probability scores', detail: 'Each score is between 0 and 1; each set sums to 1.', pass: data.comments.length ? data.comments.every(c => sentiments.every(label => Number.isFinite(c.scores[label]) && c.scores[label] >= 0 && c.scores[label] <= 1) && Math.abs(sentiments.reduce((n, label) => n + c.scores[label], 0) - 1) < 0.001) : null },
     { label: 'Decision rule', detail: 'Recomputed from returned comment labels and the threshold.', pass: data.summary.is_negative_reaction === (data.comments.length ? data.comments.filter(c => c.sentiment === 'negative').length / data.comments.length >= data.summary.negative_threshold && data.comments.filter(c => c.sentiment === 'negative').length > data.comments.filter(c => c.sentiment === 'positive').length : null) },
   ] : []
@@ -243,9 +252,9 @@ function App() {
               <label>Comment sample<select value={sampleSize} onChange={e => setSampleSize(Number(e.target.value))} disabled={running}>{[20, 50, 100, 250, 500, 1000].map(n => <option key={n} value={n}>{n} comments</option>)}</select><span className="field-hint">Up to this many · Newest first</span></label>
               <label>Negative threshold<div className="threshold-control"><input type="number" min="1" max="100" step="1" required value={threshold} onChange={e => setThreshold(Number(e.target.value))} disabled={running} /><span>%</span></div><span className="field-hint">Negative share needed to flag</span></label>
             </div>
-            <div className="form-footer"><span><span className="tiny-dot" /> Real comments. Local model inference.</span><div>{running && <button type="button" className="button secondary" onClick={() => controller.current?.abort()}>Cancel</button>}<button className="button primary" disabled={running} type="submit">{running ? <><span className="spinner" /> Analyzing · {elapsed}s</> : <>Run analysis <Icon name="arrow" size={18} /></>}</button></div></div>
+            <div className="form-footer"><span><span className="tiny-dot" /> Real comments. Ollama with Gemini backup.</span><div>{running && <button type="button" className="button secondary" onClick={() => controller.current?.abort()}>Cancel</button>}<button className="button primary" disabled={running} type="submit">{running ? <><span className="spinner" /> Analyzing · {elapsed}s</> : <>Run analysis <Icon name="arrow" size={18} /></>}</button></div></div>
           </form>
-          {running && <p className="run-message" role="status">{assessing ? 'Comment analysis complete. Assessing the video title, description, and a sample of audience comments with the local Ollama model.' : 'Fetching comments and running sentiment inference. The first run downloads model weights and can take several minutes.'}</p>}
+          {running && <p className="run-message" role="status">{assessing ? 'Comment analysis complete. Assessing the video and audience comments with Ollama; Gemini will be used if Ollama fails and a Gemini key is configured.' : 'Fetching comments and running sentiment inference. The first run downloads model weights and can take several minutes.'}</p>}
           {error && <div className="error-message" role="alert"><strong>Analysis couldn’t complete.</strong> {error}</div>}
           {notice && <p className="run-message" role="status">{notice}</p>}
         </section>
@@ -264,22 +273,25 @@ function App() {
             {(data ? checks : [
               { label: 'YouTube → analyzer', detail: 'Fetch and classify a live comment sample.', pass: null },
               { label: 'Comment counts', detail: 'Check returned comments against summary totals.', pass: null },
+              { label: 'Non-neutral balance', detail: 'Check the count ratio excluding neutral comments.', pass: null },
               { label: 'Probability scores', detail: 'Check score ranges and probability sums.', pass: null },
               { label: 'Decision rule', detail: 'Verify the configured negative-reaction rule.', pass: null },
             ]).map(check => <div className="check-row" key={check.label}><span className={`check-indicator ${check.pass === null ? 'pending' : check.pass ? 'passed' : 'failed'}`}>{check.pass === null ? '·' : check.pass ? <Icon name="check" size={14} /> : '!'}</span><div><strong>{check.label}</strong><p>{check.detail}</p></div><small>{check.pass === null ? (data ? 'N/A' : 'Pending') : check.pass ? 'Pass' : 'Fail'}</small></div>)}
           </section>
         </div>
         <section className="panel video-assessment-panel" aria-labelledby="video-assessment-heading">
-          <div className="section-heading"><h2 id="video-assessment-heading">Video assessment</h2><span className="subtle">Local Ollama model</span></div>
+          <div className="section-heading"><h2 id="video-assessment-heading">Video assessment</h2><span className="subtle">{assessment ? `${assessment.provider === 'gemini' ? 'Gemini' : 'Ollama'} · ${assessment.model || 'Configured model'}` : 'Ollama primary · Gemini backup'}</span></div>
           <div className="video-assessment-body" aria-live="polite" aria-busy={assessing}>
             {assessing ? <p role="status">Assessing the title, description, sampled comments, and sentiment score…</p>
-              : assessment ? <><span className={`video-verdict ${assessment.negative_for_user}`}>Potentially negative for user: {assessment.negative_for_user.toUpperCase()}</span><p className="video-reason">{assessment.reason}</p>
+              : assessment ? <>{assessment.fallback_used && <div className="fallback-banner" role="status"><strong>Gemini fallback used</strong><p>Ollama could not complete an accepted assessment. This result was generated by Google's hosted Gemini model.</p>{assessment.fallback_reason && <details><summary>Why the backup was used</summary><p>{assessment.fallback_reason}</p></details>}</div>}<span className={`video-verdict ${assessment.negative_for_user}`}>Potentially negative for user: {assessment.negative_for_user.toUpperCase()}</span><p className="video-reason">{assessment.reason}</p>
                 <h3 className="category-heading">Video categories</h3>
                 <div className="category-tags">{assessment.categories.length ? assessment.categories.map(category => <span key={category}>{title(category.replaceAll('_', ' '))}</span>) : <span>Topic uncertain</span>}</div>
                 <p className="category-reason">{assessment.category_reason}</p>
                 <div className="topic-breakdown">{assessment.categories.map(category => <div className="topic-branch" key={category}><h4>{labelName(category)}</h4>{assessment.subcategories.some(tag => tag.id.startsWith(`${category}.`)) ? <ul>{assessment.subcategories.filter(tag => tag.id.startsWith(`${category}.`)).map(tag => <li key={tag.id}><strong>{labelName(tag.id.split('.')[1])}</strong><p>{tag.evidence}</p></li>)}</ul> : <p className="field-hint">No specific subcategory supported by the supplied evidence.</p>}</div>)}</div>
-                <h3 className="category-heading">Content signals to review</h3>
-                {assessment.content_signals.length ? <ul className="content-signals">{assessment.content_signals.map(tag => <li key={tag.id}><strong>{labelName(tag.id)}</strong><p>{tag.evidence}</p></li>)}</ul> : <p className="field-hint">No supported content signals identified in the supplied data. This does not establish safety.</p>}
+                <h3 className="category-heading">Potential concerns to review</h3>
+                {assessment.content_signals.some(tag => assessment.signal_polarities[tag.id] === 'negative') ? <ul className="content-signals">{assessment.content_signals.filter(tag => assessment.signal_polarities[tag.id] === 'negative').map(tag => <li key={tag.id}><strong>{labelName(tag.id)}</strong><p>{tag.evidence}</p></li>)}</ul> : <p className="field-hint">No supported negative signals identified in the supplied data. This does not establish safety.</p>}
+                <h3 className="category-heading">Constructive signals</h3>
+                {assessment.content_signals.some(tag => assessment.signal_polarities[tag.id] === 'positive') ? <ul className="content-signals positive-signals">{assessment.content_signals.filter(tag => assessment.signal_polarities[tag.id] === 'positive').map(tag => <li key={tag.id}><strong>{labelName(tag.id)}</strong><p>{tag.evidence}</p></li>)}</ul> : <p className="field-hint">No supported positive signals identified in the supplied data.</p>}
                 <p className="field-hint">You can later choose a whole category or a specific subcategory to avoid. Content signals describe presentation or behavior separately from topics. Preference matching and blocking are not enabled yet.</p>
                 <p className="web-search-status">{assessment.web_search.status === 'used' ? 'Web context included' : assessment.web_search.status === 'no_results' ? 'Web search returned no results; using video metadata' : assessment.web_search.status === 'unavailable' ? 'Web search unavailable; using video metadata' : 'Web search disabled; using video metadata'}</p>
                 {assessment.web_search.warning && <p className="field-hint">{assessment.web_search.warning}</p>}
@@ -287,7 +299,8 @@ function App() {
               </>
                 : !assessmentError && <p>Run an analysis to see the video assessment alongside audience sentiment.</p>}
             {assessmentError && <div className="error-message" role="alert"><strong>Video assessment unavailable.</strong> {assessmentError} Comment sentiment results remain available.</div>}
-            {evidence && <details className="video-evidence"><summary>Inputs used for the assessment</summary><dl><dt>Video title</dt><dd>{evidence.title}</dd><dt>Caption source</dt><dd>YouTube video description (no transcript is fetched)</dd><dt>Description</dt><dd>{evidence.caption || 'No description available.'}</dd><dt>Sentiment balance</dt><dd>{evidence.sentiment_balance === null ? 'Unavailable: no usable comments' : evidence.sentiment_balance.toFixed(3)}</dd><dt>Audience comments supplied ({evidence.comments.length})</dt><dd>{evidence.comments.length ? <><p>Up to 12 comments sampled across sentiment labels; each limited to 300 characters. This sample does not represent audience proportions.</p><ul>{evidence.comments.map((comment, index) => <li key={index}><strong>{title(comment.sentiment)} · {percent(comment.confidence)} confidence</strong><p>{comment.text}</p></li>)}</ul></> : 'No comments available.'}</dd></dl></details>}
+            {assessment && <details className="raw-response"><summary>Inspect {assessment.provider === 'gemini' ? 'Gemini fallback' : 'Ollama'} assessment JSON <span>JSON</span></summary><pre aria-label="Model assessment JSON">{JSON.stringify(assessment, null, 2)}</pre></details>}
+            {evidence && <details className="video-evidence"><summary>Inputs used for the assessment</summary><dl><dt>Video title</dt><dd>{evidence.title}</dd><dt>Caption source</dt><dd>YouTube video description (no transcript is fetched)</dd><dt>Description</dt><dd>{evidence.caption || 'No description available.'}</dd><dt>Sentiment balance (neutrals excluded)</dt><dd>{evidence.sentiment_balance === null ? 'Unavailable: no positive or negative comments' : evidence.sentiment_balance.toFixed(3)}<p className="field-hint">(Positive count - negative count) / (positive count + negative count). Neutral comments do not dilute the ratio.</p></dd><dt>Audience comments supplied ({evidence.comments.length})</dt><dd>{evidence.comments.length ? <><p>Up to 12 comments sampled across sentiment labels; each limited to 300 characters. This sample does not represent audience proportions.</p><ul>{evidence.comments.map((comment, index) => <li key={index}><strong>{title(comment.sentiment)} · {percent(comment.confidence)} confidence</strong><p>{comment.text}</p></li>)}</ul></> : 'No comments available.'}</dd></dl></details>}
             <p className="field-hint">Tentative assessment of supplied metadata; individual effects are unknown. Audience sentiment alone does not establish harm.</p>
           </div>
         </section>
@@ -299,7 +312,7 @@ function App() {
             : <div className="comment-list">{comments.map((comment, index) => <article className="comment-row" key={comment.id ?? index}><span className={`comment-avatar ${comment.sentiment}`}>{String(index + 1).padStart(2, '0')}</span><div className="comment-content"><div className="comment-meta"><span className={`sentiment-badge ${comment.sentiment}`}>{title(comment.sentiment)}</span><span>{percent(comment.confidence)} confidence</span>{comment.id && <a href={`https://www.youtube.com/watch?v=${data.sample.video_id}&lc=${encodeURIComponent(comment.id)}`} target="_blank" rel="noreferrer">View on YouTube ↗</a>}</div><p className="comment-text">{comment.text}</p><div className="score-grid">{sentiments.map(label => <div className="score" key={label}><span>{title(label)} <b>{percent(comment.scores[label])}</b></span><div className="score-track"><span className={label} style={{ width: percent(comment.scores[label]) }} /></div></div>)}</div></div></article>)}</div>}
           {data && <div className="comments-footer"><span>Showing {comments.length} of {data.comments.length} analyzed comments</span><span>{data.sample.has_more ? 'Sample limit reached · more comments available' : 'End of available top-level sample'} · Replies excluded</span></div>}
         </section>
-        {data && <details className="raw-response"><summary>Inspect raw API response <span>JSON</span></summary><pre>{JSON.stringify(data, null, 2)}</pre></details>}
+        {data && <details className="raw-response"><summary>Inspect comment analysis JSON <span>JSON</span></summary><pre>{JSON.stringify(data, null, 2)}</pre></details>}
         <footer className="page-footer"><span>HEALTHY DOOMSCROLLING <span>/</span> COMMENT LAB</span><p>English sentiment analysis measures comment tone, not video harmfulness. Results reflect the sampled comments.</p></footer>
       </main>
     </div>
