@@ -1,32 +1,43 @@
-# React + TypeScript + Vite
+# Prune frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React + TypeScript (Vite) build of the Prune website from the design handoff.
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev       # http://localhost:5173
+npm run build     # typecheck + production build to dist/
+npm run preview
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Pages
+
+| Route | Page | Source mockup |
+|---|---|---|
+| `/` | Garden: tree, pruning station, inspector, compost pile | `Website.dc.html` |
+| `/calendar` | Day detail with prune buttons and prev/next day | `DayDetail.dc.html` |
+| `/how-we-measure` | Definition, pipeline, accuracy, limits | `HowWeMeasure.dc.html` |
+| `/settings` | Placeholder (no design yet) | none |
+
+The Chrome side panel screens (`Main`, `FirstRun`, `DayOne`, `InContext`) are not part of this app.
+
+## Structure
+
+```
+src/
+  styles/tokens.css       colors, fonts, radii from the design README
+  styles/app.css          all component styles
+  data/sample.ts          SAMPLE data (branches, days). Replace with API data
+  state/                  prune/snip/compost state shared by Garden and Calendar
+  components/             Layout, Chip, Tree (SVG), icons, garden/*
+  pages/                  Garden, Calendar, HowWeMeasure, Settings
+```
+
+## Still to wire up
+
+- `data/sample.ts` is mockup data. Branch levels should come from `GET /hostility/{video_id}`
+  (`calm`, `some`, `heavy`, `not_rated`). Branch size: sprout under 3% of the last 30 days of
+  Shorts, growing 3 to 10%, full over 10%.
+- `state/PruneProvider.tsx` keeps pruning in memory only. Pruning a branch should hide that
+  category's Shorts, snipping hides one channel, and burning the compost pile clears history
+  only (pruned branches stay pruned).
+- Placeholders from the design are left as `[level]` and the privacy line on How we measure.
