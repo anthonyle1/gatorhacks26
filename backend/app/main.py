@@ -1,8 +1,12 @@
+import asyncio
+import logging
 import os
 import httpx
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
+from pymongo.errors import PyMongoError
 
 from app.youtube import router as youtube_router
 from app.instagram import router as instagram_router
@@ -16,6 +20,13 @@ load_dotenv()
 
 # Initialize FastAPI
 app = FastAPI(title="Healthy Doomscrolling API")
+logger = logging.getLogger(__name__)
+
+
+@app.exception_handler(PyMongoError)
+async def database_error_handler(request: Request, exc: PyMongoError):
+    logger.warning("Database request failed (%s)", type(exc).__name__)
+    return JSONResponse(status_code=503, content={"detail": "Database unavailable. Check MongoDB connectivity and Atlas network access."})
 
 app.include_router(sessions_router)
 app.include_router(youtube_router)
@@ -41,7 +52,8 @@ YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 @app.get("/health")
 async def health():
     try:
-        await ping_database()
+        async with asyncio.timeout(5):
+            await ping_database()
 
         return {
             "status": "ok",

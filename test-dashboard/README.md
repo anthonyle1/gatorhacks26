@@ -68,7 +68,12 @@ python -m uvicorn app.main:app --reload --port 8000
 ```
 
 Configure `MONGODB_URI` and `YOUTUBE_API_KEY` in `backend/.env`. The app requires the
-MongoDB setting at startup, although comment analysis does not use the database.
+MongoDB setting at startup. Comment classification itself runs locally.
+The video route now attempts to persist its RoBERTa result. If MongoDB fails or
+storage cannot be confirmed within five seconds, the dashboard preserves the
+completed analysis, displays a storage warning, and continues to assessment.
+The JSON response and export include the `storage` status. Session uploads and
+stored-result retrieval still require a working database.
 The first nonempty analysis downloads the model from Hugging Face, which can take
 several minutes. Later requests reuse the loaded model.
 

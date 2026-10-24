@@ -15,6 +15,7 @@ type Analysis = {
   }
   comments: Comment[]
   sample: { video_id: string; order: string; includes_replies: boolean; max_comments: number; has_more: boolean }
+  storage?: { status: 'saved' | 'unavailable'; detail?: string }
 }
 type Run = { data: Analysis; seconds: number; completedAt: string }
 type WebSource = { title: string; url: string; content: string }
@@ -62,6 +63,9 @@ function isAnalysis(value: unknown): value is Analysis {
   if (!isRecord(value) || !isRecord(value.summary) || !isRecord(value.sample) || !Array.isArray(value.comments)) return false
   const { summary, sample, comments } = value
   return typeof value.model === 'string' && typeof summary.total_comments === 'number'
+    && (value.storage === undefined || (isRecord(value.storage)
+      && ['saved', 'unavailable'].includes(String(value.storage.status))
+      && (value.storage.detail === undefined || typeof value.storage.detail === 'string')))
     && hasScores(summary.counts) && hasScores(summary.proportions) && hasScores(summary.average_scores)
     && typeof summary.negative_threshold === 'number'
     && (summary.sentiment_balance === null || (typeof summary.sentiment_balance === 'number' && Number.isFinite(summary.sentiment_balance) && Math.abs(summary.sentiment_balance) <= 1))
@@ -75,7 +79,7 @@ function isAnalysis(value: unknown): value is Analysis {
 async function fetchJson(url: string, options: RequestInit): Promise<unknown> {
   const response = await fetch(url, options)
   let body: unknown
-  try { body = await response.json() } catch { throw new Error('The API did not return JSON. Check the backend on port 8000.') }
+  try { body = await response.json() } catch { throw new Error(`The API returned a non-JSON response (HTTP ${response.status}). Check the backend terminal and the dashboard proxy to port 8000.`) }
   if (!response.ok) throw new Error(isRecord(body) && typeof body.detail === 'string' ? body.detail : `Request failed (HTTP ${response.status}). Check the backend terminal.`)
   return body
 }
@@ -170,16 +174,10 @@ function App() {
     setFilter('all'); setSearch(''); setSort('original')
     try {
       const params = new URLSearchParams({ max_comments: String(sampleSize), negative_threshold: String(threshold / 100) })
-      const response = await fetch(`/api/analysis/videos/${id}?${params}`, { signal: request.signal })
-      const text = await response.text()
-      let body: unknown
-      try { body = JSON.parse(text) } catch { throw new Error('The API did not return JSON. Check that the backend is running on port 8000, then try again.') }
-      if (!response.ok) {
-        const detail = isRecord(body) && typeof body.detail === 'string' ? body.detail : `Analysis failed (HTTP ${response.status}). Check the backend terminal for details.`
-        throw new Error(detail)
-      }
+      const body = await fetchJson(`/api/analysis/videos/${id}?${params}`, { signal: request.signal })
       if (!isAnalysis(body)) throw new Error('Unexpected analysis response. Check that the backend exposes /analysis/videos/{video_id}.')
       setRun({ data: body, seconds: (performance.now() - started) / 1000, completedAt: new Date().toLocaleTimeString() })
+      if (body.storage?.status === 'unavailable') setNotice(body.storage.detail || 'Analysis completed, but saving to MongoDB could not be confirmed.')
       setAssessing(true)
       try {
         const metadata = await fetchJson(`/api/youtube/video/${id}`, { signal: request.signal })

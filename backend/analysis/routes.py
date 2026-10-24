@@ -1,9 +1,11 @@
+import asyncio
 import logging
 from typing import Annotated, Any
 
 from fastapi import APIRouter, HTTPException, Path, Query
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field
+from pymongo.errors import PyMongoError
 
 from app.config import settings
 from .analyzer import ModelUnavailableError, get_analyzer
@@ -109,5 +111,16 @@ async def analyze_video(
         "video_id": video_id, "order": "time", "includes_replies": False,
         "max_comments": max_comments, "has_more": bool(response.get("nextPageToken"))
     }
-    await save_roberta_analysis(video_id, result)
+    try:
+        async with asyncio.timeout(5):
+            await save_roberta_analysis(video_id, result)
+        result["storage"] = {"status": "saved"}
+    except (PyMongoError, TimeoutError) as exc:
+        # Preserve computed results while making persistence failure explicit.
+        # Driver error text can contain infrastructure details; log only its type.
+        logger.warning("Analysis storage unavailable (%s)", type(exc).__name__)
+        result["storage"] = {
+            "status": "unavailable",
+            "detail": "Analysis completed, but saving to MongoDB could not be confirmed. Check database connectivity.",
+        }
     return result

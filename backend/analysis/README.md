@@ -374,8 +374,25 @@ python -m uvicorn app.main:app --reload
 
 Use the project's virtual environment. The requirements skip `uvloop` on Windows.
 The API still requires the existing `MONGODB_URI` setting at startup.
-Analysis does not read or write MongoDB. Add `YOUTUBE_API_KEY` to `backend/.env`
+The video analysis route attempts to save RoBERTa results to MongoDB. Add `YOUTUBE_API_KEY` to `backend/.env`
 only if you want the API to fetch comments itself.
+
+If MongoDB is unreachable, `/analysis/videos/{video_id}` still returns its
+completed analysis with `storage.status: "unavailable"` and a detail message.
+Storage confirmation is bounded to five seconds; successful writes return
+`storage.status: "saved"`. An unavailable status means saving could not be
+confirmed, not that a write certainly did not reach the database. The dashboard
+shows this warning and can continue to video assessment. Direct comment and
+metadata assessment endpoints do not require a database write.
+
+Database-dependent routes (sessions and stored-analysis retrieval) return a
+sanitized JSON 503 if MongoDB raises a driver error. `/health` also returns JSON
+503 within five seconds of a failed database check. A TLS handshake or server
+selection failure requires fixing the MongoDB connection; check the Atlas
+[IP access list and connection troubleshooting](https://www.mongodb.com/docs/atlas/troubleshoot-connection/),
+cluster availability, and your network's connectivity to Atlas. Database errors
+are no longer returned as plain-text 500 responses that hide the cause behind
+the dashboard's "not JSON" message.
 
 YouTube parsing and fetching are shared through `app/youtube.py`. Both the
 analysis video route and `/youtube/comments/{video_id}` use its fetcher. The
