@@ -1,57 +1,60 @@
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Healthy Doomscrolling</title>
-
   <style>
     body {
-      width: 280px;
-      padding: 20px;
+      width: 320px;
+      padding: 12px;
+      background: #f5f6fa;
       font-family: Arial, sans-serif;
-      background: #f5f7fb;
-      color: #242424;
     }
 
     h2 {
       color: #684378;
     }
 
-    .stat {
+    .card {
       background: white;
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 10px;
+      padding: 20px;
+      border-radius: 14px;
+      margin-bottom: 12px;
     }
 
-    .number {
-      font-size: 24px;
-      font-weight: bold;
+    .value {
       color: #684378;
+      font-size: 28px;
+      font-weight: bold;
     }
   </style>
 </head>
-
 <body>
+
   <h2>Healthy Doomscrolling</h2>
-  <p>Your YouTube Shorts activity</p>
+  <p>Your scrolling activity</p>
 
-  <div class="stat">
+  <div class="card">
     <p>Time spent scrolling</p>
-    <div class="number" id="duration">0 min</div>
+    <div class="value" id="duration">0.0 min</div>
   </div>
 
-  <div class="stat">
-    <p>Shorts watched</p>
-    <div class="number" id="videoCount">0</div>
+  <div class="card">
+    <p>Videos watched</p>
+    <div class="value" id="videoCount">0</div>
   </div>
 
-  <div class="stat">
+  <div class="card">
+    <p>Current platform</p>
+    <div class="value" id="platform">None</div>
+  </div>
+
+  <div class="card">
     <p>Current video ID</p>
-    <div id="currentVideo">None</div>
+    <div id="videoId">None</div>
   </div>
 
-  <script src="popup.js"></script>
 </body>
+<script src="popup.js"></script>
 </html>

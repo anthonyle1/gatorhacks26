@@ -167,3 +167,58 @@ chrome.runtime.onMessage.addListener(
     return true;
   }
 );
+
+
+/*
+ * Upload Instagram Reel comments to FastAPI.
+ * Keeps the existing VIDEO_EVENT handler unchanged.
+ */
+
+chrome.runtime.onMessage.addListener(
+  (message, sender, sendResponse) => {
+    if (message.type !== "INSTAGRAM_COMMENTS") {
+      return false;
+    }
+
+    (async () => {
+      try {
+        const result = await apiRequest(
+          "/instagram/comments",
+          {
+            method: "POST",
+            body: JSON.stringify({
+              video_id: message.video_id,
+              platform: "instagram",
+              comments: message.comments
+            })
+          }
+        );
+
+        console.log(
+          "Instagram comments uploaded:",
+          message.video_id,
+          result.comment_count
+        );
+
+        sendResponse({
+          success: true,
+          data: result
+        });
+      } catch (error) {
+        console.error(
+          "Instagram comment upload failed:",
+          error
+        );
+
+        sendResponse({
+          success: false,
+          error: error.message
+        });
+      }
+    })();
+
+    // Keep message channel open until request completes.
+    return true;
+  }
+);
+
