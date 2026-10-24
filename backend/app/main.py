@@ -1,6 +1,8 @@
 import asyncio
+from contextlib import asynccontextmanager, suppress
 import logging
 import os
+import sqlite3
 import httpx
 
 from dotenv import load_dotenv
@@ -14,12 +16,24 @@ from app.database import ping_database
 from app.routes.sessions import router as sessions_router
 from app.routes.videos import router as videos_router
 from analysis.routes import router as analysis_router
+from app.services.session_analysis import recover_session_jobs
 
 # Load environment variables
 load_dotenv()
 
 # Initialize FastAPI
-app = FastAPI(title="Healthy Doomscrolling API")
+@asynccontextmanager
+async def lifespan(application):
+    worker = asyncio.create_task(recover_session_jobs())
+    try:
+        yield
+    finally:
+        worker.cancel()
+        with suppress(asyncio.CancelledError):
+            await worker
+
+
+app = FastAPI(title="Healthy Doomscrolling API", lifespan=lifespan)
 logger = logging.getLogger(__name__)
 
 
@@ -27,6 +41,12 @@ logger = logging.getLogger(__name__)
 async def database_error_handler(request: Request, exc: PyMongoError):
     logger.warning("Database request failed (%s)", type(exc).__name__)
     return JSONResponse(status_code=503, content={"detail": "Database unavailable. Check MongoDB connectivity and Atlas network access."})
+
+
+@app.exception_handler(sqlite3.Error)
+async def topic_storage_error(request: Request, exc: sqlite3.Error):
+    logger.warning("Topic storage unavailable (%s)", type(exc).__name__)
+    return JSONResponse(status_code=503, content={"detail": "Persistent topic storage is unavailable."})
 
 app.include_router(sessions_router)
 app.include_router(youtube_router)

@@ -2,7 +2,7 @@
 
 ## Healthy Doomscrolling
 
-A Chrome extension that tracks YouTube Shorts viewing activity and analyzes comment sentiment to help users better understand their scrolling habits.
+A Chrome extension that tracks YouTube Shorts and Instagram Reels, analyzes available comment sentiment, and discovers a dynamic topic tree after each completed scrolling session. Users can expand branches and save specific see-less preferences.
 
 ## Local AI prompting
 
@@ -11,6 +11,16 @@ The backend supports local Ollama prompting with `gemma4:e2b` through
 for installation, configuration, and a standalone prompt command.
 
 ## How to Install the Chrome Extension
+
+Build the session review popup first:
+
+```powershell
+cd chrome-react
+npm ci
+npm run build
+```
+
+Start the backend and seed its demo user using [the analysis setup](backend/analysis/README.md).
 
 ### Step 1: Open Chrome Extensions
 1. Open Google Chrome.
@@ -23,19 +33,20 @@ for installation, configuration, and a standalone prompt command.
 ### Step 3: Load the Extension
 1. Click **Load unpacked** in the top-left corner.
 2. Navigate to your local `gatorhacks26` project folder.
-3. Select the **`chrome`** folder containing `manifest.json`.
+3. Select the **`chrome-react/dist`** folder containing `manifest.json`.
 
 ### Step 4: Test the Extension
 1. Open [YouTube Shorts](https://www.youtube.com/shorts).
 2. Click the **puzzle-piece icon** in Chrome's toolbar.
 3. Select the **Healthy Doomscrolling** extension to open its popup.
-4. Scroll through YouTube Shorts to test the extension.
+4. Scroll through videos, then select **Finish and review session** in the popup.
+5. Expand topic branches and select **See less** to save preferences. Parent selections include descendants; child selections affect that branch only. These preferences do not yet modify the platform feed.
 
 ## Updating the Extension
 
 After making changes to the extension code:
 
-1. Go to `chrome://extensions/`.
+1. Rebuild with `npm run build` from `chrome-react/`, then go to `chrome://extensions/`.
 2. Find **Healthy Doomscrolling**.
 3. Click the **Reload** icon.
 4. Refresh your YouTube Shorts tab to apply the changes.

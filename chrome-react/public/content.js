@@ -9,6 +9,8 @@ let currentVideoId = null;
 let currentPlatform = null;
 let videoStartedAt = null;
 let currentVideoSeconds = 0;
+let currentMetadata = { title: "", caption: "" };
+const unsentEvents = new Map();
 let lastCheck = Date.now();
 
 let trackingInterval = null;
@@ -100,6 +102,7 @@ async function trackScrolling() {
 
     currentVideoId = videoId;
     currentPlatform = platform;
+    currentMetadata = readVideoMetadata();
 
     session.currentVideoId = videoId;
     session.currentPlatform = platform;
@@ -126,6 +129,7 @@ async function trackScrolling() {
       );
     }
   } else if (videoId && !document.hidden) {
+    currentMetadata = readVideoMetadata();
     session.durationSeconds += elapsed;
     currentVideoSeconds += elapsed;
   }
@@ -149,58 +153,43 @@ async function trackScrolling() {
 // 4. SEND VIDEO EVENTS TO BACKGROUND
 // ========================================
 
-function sendVideoEvent(
-  videoId,
-  platform,
-  startedAt,
-  seconds
-) {
-  const event = {
-    event_id: crypto.randomUUID(),
-    video_id: videoId,
-    platform,
-    sequence_number: session.videoHistory.length,
-    started_at: startedAt,
-    ended_at: new Date().toISOString(),
-    dwell_seconds: Number(seconds.toFixed(2)),
-    interest_match: null
+function readVideoMetadata() {
+  return {
+    title: (document.querySelector('meta[property="og:title"]')?.content || document.title || '').slice(0, 1000),
+    caption: (document.querySelector('meta[property="og:description"]')?.content || '').slice(0, 16000)
   };
+}
 
-  try {
-    chrome.runtime.sendMessage(
-      {
-        type: "VIDEO_EVENT",
-        event
-      },
-      response => {
+function sendVideoEvent(videoId, platform, startedAt, seconds) {
+  const event = {
+    event_id: crypto.randomUUID(), video_id: videoId, platform,
+    ...currentMetadata,
+    sequence_number: Math.max(1, session.videoHistory.length),
+    started_at: startedAt, ended_at: new Date().toISOString(),
+    dwell_seconds: Number(seconds.toFixed(2)), interest_match: null
+  };
+  unsentEvents.set(event.event_id, event);
+  return transmitVideoEvent(event);
+}
+
+function transmitVideoEvent(event) {
+  return new Promise(resolve => {
+    try {
+      chrome.runtime.sendMessage({ type: "VIDEO_EVENT", event }, response => {
         if (chrome.runtime.lastError) {
-          console.warn(
-            "Extension message failed:",
-            chrome.runtime.lastError.message
-          );
+          console.warn("Extension message failed:", chrome.runtime.lastError.message);
+          resolve(false);
           return;
         }
-
-        if (!response?.success) {
-          console.warn(
-            "Video upload failed:",
-            response?.error
-          );
-        } else {
-          console.log(
-            "Video saved to backend:",
-            platform,
-            videoId
-          );
-        }
-      }
-    );
-  } catch (error) {
-    console.warn(
-      "Could not send video event:",
-      error.message
-    );
-  }
+        if (response?.success) unsentEvents.delete(event.event_id);
+        else console.warn("Video upload failed:", response?.error);
+        resolve(Boolean(response?.success));
+      });
+    } catch (error) {
+      console.warn("Could not send video event:", error.message);
+      resolve(false);
+    }
+  });
 }
 
 // ========================================
@@ -349,6 +338,7 @@ function sendInstagramComments(videoId, comments) {
         {
           type: "INSTAGRAM_COMMENTS",
           video_id: videoId,
+          ...readVideoMetadata(),
           comments
         },
         response => {
@@ -549,18 +539,43 @@ async function processInstagramReel() {
 // 10. START TRACKING
 // ========================================
 
-trackingInterval = setInterval(
-  trackScrolling,
-  1000
-);
+async function startTracking(reset = false) {
+  const state = await chrome.storage.local.get("trackingPaused");
+  if (state.trackingPaused) return;
+  clearInterval(trackingInterval);
+  clearInterval(commentInterval);
+  if (reset) {
+    session = { durationSeconds: 0, videoCount: 0, currentVideoId: null, currentPlatform: null, videoHistory: [] };
+    currentVideoId = null; currentPlatform = null; videoStartedAt = null; currentVideoSeconds = 0;
+  }
+  lastCheck = Date.now();
+  trackingInterval = setInterval(trackScrolling, 1000);
+  commentInterval = setInterval(processInstagramReel, 1000);
+  trackScrolling();
+  processInstagramReel();
+}
 
-commentInterval = setInterval(
-  processInstagramReel,
-  1000
-);
-
-trackScrolling();
-processInstagramReel();
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "FLUSH_SESSION") {
+    clearInterval(trackingInterval);
+    clearInterval(commentInterval);
+    const previous = currentVideoId;
+    const platform = currentPlatform;
+    const started = videoStartedAt;
+    const seconds = currentVideoSeconds;
+    currentVideoId = null; videoStartedAt = null; currentPlatform = null;
+    const uploads = [...unsentEvents.values()].map(transmitVideoEvent);
+    if (previous && started) uploads.push(sendVideoEvent(previous, platform, started, seconds));
+    Promise.all(uploads).then(results => sendResponse({ success: results.every(Boolean) }));
+    return true;
+  }
+  if (message.type === "RESUME_SESSION") {
+    startTracking(true).then(() => sendResponse({ success: true })).catch(error => sendResponse({ success: false, error: error.message }));
+    return true;
+  }
+  return false;
+});
+startTracking().catch(error => console.warn("Tracking unavailable:", error.message));
 
 // ========================================
 // 11. PAGE EXIT

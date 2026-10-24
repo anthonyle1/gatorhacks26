@@ -168,6 +168,59 @@ chrome.runtime.onMessage.addListener(
   }
 );
 
+// A finish first flushes content scripts OUTSIDE syncQueue. Their VIDEO_EVENT
+// messages use that queue, so awaiting them inside it would deadlock.
+async function sessionTabs() {
+  return chrome.tabs.query({ url: ["https://www.youtube.com/*", "https://www.instagram.com/*"] });
+}
+
+async function finishScrollingSession() {
+  await chrome.storage.local.set({ trackingPaused: true, finishPending: true });
+  const tabs = await sessionTabs();
+  const flushed = await Promise.allSettled(tabs.map(tab => chrome.tabs.sendMessage(tab.id, { type: "FLUSH_SESSION" })));
+  if (flushed.some(result => result.status === "rejected" || !result.value?.success)) {
+    throw new Error("Could not flush every open video tab. Refresh YouTube/Instagram tabs and try Finish again. Queued events are preserved.");
+  }
+  syncQueue = syncQueue.catch(() => {}).then(async () => {
+    await syncEvents();
+    const sessionId = await getOrCreateSession();
+    const result = await apiRequest(`/sessions/${encodeURIComponent(sessionId)}/finish`, { method: "PATCH" });
+    await chrome.storage.local.set({ lastCompletedSessionId: sessionId, finishPending: false });
+    await chrome.storage.local.remove("backendSessionId");
+    return result;
+  });
+  return syncQueue;
+}
+
+async function sessionControl(message) {
+  if (message.type === "FINISH_SESSION") return finishScrollingSession();
+  if (message.type === "START_SESSION") {
+    await getOrCreateSession();
+    await chrome.storage.local.set({ trackingPaused: false });
+    const tabs = await sessionTabs();
+    await Promise.allSettled(tabs.map(tab => chrome.tabs.sendMessage(tab.id, { type: "RESUME_SESSION" })));
+    return { status: "active" };
+  }
+  const state = await chrome.storage.local.get("lastCompletedSessionId");
+  if (!state.lastCompletedSessionId) return null;
+  const base = `/sessions/${encodeURIComponent(state.lastCompletedSessionId)}/taxonomy`;
+  if (message.type === "SESSION_TAXONOMY") return apiRequest(base);
+  if (message.type === "RETRY_SESSION_TAXONOMY") return apiRequest(`${base}/retry`, { method: "POST" });
+  if (message.type === "TOPIC_PREFERENCE") return apiRequest(`${base}/preferences`, {
+    method: "PATCH", body: JSON.stringify({ category_id: message.category_id, reduce: message.reduce })
+  });
+  if (message.type === "EDIT_TOPIC_CATEGORY") return apiRequest(`${base}/categories/${encodeURIComponent(message.category_id)}`, {
+    method: "PATCH", body: JSON.stringify(message.change)
+  });
+}
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (!["FINISH_SESSION", "START_SESSION", "SESSION_TAXONOMY", "RETRY_SESSION_TAXONOMY", "TOPIC_PREFERENCE", "EDIT_TOPIC_CATEGORY"].includes(message.type)) return false;
+  sessionControl(message).then(data => sendResponse({ success: true, data }))
+    .catch(error => sendResponse({ success: false, error: error.message }));
+  return true;
+});
+
 
 /*
  * Upload Instagram Reel comments to FastAPI.
@@ -189,6 +242,8 @@ chrome.runtime.onMessage.addListener(
             body: JSON.stringify({
               video_id: message.video_id,
               platform: "instagram",
+              title: message.title || "",
+              caption: message.caption || "",
               comments: message.comments
             })
           }

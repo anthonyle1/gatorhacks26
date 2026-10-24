@@ -1,498 +1,132 @@
-# Analysis: local Ollama prompting and YouTube reaction sentiment
+# Analysis and completed-session topics
 
-## Ollama with Gemma 4
+While scrolling, the extension records video identities, dwell time, and available titles/captions. The backend caches YouTube metadata and RoBERTa comment sentiment. Instagram's comment endpoint persists its available metadata, sampled comments, and sentiment separately. No topic discovery runs on event upload or on an individual video assessment.
 
-The integration in `ollama_client.py` defaults to `gemma4:e2b`. It sends prompts
-to Ollama at `http://localhost:11434` using its
-[chat API](https://docs.ollama.com/api/chat). Local Ollama prompting needs no cloud API key.
-The existing `/analysis/comments` and `/analysis/videos/...` routes still use
-the sentiment classifier described below; Gemma is available separately for
-general prompts and custom analysis instructions.
+**Finish and review session** uploads the last video, completes the backend session, and queues topic discovery. Gemma groups the session's videos into a dynamic tree. The React extension shows expandable branches, unique video counts, source videos, saved **See less** preferences, and the validated session JSON. Selecting a parent includes descendants; selecting a child affects that branch. Preferences persist for future matching. The extension does not yet hide videos or modify platform recommendations.
 
-Install [Ollama for Windows](https://ollama.com/download/windows), open a new
-terminal, and download the exact local model:
+## Setup
+
+From the repository root in PowerShell:
+
+```powershell
+cd backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+Copy-Item .env.example .env # Only if .env does not already exist
+```
+
+Configure `MONGODB_URI`, `MONGODB_DB`, and `YOUTUBE_API_KEY` in `backend/.env`. Session creation, event storage, and job state require a working MongoDB connection. Create the extension's existing demo user once:
+
+```powershell
+python seed_demo_user.py
+```
+
+Install Ollama and download the configured local model:
 
 ```powershell
 ollama pull gemma4:e2b
 ```
 
-Keep Ollama running. If the desktop app is not serving requests, run
-`ollama serve` in another terminal. This project uses the local E2B variant;
-inference needs memory in addition to the downloaded model files.
-Model installation alone does not confirm your machine can run inference.
-
-Optional settings in `backend/.env` (defaults shown):
+Keep Ollama running; run `ollama serve` if needed. These settings apply to content assessment and session discovery:
 
 ```dotenv
 OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=gemma4:e2b
 OLLAMA_TIMEOUT=300
-```
-
-`OLLAMA_MODEL` overrides the default for both console prompting and dashboard
-assessments. Restart the backend after changing `backend/.env` so an existing
-process does not retain the previous model setting. Assessment requests disable
-model thinking to reserve the output budget for the validated JSON answer, and
-use an 8192-token context window to accommodate comment evidence.
-
-From `backend/`, use the project environment to verify installation and then
-send an actual prompt. These commands do not require MongoDB or FastAPI startup:
-
-```powershell
-.\.venv\Scripts\python.exe -m analysis.ollama_client --check
-.\.venv\Scripts\python.exe -m analysis.ollama_client "Reply with exactly: local prompting works"
-.\.venv\Scripts\python.exe -m analysis.ollama_client "Explain this comment: Great editing!" --system "Answer concisely."
-```
-
-The first command only lists installed models. The second verifies prompting
-when it prints an answer. Initial model loading can take time; increase
-`OLLAMA_TIMEOUT` if necessary. Missing dependencies can be installed with
-`python -m pip install httpx==0.28.1 python-dotenv==1.2.4` for standalone prompting,
-or install the full backend requirements below.
-
-With the backend running, `GET /analysis/ollama/status` checks connectivity and
-returns `{"model":"gemma4:e2b","available":true}` when installed.
-`POST /analysis/prompt` accepts:
-
-```json
-{
-  "prompt": "Summarize the emotional tone of this comment: Great editing!",
-  "system": "Answer concisely."
-}
-```
-
-It returns `{"model":"gemma4:e2b","response":"..."}`. The `system` field is
-optional. Blank prompts return 422; connection, missing model, inference, and
-timeout failures return 503. This endpoint returns the complete answer without
-streaming. You can also import `OllamaClient` from `analysis.ollama_client`
-and call `OllamaClient().prompt("Your prompt")` from Python.
-
-## Assess a video in the console
-
-From `backend/`, after downloading `gemma4:e2b`, run:
-
-```powershell
-.\.venv\Scripts\python.exe -m analysis.video_assessment --title "Everyone is laughing at this person" --caption "Watch us humiliate a stranger for views." --sentiment-balance -0.7
-```
-
-You can supply audience comment text with repeated `--comment` arguments:
-
-```powershell
-.\.venv\Scripts\python.exe -m analysis.video_assessment --title "An unusual challenge" --caption "Trying something new" --sentiment-balance -0.4 --comment "This looks dangerous to copy." --comment "The creator explains the safety measures."
-```
-
-Up to 12 comments are accepted, with at most 300 characters per comment.
-Comments are optional, so existing callers still work. The dashboard automatically
-samples analyzed comments across the negative, neutral, and positive labels,
-taking turns between labels until 12 comments are selected or the sample runs
-out. It preserves order within each label and truncates each excerpt to 300
-characters. The assessment's input details and JSON export show the exact sample.
-This deliberately varied sample does not represent audience proportions; the
-aggregate sentiment balance still comes from the entire analyzed comment sample.
-
-Gemma uses comment text to interpret reactions, concerns, sarcasm, and topic
-context. Classifier labels/confidence are estimates, and audience claims are
-unverified. The prompt instructs it not to treat hostile comments as proof the
-video is harmful, or comment instructions as commands. Comments go to the
-configured Ollama endpoint and, if fallback is used, Google's Gemini API;
-they are not added to web search queries.
-
-This prints `Potentially negative for user: YES`, `NO`, or `UNCERTAIN`, followed
-by the model's reason. The decision depends on the model response, not a fixed
-score threshold. Supply the actual title and caption/description/transcript;
-this command does not fetch video metadata. `--sentiment-balance` accepts the
-existing analyzer's `summary.sentiment_balance`:
-`(positive_count - negative_count) / (positive_count + negative_count)`, from -1
-to +1, excluding neutral labels. Do not pass mean model scores, the negative
-proportion among all comments, or confidence as this value. Omit it when no
-positive/negative comments are available; an empty caption is allowed.
-
-The fixed prompt is `SYSTEM_PROMPT` in `video_assessment.py`. It considers the
-metadata and audience sentiment together, allows uncertainty, and avoids treating
-negative comments or difficult educational topics as proof of harmful effects.
-This is a tentative content assessment, not a prediction of an individual's
-mental health or experience.
-
-Code guardrails apply independently of the prompt instructions:
-
-- Title and caption are serialized as untrusted JSON data, separate from the
-  fixed system instructions, with input length and numeric range validation.
-- The request uses Ollama's [structured output schema](https://docs.ollama.com/capabilities/structured-outputs)
-  and a generation limit. Local validation accepts only the three decisions,
-  bounded reasons, and up to five unique allowed category IDs; malformed
-  responses and extra keys fail without a decision.
-- The model has no tools. Its output is never passed to `eval`, `exec`, a shell,
-  file operations, or repository edits. Even malicious text inside a valid
-  reason remains data. Console output escapes terminal control characters.
-
-Prompt injection can still influence an assessment; these guardrails prevent
-output execution, not incorrect decisions. The existing sentiment and general
-prompt routes are unchanged. Python callers can use
-`assess_video(title, caption, sentiment_balance)` from `analysis.video_assessment`.
-
-The test dashboard uses `POST /analysis/video-assessment` with JSON fields
-`title`, `caption`, and `sentiment_balance` (number or null). It returns
-`negative_for_user`, `reason`, `categories`, `category_reason`, `subcategories`,
-`content_signals`, `taxonomy_version`, and `web_search`,
-using the same prompt and validation as the
-console command. Invalid input returns 422; Ollama failures return 503. The
-dashboard fetches the title and description from `/youtube/video/{video_id}`
-and uses the description as the caption, without fetching a transcript.
-
-The endpoint also accepts optional `comments`, an array of up to 12 objects:
-
-```json
-{
-  "text": "This tutorial helped me understand the topic.",
-  "sentiment": "positive",
-  "confidence": 0.9
-}
-```
-
-Each `text` is required and limited to 300 characters. `sentiment` is optional
-(`negative`, `neutral`, `positive`, or null), and `confidence` is optional (0–1
-or null). Oversized samples and invalid scores are rejected with 422.
-Python callers can pass `comments=[AssessmentComment(text="...")]` to
-`assess_video(...)`. No code or network actions are driven by comment text.
-
-If `/analysis/video-assessment` returns 503, read the JSON response's `detail`
-in the dashboard or browser Network panel. The backend also logs the sanitized
-failure reason. Rejected model responses log field names and validation error
-types without logging prompts or raw model output. A 503 access-log line alone
-does not distinguish a missing model, timeout, or response validation failure.
-Model-level errors use `$` as their location and a specific code, such as
-`subcategory_parent_mismatch`, `duplicate_subcategory_ids`,
-`duplicate_content_signal_ids`, or `duplicate_category_ids`.
-
-Structured assessments use temperature 0 and request unique category IDs in
-the JSON schema. Cross-field relationships (such as a subcategory needing its
-parent category) are still enforced by Python validation. Invalid generated
-data receives one regeneration attempt with the original evidence and a fixed
-validation reminder. Rejected output is never executed, silently repaired, or
-inserted into trusted instructions. If regeneration is also invalid, the request
-still fails with 503 and accepts no decision. Connection errors and missing
-models are not retried, and web search is not repeated during regeneration.
-For a `subcategory_parent_mismatch`, the regeneration schema fixes the valid
-parent category choices from the first response and restricts subcategory IDs
-to those parents. This enforces the relationship during generation as well as
-during final validation; it does not validate the factual accuracy of a label.
-The private regeneration format uses an object mapping category IDs to `true`,
-and objects mapping specific label IDs to evidence. All label IDs are unique
-keys rather than repeatable array rows, including when the original category
-array contained duplicates. Known repeated parent choices are used as a set
-to scope the new generation, without accepting the rejected assessment.
-Duplicate JSON
-keys are explicitly rejected rather than overwritten. Validated keyed labels
-are converted to the public API's existing `id`/`evidence` arrays, then checked
-against all normal taxonomy and evidence rules. The dashboard response format
-is unchanged.
-
-## Topic categories and optional web context
-
-The console and dashboard now include topic categories independently of the
-negative-content decision. The fixed taxonomy in `VideoCategory` provides stable
-IDs for future preference matching:
-
-```text
-technology, programming, science, education, gaming, sports, fitness, health,
-mental_health, food, travel, music, film_tv, comedy, news, politics, finance,
-business, lifestyle, fashion_beauty, diy, gardening, animals, nature, automotive,
-relationships, internet_culture, social_commentary, drama_conflict, true_crime,
-horror_mystery, art_design, books_literature, culture_religion,
-motivation_self_improvement, shopping_consumerism, asmr_relaxation,
-events_celebrations, other
-```
-
-The model chooses zero to five unique categories, most relevant first, and
-explains them in `category_reason`. An empty list means insufficient evidence;
-`other` is used alone for a clear topic outside the taxonomy. Category assignments
-are estimates, not verified labels. No user preferences or relevance score are
-used yet. For example, a gardening tutorial might include:
-
-```json
-{
-  "negative_for_user": "no",
-  "reason": "The metadata describes a constructive tutorial.",
-  "categories": ["gardening", "education"],
-  "category_reason": "The title and description explain how to grow herbs.",
-  "subcategories": [{"id": "gardening.indoor_plants", "evidence": "The caption describes growing herbs indoors."}],
-  "content_signals": [],
-  "taxonomy_version": "2",
-  "signal_polarities": {},
-  "web_search": {"status": "disabled", "query": null, "sources": [], "warning": null}
-}
-```
-
-### Specific labels for future avoidance preferences
-
-The response includes up to eight `subcategories` and four `content_signals`,
-each with a stable `id` and a short `evidence` explanation. Parent category IDs
-are unchanged. Subcategories must belong to a selected parent; unknown IDs,
-duplicates, mismatched parents, and blank or oversized evidence are rejected.
-Specific labels are optional when the available data does not support them.
-
-Taxonomy version 2 expands the topic hierarchy and includes both potentially
-negative and potentially positive content signals. `GET /analysis/taxonomy`
-retains its flat `content_signals` list and adds `signal_groups.negative` and
-`signal_groups.positive`. Accepted assessment responses include a
-`signal_polarities` mapping for selected signals, derived by backend code from
-the taxonomy (not supplied by either model). For example,
-`{"educational":"positive","outrage_bait":"negative"}` allows consumers to
-distinguish constructive signals from concerns. The model may select both;
-positive signals do not automatically override a negative assessment.
-
-The dashboard displays separate **Potential concerns to review** and
-**Constructive signals** sections. Provider flags, taxonomy version, and signal
-polarities are included in the model JSON viewer and exports. Categories and
-subcategories remain topic IDs suitable for future preferences, not personal
-recommendations. The Chrome extension currently tracks viewing sessions; it
-does not yet invoke video assessment or implement preference-based blocking.
-
-Examples of the distinction:
-
-| Broad category | Specific topic ID | Independent content signal, if supported |
-| --- | --- | --- |
-| `music` | `music.kpop` | `appearance_comparison` |
-| `fitness` | `fitness.weight_loss` | `body_shaming` |
-| `finance` | `finance.cryptocurrency` | `financial_hype` |
-| `comedy` | `comedy.pranks` | `humiliation` |
-
-The topic alone never implies the signal. A K-pop performance can have no
-appearance-comparison signal, and educational weight-loss content does not
-automatically imply body shaming. Commenter behavior is not treated as evidence
-of the video's behavior. Empty signal lists mean no supported signal was found
-in the supplied data, not proof of safety. Labels are estimates based on limited
-metadata, excerpts, and optional search context.
-
-`GET /analysis/taxonomy` returns the complete versioned parent-to-subcategory
-mapping and content-signal IDs, defined in `analysis/taxonomy.py`. Responses and
-exports include `taxonomy_version`. Examples of future preference semantics:
-avoiding `music` would match all videos in that parent category; avoiding
-`music.kpop` would match just that subcategory; avoiding `appearance_comparison`
-would apply across topics when that signal is present. Match stable IDs exactly,
-not substrings of labels or free-form evidence. Unknown specificity should be
-treated as unknown, rather than assuming the absence of an avoided topic.
-
-The dashboard shows the selected category hierarchy, evidence, and independent
-content signals. This change supplies classification data for future controls;
-it does not store avoidance preferences, recommend personal restrictions, or
-block videos. Users will choose what they wish to avoid. The JSON answer budget
-is 1536 tokens and the response size is capped at 12000 characters; model output
-is still validated and never executed.
-
-Categorization works with local metadata alone. To add optional context from
-[Ollama's web search API](https://docs.ollama.com/capabilities/web-search), obtain
-an [Ollama API key](https://ollama.com/settings/keys) and set these in `backend/.env`:
-
-```dotenv
-OLLAMA_WEB_SEARCH_ENABLED=true
-OLLAMA_API_KEY=your_api_key_here
-```
-
-Restart the backend after changing configuration. This is a hosted search API,
-separate from the locally running Gemma model: a query containing at most the
-first 200 title characters and 300 caption characters is sent to `ollama.com`.
-The key stays on the backend and is never included in model prompts, browser
-responses, or exports. Leave the flag false for metadata-only local assessment.
-
-The backend makes one request to the fixed HTTPS search endpoint, with a
-15-second timeout and at most three results. Result titles and snippets are
-bounded before inclusion in the prompt. It never follows result URLs or lets
-the model request network actions. Snippets are untrusted data; the prompt
-instructs Gemma to ignore injected instructions and unrelated results, prioritize
-the video's metadata, and avoid assuming search results verify video content.
-
-Missing keys, failed searches, and malformed responses fall back to metadata-only
-assessment with a warning. `web_search.status` is `disabled`, `used`, `no_results`,
-or `unavailable`; source provenance is supplied by backend code, not the model.
-The dashboard displays search status and expandable sources, and JSON exports
-include the categories and search context. No web search is added to the general
-`/analysis/prompt` endpoint.
-
-## Gemini backup for unavailable assessments
-
-Video assessment first uses Ollama, including its one regeneration attempt for
-invalid generated data. If it still raises an assessment availability error
-(the errors that would otherwise produce 503), the backend makes one Gemini
-request using the original evidence and fixed system prompt. A failed connection
-or missing Ollama model goes directly to the backup. The Gemini result must pass
-the same strict JSON parser, taxonomy, parent relationships, evidence limits,
-and duplicate-key checks. Both providers have no tools and their output is
-never executed. Invalid input (422) does not trigger fallback, and the general
-`/analysis/prompt` endpoint remains Ollama-only.
-
-Obtain a [Gemini API key](https://aistudio.google.com/apikey) and add it to
-`backend/.env`, then restart the backend:
-
-```dotenv
 GEMINI_FALLBACK_ENABLED=true
-GEMINI_API_KEY=your_api_key_here
+GEMINI_API_KEY=
 GEMINI_MODEL=gemini-3.8-flash
 GEMINI_TIMEOUT=60
 ```
 
-Fallback is enabled by default, but requires the key to make a request.
-`GEMINI_MODEL` is configurable; the default uses Google's documented Flash model
-and [structured JSON output API](https://ai.google.dev/gemini-api/docs/generate-content/structured-output).
-The key is sent only in a server-side header to Google's fixed HTTPS API
-endpoint, never in browser code, model prompts, URLs, responses, or exports.
-Fallback sends the title, caption, comment excerpts, aggregate sentiment, and
-any fetched search snippets to Google. Set `GEMINI_FALLBACK_ENABLED=false` for
-Ollama-only assessment. Web search is not repeated during fallback.
-
-Every accepted assessment includes application-supplied `provider`, `model`,
-`fallback_used`, and `fallback_reason`. For Gemini, these include:
-
-```json
-{
-  "provider": "gemini",
-  "model": "gemini-3.8-flash",
-  "fallback_used": true,
-  "fallback_reason": "Model returned an invalid video assessment after one regeneration; no decision was accepted. Check backend logs for validation details."
-}
-```
-
-Ollama results use `provider: "ollama"`, `fallback_used: false`, and a null
-fallback reason. The dashboard displays a **Gemini fallback used** banner and
-model name, labels the assessment JSON viewer accordingly, and includes these
-flags in exports. The console also prints the provider and fallback flag.
-No Gemini request is made when Ollama succeeds. Missing keys, API authentication
-or quota errors, timeouts, blocked/truncated answers, or invalid Gemini output
-return 503 with an explanatory JSON `detail`, preserving comment results.
-The default Gemini model uses low thinking effort for lower classification
-latency. Upstream Gemini 5xx errors are identified as a temporarily unavailable
-Gemini service in the error message.
-
-## YouTube reaction sentiment setup
-
-From `backend/`, install the backend dependencies (including model dependencies):
+Gemini requires a server-side key with access to the configured model. After a local failure, hosted fallback receives the same bounded video evidence and candidate category metadata. Set `GEMINI_FALLBACK_ENABLED=false` to keep model evidence local. Restart the backend after configuration changes. Do not put API keys in extension files.
 
 ```powershell
-python -m pip install -r requirements.txt
-python -m uvicorn app.main:app --reload
+python -m uvicorn app.main:app --reload --port 8000
 ```
 
-Use the project's virtual environment. The requirements skip `uvloop` on Windows.
-The API still requires the existing `MONGODB_URI` setting at startup.
-The video analysis route attempts to save RoBERTa results to MongoDB. Add `YOUTUBE_API_KEY` to `backend/.env`
-only if you want the API to fetch comments itself.
+`GET /health` checks database connectivity; failures return JSON with HTTP 503. Check MongoDB/Atlas connectivity if it fails. The model checks below work independently of MongoDB:
 
-If MongoDB is unreachable, `/analysis/videos/{video_id}` still returns its
-completed analysis with `storage.status: "unavailable"` and a detail message.
-Storage confirmation is bounded to five seconds; successful writes return
-`storage.status: "saved"`. An unavailable status means saving could not be
-confirmed, not that a write certainly did not reach the database. The dashboard
-shows this warning and can continue to video assessment. Direct comment and
-metadata assessment endpoints do not require a database write.
+```powershell
+python -m analysis.ollama_client --check
+python -m analysis.ollama_client "Reply with exactly: local prompting works"
+```
 
-Database-dependent routes (sessions and stored-analysis retrieval) return a
-sanitized JSON 503 if MongoDB raises a driver error. `/health` also returns JSON
-503 within five seconds of a failed database check. A TLS handshake or server
-selection failure requires fixing the MongoDB connection; check the Atlas
-[IP access list and connection troubleshooting](https://www.mongodb.com/docs/atlas/troubleshoot-connection/),
-cluster availability, and your network's connectivity to Atlas. Database errors
-are no longer returned as plain-text 500 responses that hide the cause behind
-the dashboard's "not JSON" message.
+The first lists installation status; the second verifies inference. `GET /analysis/ollama/status` and `POST /analysis/prompt` provide equivalent API access.
 
-YouTube parsing and fetching are shared through `app/youtube.py`. Both the
-analysis video route and `/youtube/comments/{video_id}` use its fetcher. The
-YouTube comments route keeps its top-ten ranking by likes within a relevance
-sample; the analysis route samples newest comments with pagination.
+Build and load [the React extension](../../chrome-react/README.md) to finish and review sessions. The single-video [test dashboard](../../test-dashboard/README.md) remains available for inspecting comment sentiment and content assessment.
 
-The first nonempty request downloads the public model from Hugging Face. Later
-requests reuse it in memory and subsequent starts use the Hugging Face disk cache.
-Inference runs locally on CPU. Long comments are truncated to 512 model tokens;
-only that prefix affects sentiment. No model download occurs for empty input or
-at application startup.
+## Contracts and pipeline
 
-## Analyze already parsed YouTube comments
-
-`POST /analysis/comments` accepts a JSON body:
+`POST /analysis/video-assessment` accepts `title`, `caption`, optional `sentiment_balance`, and up to 12 comment objects (`text`, optional sentiment/confidence). It returns:
 
 ```json
 {
-  "youtube_response": {
-    "items": [
-      {"id": "c1", "snippet": {"textOriginal": "This video made my day!"}},
-      {"id": "c2", "snippet": {"textOriginal": "This was upsetting to watch."}}
-    ]
-  },
-  "negative_threshold": 0.5
+  "negative_for_user": "uncertain",
+  "reason": "The available evidence does not establish a negative impact.",
+  "context_summary": "A tutorial demonstrates React components.",
+  "content_signals": [],
+  "signal_polarities": {},
+  "web_search": {"status": "disabled", "query": null, "sources": [], "warning": null},
+  "provider": "ollama",
+  "model": "gemma4:e2b",
+  "fallback_used": false,
+  "fallback_reason": null
 }
 ```
 
-Pass the parsed response from `comments.list` or `commentThreads.list` directly
-as `youtube_response`. The parser prefers `snippet.textOriginal`, otherwise
-converts `textDisplay` HTML to text. Empty comments are skipped; duplicate IDs
-within a response are counted once. Thread responses include any supplied
-embedded replies, which YouTube does not guarantee are complete. This endpoint
-analyzes only the supplied page; it does not follow `nextPageToken`.
+There are no topic, category, or subcategory fields in this response. Existing clients expecting the old topic schema need updating. `taxonomy.py` now defines only fixed content signals and their positive/negative polarity. `GET /analysis/taxonomy` exposes those signals and declares `classification_scope: completed_session`; its legacy `categories` list is empty.
 
-## Fetch and analyze a video
+RoBERTa's aggregate sentiment balance remains `(positive_count - negative_count) / (positive_count + negative_count)`, excluding neutral comments. Empty/all-neutral samples have null balance. The balance measures direction, not severity or sample size. Comments are supporting context, not verified evidence of a video's subject.
 
-```text
-GET /analysis/videos/VIDEO_ID_11?max_comments=100&negative_threshold=0.5
+The assessment can also be run directly:
+
+```powershell
+python -m analysis.video_assessment --title "A React tutorial" --caption "Building reusable components" --sentiment-balance 0.5 --comment "Helpful explanation"
 ```
 
-Replace `VIDEO_ID_11` with the 11-character video ID. This uses
-`commentThreads.list(videoId=..., part=snippet, textFormat=plainText)` and follows
-pagination up to `max_comments` (1–1000, default 100). It samples newest top-level
-comments, excludes replies, and reports whether more top-level comments exist.
-To analyze replies, retrieve them with `comments.list(parentId=...)` and send
-their response to the POST endpoint. Upstream failures return 502, missing API
-keys/model dependencies return 503, and invalid input returns 422.
+`OLLAMA_WEB_SEARCH_ENABLED=true` and server-side `OLLAMA_API_KEY` optionally enable the existing bounded web search for individual content assessment. Search is disabled by default. Session discovery does not issue web searches; it uses collected evidence and supported metadata. The model cannot choose URLs, run tools, or execute commands.
 
-## Reading the result
+Completed sessions use these endpoints:
 
-Each comment includes its original text, sentiment label, winning score as
-`confidence`, and all three scores. The summary includes counts, proportions,
-mean model scores, and the count-based `sentiment_balance`:
+| Request | Behavior |
+| --- | --- |
+| `POST /sessions` | Create an active session for an existing user. |
+| `POST /sessions/{id}/events` | Persist events and queue metadata/sentiment work, without topic discovery. |
+| `PATCH /sessions/{id}/finish` | Complete and queue discovery atomically; repeating finish does not queue another job. |
+| `GET /sessions/{id}/taxonomy` | Read processing status, tree, assignments, video identities, preferences, and provider provenance. Active sessions return 409. |
+| `POST /sessions/{id}/taxonomy/retry` | Retry failed/partial discovery, reusing successful batches. |
+| `PATCH /sessions/{id}/taxonomy/preferences` | Save `{"category_id":"stable-id","reduce":true}` for the session owner. |
+| `PATCH /sessions/{id}/taxonomy/categories/{category_id}` | Rename with `{"name":"React Tutorials"}`, move with `{"move":true,"parent_id":"parent-id"}` (null for root), or merge with `{"merge_into":"target-id"}`. |
 
-```text
-(positive_count - negative_count) / (positive_count + negative_count)
-```
+Topic results contain `status` (`pending`, `processing`, `complete`, `partial`, `failed`, or `insufficient_data`), a recursive `tree`, `assignments` mapping video IDs to stable category IDs, `unclassified_video_ids`, and source `videos`. Nodes contain `id`, `name`, `description`, `parent_id`, `video_count`, `video_ids`, `children`, and preference flags `selected`, `inherited`, and `reduce`. Parent counts use the union of descendant video identities, even when videos belong to multiple branches. Video identities include their platform (`youtube:ID` or `instagram:ID`).
 
-Neutral labels are excluded entirely from this ratio. All negative non-neutral
-labels produce -1, all positive produce +1, and equal counts produce 0. Empty
-and all-neutral samples produce null because there is no directional evidence.
-For example, 10 negative and 90 neutral comments produce -1; 3 positive, 1
-negative, and 96 neutral comments produce +0.5. These ratios intentionally avoid
-diluting negative reactions with neutral comments. One negative plus many
-neutrals also produces -1, so the ratio alone does not measure reaction volume,
-severity, or whether a video is harmful. The assessment prompt prioritizes
-credible negative evidence while interpreting the ratio in context.
+Each accepted batch reports provider/model/fallback provenance in `batches`; `fallback_used` summarizes accepted Gemini results. The popup flags Gemini use. Failed batches remain explicitly unclassified and retain their error instead of accepting malformed output.
 
-`average_scores` still reports mean classifier probabilities across all analyzed
-comments. These model scores are not calibrated certainty estimates. The
-existing `is_negative_reaction` threshold rule below still uses the negative
-proportion among all comments; it is separate from the assessment's revised
-balance ratio. Neutral comments may still be included as qualitative evidence
-in the assessment's comment excerpts.
+## Dynamic identities and bounded discovery
 
-`is_negative_reaction` is true when the fraction of comments classified negative
-meets `negative_threshold` **and** negative comments outnumber positive comments.
-At the default threshold, a 50/50 negative/positive split is not flagged, while
-a 50/50 negative/neutral split is flagged. The threshold is a configurable
-heuristic, not a validated content-safety rule. No comments produces
-`assessment: "insufficient_data"` and `is_negative_reaction: null`.
+`session_classification.py` discovers topics from the completed session, with no fixed topic list. It requests meaningful variable depth, reusable genres/game titles/interests, and supported distinctions rather than categories describing individual clips. The eight-level depth limit is a safety ceiling, not a required hierarchy shape. Comments alone cannot make a metadata-free video eligible.
 
-This English sentiment model was trained on tweets. It estimates the emotional
-tone of comments, not toxicity, harmfulness, psychological effects, or whether
-the video caused the reactions. Sarcasm, other languages, and the sampled
-audience can affect results. Negative reactions alone cannot establish that a
-video contains harmful content.
+Large sessions are split into batches of at most 12 videos and 7,000 serialized evidence characters. Individual evidence fields are excerpted; identities are retained. Each batch includes up to 24 candidate categories within a separate 5,000-character budget. Discovery uses a 16,384-token context window and bounded output. Thus large sessions require multiple bounded calls after completion, rather than one call per video. Earlier batches feed the persistent catalog used by later batches. Grouping quality depends on available excerpts and model output.
 
-Sources: [model card](https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment-latest),
-[comments.list](https://developers.google.com/youtube/data/reference/rest/v3/comments/list),
-[commentThreads.list](https://developers.google.com/youtube/data/reference/rest/v3/commentThreads/list).
+`topic_store.py` stores the user-scoped catalog, aliases, preferences, batch checkpoints, and completed results in `backend/.cache/session_topics.sqlite3` using SQLite and parameterized statements. Keep this file when restarting or updating the app: deleting it loses category identities and preferences. Back it up along with MongoDB. It is ignored by Git. This local store assumes backend processes share the same disk; a distributed deployment would need a shared transactional store.
 
-Run the tests from `backend/` or the repository root with the project's virtual
-environment active (no model download required). Tests live in `backend/tests`;
-the root `pytest.ini` configures discovery and backend imports.
+The catalog first retrieves candidates using lexical overlap. Gemma/Gemini then compares meanings and explicitly references existing stable IDs for semantic reuse. Exact normalized names/aliases under the same parent provide another duplicate check. This is model-assisted semantic matching, not an embedding index, and can miss synonyms outside the bounded candidate set. Users can merge duplicates in the popup. Rename/reparent preserve IDs; merge aliases redirect old assignments/preferences to the surviving ID. Reusing a category without supplying its ancestors preserves its existing parent.
 
-Install test dependencies from `backend/`, then run pytest:
+Structured JSON is validated before persistence: duplicate keys, unknown IDs, extra fields, cycles, orphan parents, empty unsupported nodes, incomplete coverage, duplicate assignments, and invalid category references are rejected. One local regeneration is allowed, then Gemini is tried for provider failures or invalid output. Output is data only; it is never evaluated or executed. React displays text/JSON without HTML injection. No model-generated network actions are allowed.
+
+MongoDB records pending/processing/final session status. An atomic claim prevents duplicate workers. Startup recovery polls every 30 seconds; processing leases older than 15 minutes are retried, with a heartbeat while work runs. Successful batch checkpoints avoid repeated inference on explicit retries. Insufficient metadata produces an explicit result without calling the topic model. Finishing does not wait for every in-flight per-video sentiment job; discovery uses evidence available at collection time and fetches missing YouTube metadata when possible.
+
+The current extension still uses the existing `demo_user` identity. Category operations are scoped to the owning session/user, but this development app does not provide account authentication.
+
+## Checks
+
+From `backend/`:
 
 ```powershell
 python -m pip install -r requirements-dev.txt
-python -m pytest -q
+python -m pytest tests -q -p no:cacheprovider
 ```
+
+Tests cover content-only assessment, strict output handling, fallback provenance, session lifecycle, hierarchy integrity, identity reuse, parent/child preference behavior, catalog edits, input bounds, partial retries, and batch caching. Provider failure tests use mocks; they do not establish hosted service availability.

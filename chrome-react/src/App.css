@@ -10,10 +10,25 @@ body {
 }
 
 .app {
-  width: 340px;
+  width: 440px;
   padding: 22px;
   color: #2e2140;
 }
+
+button { border: 0; border-radius: 7px; background: #684378; color: white; padding: 9px 12px; margin: 5px 6px 5px 0; cursor: pointer; }
+button:disabled { opacity: .5; cursor: default; }
+.error { color: #9b3348; background: #fff0f2; padding: 10px; border-radius: 6px; overflow-wrap: anywhere; }
+.fallback { background: #fff1cf; color: #6b531b; padding: 10px; }
+.topic-tree, .topic-body > ul { list-style: none; padding-left: 10px; }
+.topic { margin: 10px 0; padding-left: 9px; border-left: 2px solid #dfd3e9; }
+.topic summary { cursor: pointer; line-height: 1.7; font-size: 13px; }
+.topic summary span, .topic small { color: #85788f; font-size: 11px; margin-left: 5px; }
+.topic-body { padding-left: 8px; font-size: 12px; line-height: 1.6; }
+.topic.reduced { border-left-color: #ad7387; }
+.category-editor { margin-top: 12px; padding: 8px; background: #f8f5ff; }
+.category-editor label { display: block; font-size: 11px; margin-top: 8px; }
+.category-editor input, .category-editor select { width: 100%; margin-top: 4px; padding: 7px; border: 1px solid #dfd3e9; border-radius: 5px; }
+pre { max-height: 250px; overflow: auto; font-size: 10px; }
 
 h1 {
   font-size: 22px;

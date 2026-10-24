@@ -1,32 +1,27 @@
-# React + TypeScript + Vite
+# Session review Chrome extension
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+This is the extension UI for tracking YouTube Shorts/Instagram Reels and reviewing topic trees after a scrolling session. The plain `chrome/` folder retains the tracker scripts; use this React build for category controls.
 
-Currently, two official plugins are available:
+Start the backend on port 8000, configure MongoDB and Ollama, and seed `demo_user` following [analysis setup](../backend/analysis/README.md).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```powershell
+cd chrome-react
+npm ci
+npm run build
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Open `chrome://extensions`, enable Developer mode, select **Load unpacked**, and choose **chrome-react/dist**. Reload the extension and refresh video tabs after rebuilding. `npm run dev` provides a UI preview; session controls require the installed extension.
+
+Scroll through videos, open the popup, and choose **Finish and review session**. The extension flushes the last video and queues topic discovery only after the backend accepts all events. You can close the popup while discovery runs. Failed uploads retain queued events; fix backend connectivity and try Finish again.
+
+Expand topic branches to inspect unique video counts and source videos. Check a category to save a **See less** preference; a parent includes all descendants, while a child affects only that branch. **Manage category** supports rename, move, and merge while preserving saved identities/preferences. Start a new session after finishing. The latest completed session remains available for review. Preferences are saved for matching; automatic feed hiding/recommendation changes are not implemented.
+
+The popup flags accepted Gemini fallback results and exposes the session JSON. Partial/failed classifications can be retried without repeating successful batches. Raw titles, captions, comments, and model responses are treated as text/data.
+
+```powershell
+npm run build
+npm run lint
+node --test --experimental-test-isolation=none tests/session-flow.test.cjs
+```
+
+The flow tests execute the background worker with mocked Chrome/API objects to check final-video upload order and failure preservation. Manual verification in Chrome is still needed for platform DOM changes and cross-tab behavior.

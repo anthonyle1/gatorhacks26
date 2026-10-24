@@ -37,7 +37,7 @@ class GeminiTests(unittest.TestCase):
             schema = payload["generationConfig"]["responseJsonSchema"]
             self.assertNotIn("$ref", json.dumps(schema))
             self.assertNotIn("uniqueItems", json.dumps(schema))
-            self.assertIn("music.kpop", json.dumps(schema))
+            self.assertIn("harassment", json.dumps(schema))
             self.assertNotIn("tools", payload)
             return httpx.Response(200, json={"candidates": [{"finishReason": "STOP", "content": {"parts": [
                 {"text": "not public", "thought": True}, {"text": '{"answer":"ok"}'},

@@ -7,6 +7,10 @@ from pymongo import UpdateOne
 from app.database import db
 from app.models.session import (SessionCreate, VideoEventBatch)
 from app.services.analysis_jobs import (queue_video_analysis, process_video_analysis)
+from app.services.session_analysis import process_session_analysis
+from analysis.topic_store import TopicStore
+from fastapi.concurrency import run_in_threadpool
+from pydantic import BaseModel, Field, ConfigDict, model_validator
 
 router = APIRouter(prefix="/sessions", tags=["Sessions"])
 
@@ -82,7 +86,7 @@ async def save_video_events(session_id: str, payload: VideoEventBatch, backgroun
     result = await db.video_events.bulk_write(operations, ordered=True)
 
     # Queue analysis for newly encountered videos.
-    video_ids = {event["video_id"] for event in documents}
+    video_ids = {event["video_id"] for event in documents if event.get("platform", "youtube") == "youtube"}
 
     queued_count = 0
 
@@ -114,13 +118,98 @@ async def get_session(session_id: str):
 
 
 @router.patch("/{session_id}/finish")
-async def finish_session(session_id: str):
+async def finish_session(session_id: str, background_tasks: BackgroundTasks):
+    session = await require_session(session_id)
+    if session["status"] == "active":
+        result = await db.sessions.update_one(
+            {"session_id": session_id, "status": "active"},
+            {"$set": {"ended_at": utc_now(), "status": "completed", "taxonomy_status": "pending"}})
+    elif session.get("taxonomy_status") is None:
+        result = await db.sessions.update_one(
+            {"session_id": session_id, "status": "completed", "taxonomy_status": {"$exists": False}},
+            {"$set": {"taxonomy_status": "pending"}})
+    else:
+        return {"session_id": session_id, "status": "completed", "taxonomy_status": session["taxonomy_status"]}
+    if result.matched_count:
+        background_tasks.add_task(process_session_analysis, session_id)
+    return {"session_id": session_id, "status": "completed", "taxonomy_status": "pending"}
+
+
+async def require_session(session_id, *, completed=False):
+    session = await db.sessions.find_one({"session_id": session_id}, {"_id": 0})
+    if not session:
+        raise HTTPException(404, "Session not found")
+    if completed and session["status"] != "completed":
+        raise HTTPException(409, "Finish the scrolling session before topic classification")
+    return session
+
+
+@router.get("/{session_id}/taxonomy")
+async def session_taxonomy(session_id: str):
+    session = await require_session(session_id, completed=True)
+    result = await run_in_threadpool(TopicStore().view, session_id, session["user_id"])
+    if result and session.get("taxonomy_status"):
+        result["status"] = session["taxonomy_status"]
+        if session.get("taxonomy_error"):
+            result["detail"] = session["taxonomy_error"]
+    return result or {"session_id": session_id, "status": session.get("taxonomy_status", "pending"),
+                      "tree": [], "videos": [], "errors": [], "fallback_used": False,
+                      "detail": session.get("taxonomy_error")}
+
+
+@router.post("/{session_id}/taxonomy/retry", status_code=202)
+async def retry_taxonomy(session_id: str, background_tasks: BackgroundTasks):
+    await require_session(session_id, completed=True)
     result = await db.sessions.update_one(
-        {"session_id": session_id, "status": "active"},
-        {"$set": {"ended_at": utc_now(), "status": "completed"}}
-    )
+        {"session_id": session_id, "taxonomy_status": {"$in": ["failed", "partial"]}},
+        {"$set": {"taxonomy_status": "pending"}, "$unset": {"taxonomy_error": ""}})
+    if not result.matched_count:
+        raise HTTPException(409, "Only failed or partial session classifications can be retried")
+    background_tasks.add_task(process_session_analysis, session_id)
+    return {"session_id": session_id, "taxonomy_status": "pending"}
 
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Active session not found")
 
-    return {"session_id": session_id,"status": "completed"}
+class TopicPreference(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    category_id: str = Field(min_length=1, max_length=80)
+    reduce: bool
+
+
+@router.patch("/{session_id}/taxonomy/preferences")
+async def topic_preference(session_id: str, body: TopicPreference):
+    session = await require_session(session_id, completed=True)
+    store = TopicStore()
+    try:
+        await run_in_threadpool(store.set_preference, session["user_id"], body.category_id, body.reduce)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from None
+    return await run_in_threadpool(store.view, session_id, session["user_id"])
+
+
+class CategoryEdit(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    name: str | None = Field(default=None, min_length=1, max_length=80)
+    parent_id: str | None = Field(default=None, min_length=1, max_length=80)
+    move: bool = False
+    merge_into: str | None = Field(default=None, min_length=1, max_length=80)
+
+    @model_validator(mode="after")
+    def one_operation(self):
+        if sum((self.name is not None, self.move, self.merge_into is not None)) != 1:
+            raise ValueError("Choose one rename, move, or merge operation")
+        if self.name is not None and (not self.name.strip() or any(ord(c) < 32 for c in self.name)):
+            raise ValueError("Category name must be readable")
+        if self.name is not None:
+            self.name = self.name.strip()
+        return self
+
+
+@router.patch("/{session_id}/taxonomy/categories/{category_id}")
+async def edit_topic(session_id: str, category_id: str, body: CategoryEdit):
+    session = await require_session(session_id, completed=True)
+    store = TopicStore()
+    try:
+        await run_in_threadpool(store.edit_category, session["user_id"], category_id, **body.model_dump())
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from None
+    return await run_in_threadpool(store.view, session_id, session["user_id"])
