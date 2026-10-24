@@ -1,16 +1,28 @@
 /* Design tokens from the Prune design handoff (README.md) */
 :root {
-  --bg: #f3f6f1;
-  --card: #ffffff;
-  --border: #d6ded3;
-  --soft: #f7f9f6;
-  --soft-green: #eef6ef;
+  /* Surfaces */
+  --bg: #f7f5ee;
+  --card: #fffefa;
+  --border: #dce5d8;
+  --soft: #f5f7ef;
+  --soft-green: #eaf1e5;
 
-  --ink: #1f3a2e;
-  --body: #3d4a42;
-  --muted: #5b6b62;
-  --link: #2e6b45;
+  /* Typography */
+  --ink: #244632;
+  --body: #485c4c;
+  --muted: #68796c;
+  --link: #315b43;
 
+  /* Botanical accents */
+  --forest: #315b43;
+  --forest-dark: #244632;
+  --sage: #a8c9a4;
+  --sage-light: #e6eedc;
+  --cream: #f7f5ee;
+  --honey: #d9a86c;
+  --rose: #b77c74;
+
+  /* Existing health colors */
   --calm-leaf: #4e9a63;
   --calm-leaf-light: #7dbb8b;
   --calm-chip-bg: #d5ebdb;
@@ -29,17 +41,34 @@
   --unrated-border: #a7b2a9;
   --unrated-ink: #3d4a42;
 
+  /* Garden illustration */
   --trunk: #6b4a33;
   --withered: #7a6a5c;
 
+  /* Compost animation */
   --fire-1: #d9541e;
   --fire-2: #e8742a;
   --fire-3: #f6c443;
 
-  --radius-card: 16px;
-  --radius-card-lg: 20px;
-  --radius-button: 12px;
+  /* Shapes */
+  --radius-card: 20px;
+  --radius-card-lg: 26px;
+  --radius-button: 13px;
 
+  /* Typography */
   --font-heading: 'Bricolage Grotesque', system-ui, sans-serif;
   --font-body: Inter, system-ui, sans-serif;
+
+  /* Shadows */
+  --shadow-soft:
+    0 4px 12px rgba(35, 65, 45, 0.025),
+    0 16px 42px rgba(35, 65, 45, 0.045);
+
+  --shadow-hover:
+    0 10px 22px rgba(35, 65, 45, 0.055),
+    0 24px 48px rgba(35, 65, 45, 0.085);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.25, 0.8, 0.25, 1);
 }
