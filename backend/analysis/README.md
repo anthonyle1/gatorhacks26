@@ -4,7 +4,7 @@
 
 The integration in `ollama_client.py` defaults to `gemma4:e2b`. It sends prompts
 to Ollama at `http://localhost:11434` using its
-[chat API](https://docs.ollama.com/api/chat). No cloud API key is needed.
+[chat API](https://docs.ollama.com/api/chat). Local Ollama prompting needs no cloud API key.
 The existing `/analysis/comments` and `/analysis/videos/...` routes still use
 the sentiment classifier described below; Gemma is available separately for
 general prompts and custom analysis instructions.
@@ -93,16 +93,19 @@ aggregate sentiment balance still comes from the entire analyzed comment sample.
 Gemma uses comment text to interpret reactions, concerns, sarcasm, and topic
 context. Classifier labels/confidence are estimates, and audience claims are
 unverified. The prompt instructs it not to treat hostile comments as proof the
-video is harmful, or comment instructions as commands. Comments go only to the
-configured model endpoint; they are not added to web search queries.
+video is harmful, or comment instructions as commands. Comments go to the
+configured Ollama endpoint and, if fallback is used, Google's Gemini API;
+they are not added to web search queries.
 
 This prints `Potentially negative for user: YES`, `NO`, or `UNCERTAIN`, followed
 by the model's reason. The decision depends on the model response, not a fixed
 score threshold. Supply the actual title and caption/description/transcript;
 this command does not fetch video metadata. `--sentiment-balance` accepts the
-existing analyzer's `summary.sentiment_balance`: mean positive score minus mean
-negative score, from -1 to +1. Do not pass negative proportion or confidence as
-this score. Omit it when no comments are available; an empty caption is allowed.
+existing analyzer's `summary.sentiment_balance`:
+`(positive_count - negative_count) / (positive_count + negative_count)`, from -1
+to +1, excluding neutral labels. Do not pass mean model scores, the negative
+proportion among all comments, or confidence as this value. Omit it when no
+positive/negative comments are available; an empty caption is allowed.
 
 The fixed prompt is `SYSTEM_PROMPT` in `video_assessment.py`. It considers the
 metadata and audience sentiment together, allows uncertainty, and avoids treating
@@ -157,6 +160,32 @@ in the dashboard or browser Network panel. The backend also logs the sanitized
 failure reason. Rejected model responses log field names and validation error
 types without logging prompts or raw model output. A 503 access-log line alone
 does not distinguish a missing model, timeout, or response validation failure.
+Model-level errors use `$` as their location and a specific code, such as
+`subcategory_parent_mismatch`, `duplicate_subcategory_ids`,
+`duplicate_content_signal_ids`, or `duplicate_category_ids`.
+
+Structured assessments use temperature 0 and request unique category IDs in
+the JSON schema. Cross-field relationships (such as a subcategory needing its
+parent category) are still enforced by Python validation. Invalid generated
+data receives one regeneration attempt with the original evidence and a fixed
+validation reminder. Rejected output is never executed, silently repaired, or
+inserted into trusted instructions. If regeneration is also invalid, the request
+still fails with 503 and accepts no decision. Connection errors and missing
+models are not retried, and web search is not repeated during regeneration.
+For a `subcategory_parent_mismatch`, the regeneration schema fixes the valid
+parent category choices from the first response and restricts subcategory IDs
+to those parents. This enforces the relationship during generation as well as
+during final validation; it does not validate the factual accuracy of a label.
+The private regeneration format uses an object mapping category IDs to `true`,
+and objects mapping specific label IDs to evidence. All label IDs are unique
+keys rather than repeatable array rows, including when the original category
+array contained duplicates. Known repeated parent choices are used as a set
+to scope the new generation, without accepting the rejected assessment.
+Duplicate JSON
+keys are explicitly rejected rather than overwritten. Validated keyed labels
+are converted to the public API's existing `id`/`evidence` arrays, then checked
+against all normal taxonomy and evidence rules. The dashboard response format
+is unchanged.
 
 ## Topic categories and optional web context
 
@@ -168,7 +197,10 @@ IDs for future preference matching:
 technology, programming, science, education, gaming, sports, fitness, health,
 mental_health, food, travel, music, film_tv, comedy, news, politics, finance,
 business, lifestyle, fashion_beauty, diy, gardening, animals, nature, automotive,
-relationships, other
+relationships, internet_culture, social_commentary, drama_conflict, true_crime,
+horror_mystery, art_design, books_literature, culture_religion,
+motivation_self_improvement, shopping_consumerism, asmr_relaxation,
+events_celebrations, other
 ```
 
 The model chooses zero to five unique categories, most relevant first, and
@@ -185,7 +217,8 @@ used yet. For example, a gardening tutorial might include:
   "category_reason": "The title and description explain how to grow herbs.",
   "subcategories": [{"id": "gardening.indoor_plants", "evidence": "The caption describes growing herbs indoors."}],
   "content_signals": [],
-  "taxonomy_version": "1",
+  "taxonomy_version": "2",
+  "signal_polarities": {},
   "web_search": {"status": "disabled", "query": null, "sources": [], "warning": null}
 }
 ```
@@ -197,6 +230,23 @@ each with a stable `id` and a short `evidence` explanation. Parent category IDs
 are unchanged. Subcategories must belong to a selected parent; unknown IDs,
 duplicates, mismatched parents, and blank or oversized evidence are rejected.
 Specific labels are optional when the available data does not support them.
+
+Taxonomy version 2 expands the topic hierarchy and includes both potentially
+negative and potentially positive content signals. `GET /analysis/taxonomy`
+retains its flat `content_signals` list and adds `signal_groups.negative` and
+`signal_groups.positive`. Accepted assessment responses include a
+`signal_polarities` mapping for selected signals, derived by backend code from
+the taxonomy (not supplied by either model). For example,
+`{"educational":"positive","outrage_bait":"negative"}` allows consumers to
+distinguish constructive signals from concerns. The model may select both;
+positive signals do not automatically override a negative assessment.
+
+The dashboard displays separate **Potential concerns to review** and
+**Constructive signals** sections. Provider flags, taxonomy version, and signal
+polarities are included in the model JSON viewer and exports. Categories and
+subcategories remain topic IDs suitable for future preferences, not personal
+recommendations. The Chrome extension currently tracks viewing sessions; it
+does not yet invoke video assessment or implement preference-based blocking.
 
 Examples of the distinction:
 
@@ -259,6 +309,60 @@ The dashboard displays search status and expandable sources, and JSON exports
 include the categories and search context. No web search is added to the general
 `/analysis/prompt` endpoint.
 
+## Gemini backup for unavailable assessments
+
+Video assessment first uses Ollama, including its one regeneration attempt for
+invalid generated data. If it still raises an assessment availability error
+(the errors that would otherwise produce 503), the backend makes one Gemini
+request using the original evidence and fixed system prompt. A failed connection
+or missing Ollama model goes directly to the backup. The Gemini result must pass
+the same strict JSON parser, taxonomy, parent relationships, evidence limits,
+and duplicate-key checks. Both providers have no tools and their output is
+never executed. Invalid input (422) does not trigger fallback, and the general
+`/analysis/prompt` endpoint remains Ollama-only.
+
+Obtain a [Gemini API key](https://aistudio.google.com/apikey) and add it to
+`backend/.env`, then restart the backend:
+
+```dotenv
+GEMINI_FALLBACK_ENABLED=true
+GEMINI_API_KEY=your_api_key_here
+GEMINI_MODEL=gemini-3.8-flash
+GEMINI_TIMEOUT=60
+```
+
+Fallback is enabled by default, but requires the key to make a request.
+`GEMINI_MODEL` is configurable; the default uses Google's documented Flash model
+and [structured JSON output API](https://ai.google.dev/gemini-api/docs/generate-content/structured-output).
+The key is sent only in a server-side header to Google's fixed HTTPS API
+endpoint, never in browser code, model prompts, URLs, responses, or exports.
+Fallback sends the title, caption, comment excerpts, aggregate sentiment, and
+any fetched search snippets to Google. Set `GEMINI_FALLBACK_ENABLED=false` for
+Ollama-only assessment. Web search is not repeated during fallback.
+
+Every accepted assessment includes application-supplied `provider`, `model`,
+`fallback_used`, and `fallback_reason`. For Gemini, these include:
+
+```json
+{
+  "provider": "gemini",
+  "model": "gemini-3.8-flash",
+  "fallback_used": true,
+  "fallback_reason": "Model returned an invalid video assessment after one regeneration; no decision was accepted. Check backend logs for validation details."
+}
+```
+
+Ollama results use `provider: "ollama"`, `fallback_used: false`, and a null
+fallback reason. The dashboard displays a **Gemini fallback used** banner and
+model name, labels the assessment JSON viewer accordingly, and includes these
+flags in exports. The console also prints the provider and fallback flag.
+No Gemini request is made when Ollama succeeds. Missing keys, API authentication
+or quota errors, timeouts, blocked/truncated answers, or invalid Gemini output
+return 503 with an explanatory JSON `detail`, preserving comment results.
+The default Gemini model uses low thinking effort for lower classification
+latency. Upstream Gemini 5xx errors are identified as a temporarily unavailable
+Gemini service in the error message.
+
 ## YouTube reaction sentiment setup
 
 From `backend/`, install the backend dependencies (including model dependencies):
@@ -270,8 +374,25 @@ python -m uvicorn app.main:app --reload
 
 Use the project's virtual environment. The requirements skip `uvloop` on Windows.
 The API still requires the existing `MONGODB_URI` setting at startup.
-Analysis does not read or write MongoDB. Add `YOUTUBE_API_KEY` to `backend/.env`
+The video analysis route attempts to save RoBERTa results to MongoDB. Add `YOUTUBE_API_KEY` to `backend/.env`
 only if you want the API to fetch comments itself.
+
+If MongoDB is unreachable, `/analysis/videos/{video_id}` still returns its
+completed analysis with `storage.status: "unavailable"` and a detail message.
+Storage confirmation is bounded to five seconds; successful writes return
+`storage.status: "saved"`. An unavailable status means saving could not be
+confirmed, not that a write certainly did not reach the database. The dashboard
+shows this warning and can continue to video assessment. Direct comment and
+metadata assessment endpoints do not require a database write.
+
+Database-dependent routes (sessions and stored-analysis retrieval) return a
+sanitized JSON 503 if MongoDB raises a driver error. `/health` also returns JSON
+503 within five seconds of a failed database check. A TLS handshake or server
+selection failure requires fixing the MongoDB connection; check the Atlas
+[IP access list and connection troubleshooting](https://www.mongodb.com/docs/atlas/troubleshoot-connection/),
+cluster availability, and your network's connectivity to Atlas. Database errors
+are no longer returned as plain-text 500 responses that hide the cause behind
+the dashboard's "not JSON" message.
 
 YouTube parsing and fetching are shared through `app/youtube.py`. Both the
 analysis video route and `/youtube/comments/{video_id}` use its fetcher. The
@@ -325,8 +446,28 @@ keys/model dependencies return 503, and invalid input returns 422.
 
 Each comment includes its original text, sentiment label, winning score as
 `confidence`, and all three scores. The summary includes counts, proportions,
-mean model scores, and `sentiment_balance` (mean positive minus mean negative,
-from -1 to +1). These model scores are not calibrated certainty estimates.
+mean model scores, and the count-based `sentiment_balance`:
+
+```text
+(positive_count - negative_count) / (positive_count + negative_count)
+```
+
+Neutral labels are excluded entirely from this ratio. All negative non-neutral
+labels produce -1, all positive produce +1, and equal counts produce 0. Empty
+and all-neutral samples produce null because there is no directional evidence.
+For example, 10 negative and 90 neutral comments produce -1; 3 positive, 1
+negative, and 96 neutral comments produce +0.5. These ratios intentionally avoid
+diluting negative reactions with neutral comments. One negative plus many
+neutrals also produces -1, so the ratio alone does not measure reaction volume,
+severity, or whether a video is harmful. The assessment prompt prioritizes
+credible negative evidence while interpreting the ratio in context.
+
+`average_scores` still reports mean classifier probabilities across all analyzed
+comments. These model scores are not calibrated certainty estimates. The
+existing `is_negative_reaction` threshold rule below still uses the negative
+proportion among all comments; it is separate from the assessment's revised
+balance ratio. Neutral comments may still be included as qualitative evidence
+in the assessment's comment excerpts.
 
 `is_negative_reaction` is true when the fraction of comments classified negative
 meets `negative_threshold` **and** negative comments outnumber positive comments.

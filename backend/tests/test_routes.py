@@ -1,6 +1,7 @@
 import os
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, Mock, patch
+from pymongo.errors import ServerSelectionTimeoutError
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -57,13 +58,29 @@ class RouteTests(unittest.TestCase):
 
     def test_video_sample_metadata(self):
         with patch("analysis.routes.settings") as settings, \
-             patch("analysis.routes.fetch_video_comments", return_value={"items": [], "nextPageToken": "next"}) as fetch:
+             patch("analysis.routes.fetch_video_comments", return_value={"items": [], "nextPageToken": "next"}) as fetch, \
+             patch("analysis.routes.save_roberta_analysis", new_callable=AsyncMock) as save:
             settings.youtube_api_key = "test-key"
             response = self.client.get("/analysis/videos/abcdefghijk?max_comments=123")
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(response.json()["summary"]["is_negative_reaction"])
         self.assertTrue(response.json()["sample"]["has_more"])
+        self.assertEqual(response.json()["storage"]["status"], "saved")
+        save.assert_awaited_once()
         fetch.assert_called_once_with("abcdefghijk", "test-key", 123)
+
+    def test_database_failure_preserves_analysis_and_returns_json_warning(self):
+        for error in (ServerSelectionTimeoutError("private connection details"), TimeoutError()):
+            with self.subTest(error=type(error).__name__), \
+                 patch("analysis.routes.settings") as settings, \
+                 patch("analysis.routes.fetch_video_comments", return_value={"items": []}), \
+                 patch("analysis.routes.save_roberta_analysis", new_callable=AsyncMock, side_effect=error):
+                settings.youtube_api_key = "test-key"
+                response = self.client.get("/analysis/videos/abcdefghijk")
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json()["summary"]["total_comments"], 0)
+            self.assertEqual(response.json()["storage"]["status"], "unavailable")
+            self.assertNotIn("private connection details", response.text)
 
     def test_missing_key_upstream_error_and_video_validation(self):
         with patch("analysis.routes.settings") as settings:

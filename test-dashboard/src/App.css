@@ -183,6 +183,9 @@ input::placeholder { color: #a0aa98; }
 .video-evidence dt { font-weight: 600; margin-top: 10px; }
 .video-evidence dd { margin: 3px 0 0; max-height: 200px; overflow: auto; }
 .video-assessment-body .error-message { padding: 12px; border-radius: 6px; }
+.fallback-banner { background: #fff7e3; border: 1px solid #e4d5a4; border-radius: 6px; padding: 12px; margin-bottom: 14px; color: #78612a; }
+.fallback-banner p { margin-top: 5px; overflow-wrap: anywhere; }
+.fallback-banner details { margin-top: 8px; }
 .category-heading { font-size: 12px; margin-top: 18px; }
 .category-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
 .category-tags span { background: #eaf0e4; color: #526b43; border-radius: 5px; padding: 4px 10px; font-size: 11px; }
@@ -197,4 +200,5 @@ input::placeholder { color: #a0aa98; }
 .topic-branch ul, .content-signals { padding-left: 18px; margin-top: 8px; }
 .topic-branch li, .content-signals li { margin-top: 9px; }
 .topic-branch li p, .content-signals p { font-size: 11px; overflow-wrap: anywhere; white-space: pre-wrap; }
+.positive-signals { color: #487957; }
 @media (prefers-reduced-motion: reduce) { .spinner { animation: none; }button { transition: none; } }
