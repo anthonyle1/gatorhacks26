@@ -31,16 +31,15 @@ async def process_video_analysis(video_id: str):
     and store the results in MongoDB.
     """
 
-    # Only one worker should claim this pending job.
-    claimed = await db.video_analyses.find_one_and_update(
-        {"video_id": video_id, "analysis_status": "pending"},
-        {"$set": {"analysis_status": "processing"}}
-    )
-
-    if claimed is None:
-        return
-
     try:
+        # A database failure while claiming a background job must be handled
+        # here: the event-upload HTTP response may already have been sent.
+        claimed = await db.video_analyses.find_one_and_update(
+            {"video_id": video_id, "analysis_status": "pending"},
+            {"$set": {"analysis_status": "processing"}}
+        )
+        if claimed is None:
+            return
         if not settings.youtube_api_key:
             raise RuntimeError("YOUTUBE_API_KEY is not configured")
 
@@ -67,7 +66,10 @@ async def process_video_analysis(video_id: str):
     except Exception:
         logger.exception("Analysis failed for video %s", video_id)
 
-        await db.video_analyses.update_one(
-            {"video_id": video_id},
-            {"$set": {"analysis_status": "failed"}}
-        )
+        try:
+            await db.video_analyses.update_one(
+                {"video_id": video_id},
+                {"$set": {"analysis_status": "failed"}}
+            )
+        except Exception:
+            logger.warning("Could not record failed analysis job status")
