@@ -1,4 +1,8 @@
+import { useMemo } from 'react'
+import { GitBranch, Undo2 } from 'lucide-react'
 import { usePrune } from '../../state/prune-context'
+import { compostTopics } from '../../tree/compostTopics'
+import type { CompostTopic } from '../../tree/compostTopics'
 import { FlameIcon } from '../icons'
 
 const MAX_PIECES = 8
@@ -27,7 +31,9 @@ function Flame({ width, height, fill, speed, margin }: { width: number; height: 
 }
 
 export default function CompostPile() {
-  const { compost, phase, burnPile } = usePrune()
+  const { compost, tree, busy, phase, burnPile } = usePrune()
+  const restoreById = new Map(compost.map(item => [item.key.slice(2), item.restore]))
+  const topics = useMemo(() => compostTopics(tree, new Set(compost.map(item => item.key.slice(2)))), [tree, compost])
 
   const idle = phase === 'idle'
   const burning = phase === 'burning'
@@ -35,6 +41,32 @@ export default function CompostPile() {
   const canClear = compost.length > 0 && idle
   const phaseLabel = burning ? 'Burning...' : ashing ? 'Cleared' : ''
   const pieces = ashing ? [] : compost.slice(0, MAX_PIECES)
+
+  function topicRow(topic: CompostTopic) {
+    const parents = topic.coverage.filter(root => root.id !== topic.id)
+    const restore = restoreById.get(topic.id)
+    return (
+      <li key={topic.id} className="compost-topic-item">
+        <div className="compost-topic-row">
+          <GitBranch size={15} aria-hidden="true" />
+          <span className="compost-topic-label">
+            {topic.name}
+            {parents.length > 0 && <small>Pruned with {parents.map(parent => parent.name).join(', ')}</small>}
+            {!topic.coverage.length && <small>Parent topic</small>}
+          </span>
+          {restore && !parents.length && (
+            <button type="button" className="compost-topic-restore" disabled={busy || !idle}
+              title={`Unprune ${topic.name}`} aria-label={`Unprune ${topic.name}`} onClick={restore}>
+              Unprune <Undo2 size={15} aria-hidden="true" />
+            </button>
+          )}
+        </div>
+        {topic.children.length > 0 && <ul className="compost-topic-children" aria-label={`Child topics of ${topic.name}`}>
+          {topic.children.map(topicRow)}
+        </ul>}
+      </li>
+    )
+  }
 
   return (
     <section className="card card--lg compost" aria-labelledby="compost-heading">
@@ -117,19 +149,11 @@ export default function CompostPile() {
           <span className="pile__phase">{phaseLabel}</span>
         </div>
 
-        <div className="compost__list">
+        <div className={`compost__list${burning ? ' compost-topic-list--burning' : ''}`} role="region" aria-label="Pruned topics to restore" tabIndex={0}>
           {compost.length === 0 && idle && (
             <span className="compost__none">Nothing in the pile. Prune a branch and it lands here.</span>
           )}
-          {idle &&
-            compost.map((item) => (
-              <div key={item.key} className="compost__item">
-                <span>{item.label}</span>
-                <button type="button" className="btn btn--outline-soft" onClick={item.restore}>
-                  Restore
-                </button>
-              </div>
-            ))}
+          {!ashing && topics.length > 0 && <ul className="compost-topic-list">{topics.map(topicRow)}</ul>}
         </div>
       </div>
     </section>

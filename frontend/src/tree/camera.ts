@@ -14,3 +14,10 @@ export function zoomRange(viewportWidth: number, viewportHeight: number, treeWid
   const min = Math.min(1, viewportWidth / treeWidth, viewportHeight / treeHeight)
   return { min, max: Math.min(3, min * 3) }
 }
+
+/** Match the extension's bush focus framing, keeping room below for topic details. */
+export function topicFocus(x: number, y: number, width: number, height: number, viewportWidth: number, viewportHeight: number, currentZoom: number, limits: { min: number; max: number }) {
+  const zoom = Math.max(limits.min, Math.min(limits.max, Math.max(currentZoom,
+    Math.min(2.4, viewportWidth * .68 / width, viewportHeight * .55 / height))))
+  return { zoom, left: x * zoom - viewportWidth / 2, top: y * zoom - viewportHeight * .43 }
+}

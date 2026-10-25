@@ -1,0 +1,69 @@
+.prune-video-details.video-summary { padding: 12px 14px; background: #f7f9f2; font: 15px/1.5 Inter, system-ui, sans-serif; }
+.video-summary__header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.video-summary__header h4 { margin: 0; font-size: 17px; color: #35573c; }
+.video-summary__status { margin-right: auto; font-size: 13px; color: #617158; }
+.video-summary__header button, .video-summary__header a { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 3px; border: 0; border-radius: 4px; background: transparent; color: #527344; cursor: pointer; }
+.video-summary__header button:hover, .video-summary__header a:hover { background: #e5ecdc; }
+.video-summary__body { display: grid; grid-template-columns: minmax(0, 1fr) 190px; gap: 16px; }
+.video-summary__assessment { min-width: 0; }
+.video-summary p { margin: 0; overflow-wrap: anywhere; }
+.video-summary details { margin-top: 5px; }
+.video-summary summary { cursor: pointer; color: #617158; font-size: 14px; }
+.video-summary__signals { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); gap: 8px 14px; margin-top: 8px; }
+.video-summary__signals h5 { display: flex; align-items: center; gap: 4px; margin: 0 0 3px; font: 600 14px Inter, system-ui, sans-serif; }
+.video-summary__negative h5 { color: #935a38; }
+.video-summary__positive h5 { color: #527344; }
+.video-summary__signals ul { margin: 0; padding-left: 16px; }
+.video-summary__signals li { margin: 3px 0; font-size: 14px; overflow-wrap: anywhere; }
+.video-summary__signals li strong { font-weight: 600; text-transform: capitalize; }
+.video-summary__sentiment { margin: 0; padding-left: 12px; border-left: 1px solid #dfe5d8; }
+.video-summary__sentiment figcaption { font-size: 14px; font-weight: 600; color: #35573c; }
+.video-summary__chart-row { display: flex; align-items: center; gap: 9px; margin-top: 5px; }
+.video-summary__chart-row svg { flex: 0 0 72px; width: 72px; height: 72px; }
+.video-summary__chart-total { font: 600 8px Inter, system-ui, sans-serif; fill: #35573c; }
+.video-summary__chart-legend { flex: 1; }
+.video-summary__chart-legend > span { display: flex; align-items: center; gap: 4px; font-size: 13px; white-space: nowrap; }
+.video-summary__chart-row i { width: 6px; height: 6px; border-radius: 50%; }
+.video-summary__chart-legend strong { margin-left: auto; }
+.video-summary__sentiment-button, .video-summary__chart-button { border: 0; padding: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.video-summary__sentiment-button { text-decoration: underline; text-underline-offset: 3px; }
+.video-summary__chart-button { display: block; width: 100%; border-radius: 8px; }
+.video-summary__chart-button:hover { background: #eaf0e2; }
+.video-summary__chart-hint { display: block; margin-top: 5px; color: #527344; font-size: 12px; }
+.comment-breakdown { width: min(660px, calc(100vw - 32px)); max-height: 85dvh; margin: auto; padding: 22px; overflow-y: auto; border: 1px solid #bdcbb0; border-radius: 18px; background: #fffdf7; color: #35573c; box-shadow: 0 20px 80px #142a3040; font: 14px/1.5 Inter, system-ui, sans-serif; }
+.comment-breakdown::backdrop { background: #14231b80; }
+.comment-breakdown__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.comment-breakdown__header h2 { margin: 0; font: 700 24px/1.2 var(--font-heading, system-ui); }
+.comment-breakdown__header p { margin: 6px 0 0; color: #617158; overflow-wrap: anywhere; }
+.comment-breakdown__header button { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; padding: 6px; border: 0; border-radius: 6px; background: #edf3e7; color: #35573c; cursor: pointer; }
+.comment-breakdown__metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.comment-breakdown__metric { padding: 12px; border-radius: 10px; }
+.comment-breakdown__metric span, .comment-breakdown__tag, .comment-breakdown__filters button { text-transform: capitalize; }
+.comment-breakdown__metric strong { display: block; margin: 3px 0; font-size: 26px; }
+.comment-breakdown__metric small { display: block; font-size: 11px; }
+.comment-breakdown__positive { background: #e5efdc; color: #3e6538; }
+.comment-breakdown__neutral { background: #efeada; color: #71633e; }
+.comment-breakdown__negative { background: #f5e2d8; color: #8a4d37; }
+.comment-breakdown__unclassified { background: #e9ece5; color: #617158; }
+.comment-breakdown__bar { display: flex; height: 9px; margin-top: 12px; border-radius: 8px; overflow: hidden; }
+.comment-breakdown__bar .comment-breakdown__positive { background: #648957; }
+.comment-breakdown__bar .comment-breakdown__neutral { background: #c9bd95; }
+.comment-breakdown__bar .comment-breakdown__negative { background: #bf795d; }
+.comment-breakdown__filters { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 20px; }
+.comment-breakdown__filters button { padding: 6px 9px; border: 1px solid #c0ceb4; border-radius: 7px; background: #f5f8ee; color: #35573c; font: inherit; font-size: 12px; cursor: pointer; }
+.comment-breakdown__filters button[aria-pressed='true'] { background: #35573c; border-color: #35573c; color: #fff; }
+.comment-breakdown__available, .comment-breakdown__empty { color: #617158; font-size: 13px; }
+.comment-breakdown__comments { list-style: none; padding: 0; margin: 0; }
+.comment-breakdown__comments li { padding: 12px 0; border-top: 1px solid #dfe5d8; }
+.comment-breakdown__tag { display: inline-block; padding: 2px 7px; border-radius: 5px; font-size: 11px; }
+.comment-breakdown__comments p { margin: 7px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.comment-breakdown button:focus-visible { outline: 2px solid #527344; outline-offset: 3px; }
+@media (max-width: 480px) { .comment-breakdown { padding: 16px; } .comment-breakdown__metrics { gap: 6px; } .comment-breakdown__metric { padding: 8px; } }
+.video-summary__sentiment p { margin-top: 4px; font-size: 13px; color: #617158; }
+.video-summary .video-summary__comments { margin-top: 8px; padding-top: 6px; border-top: 1px solid #dfe5d8; color: #617158; font-size: 13px; }
+@media (max-width: 640px) {
+  .video-summary__body { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .video-summary__sentiment { padding-left: 0; padding-top: 8px; border-left: 0; border-top: 1px solid #dfe5d8; }
+  .video-summary__chart-row { max-width: 210px; }
+  .video-summary__header { flex-wrap: wrap; }
+}

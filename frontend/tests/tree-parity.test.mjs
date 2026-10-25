@@ -32,3 +32,25 @@ test('dashboard pan bounds match extension bounds at each edge', () => {
     assert.deepEqual(dashboardCamera.boundPan(...position, 360, 560, 900, 1200), extensionCamera.boundPan(...position, 360, 560, 900, 1200))
   }
 })
+
+test('bush focus matches extension framing and respects fit and maximum zoom', () => {
+  for (const [viewportWidth, viewportHeight, treeWidth, treeHeight, bushWidth, bushHeight, current] of [
+    [360, 560, 1200, 900, 120, 80, .3],
+    [1000, 560, 1600, 1200, 180, 100, 1],
+    [320, 300, 9000, 12000, 80, 40, .04],
+    [1000, 700, 1000, 700, 900, 600, 2],
+  ]) {
+    const limits = extensionCamera.zoomRange(viewportWidth, viewportHeight, treeWidth, treeHeight)
+    const focus = dashboardCamera.topicFocus(650, 450, bushWidth, bushHeight, viewportWidth, viewportHeight, current, limits)
+    // Reference framing from TopicGarden.focusTopic in the extension.
+    const zoom = Math.max(limits.min, Math.min(limits.max, Math.max(current,
+      Math.min(2.4, viewportWidth * .68 / bushWidth, viewportHeight * .55 / bushHeight))))
+    assert.deepEqual(focus, { zoom, left: 650 * zoom - viewportWidth / 2, top: 450 * zoom - viewportHeight * .43 })
+    assert.ok(focus.zoom >= limits.min && focus.zoom <= limits.max)
+    assert.ok(focus.zoom >= Math.min(current, limits.max))
+    const pan = dashboardCamera.boundPan(focus.left, focus.top, viewportWidth, viewportHeight, treeWidth * focus.zoom, treeHeight * focus.zoom)
+    assert.ok(pan.left >= 0 && pan.top >= 0)
+    assert.ok(pan.left <= Math.max(0, treeWidth * focus.zoom - viewportWidth))
+    assert.ok(pan.top <= Math.max(0, treeHeight * focus.zoom - viewportHeight))
+  }
+})

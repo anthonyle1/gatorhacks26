@@ -1,34 +1,14 @@
-import { useMemo, useState } from 'react'
+import { useId, useMemo, useState } from 'react'
+import { AlertTriangle } from 'lucide-react'
 import { usePrune } from '../state/prune-context'
-import type { Topic } from '../data/topics'
-
-type VideoRecord = {
-  video_id: string
-  source_id?: string
-  title?: string
-  caption?: string
-  platform?: string
-  analysis?: {
-    status?: string
-    sentiment?: {
-      total_comments?: number
-      counts?: {
-        positive?: number
-        neutral?: number
-        negative?: number
-      }
-    } | null
-    assessment?: {
-      reason?: string
-      context_summary?: string
-      negative_for_user?: string
-    }
-    comments?: {
-      text: string
-      sentiment?: string
-    }[]
-  }
-}
+import type { Topic, TopicVideo as VideoRecord } from '../data/topics'
+import VideoSummary from './VideoSummary'
+import { gardenTreeData } from './gardenTreeData'
+import { topicRisk } from './risk'
+import { flatten as flattenTree } from './types'
+import { sortTopics } from './sortTopics'
+import type { TopicSort } from './sortTopics'
+import { hasNegativeConcerns } from './videoConcerns'
 
 function flatten(nodes: Topic[]): Topic[] {
   return nodes.flatMap(node => [
@@ -51,227 +31,6 @@ function findTopic(
   return undefined
 }
 
-function isDemo(id: string) {
-  return id.startsWith('demo:')
-}
-
-function videoUrl(video: VideoRecord): string | null {
-  if (!video.source_id) return null
-
-  if (video.platform === 'youtube') {
-    if (video.source_id.startsWith('demo_')) return null
-    return `https://www.youtube.com/watch?v=${encodeURIComponent(video.source_id)}`
-  }
-
-  if (video.platform === 'instagram') {
-    return `https://www.instagram.com/reel/${encodeURIComponent(video.source_id)}/`
-  }
-
-  return null
-}
-
-function assessmentLabel(value?: string) {
-  switch (value) {
-    case 'yes':
-      return 'Potential warning'
-    case 'no':
-      return 'No concern identified'
-    case 'uncertain':
-      return 'Uncertain assessment'
-    default:
-      return 'Not assessed'
-  }
-}
-
-function VideoDetails({
-  video,
-  videoId,
-  onClose,
-  busy,
-  canEdit,
-  categoryId,
-  categories,
-  onMove,
-}: {
-  video?: VideoRecord
-  videoId: string
-  onClose: () => void
-  busy: boolean
-  canEdit: boolean
-  categoryId: string
-  categories: Topic[]
-  onMove: (videoId: string, categoryId: string) => void
-}) {
-  const assessment = video?.analysis?.assessment
-  const sentiment = video?.analysis?.sentiment
-  const comments = video?.analysis?.comments ?? []
-  const url = video ? videoUrl(video) : null
-
-  return (
-    <section
-      className="prune-video-details"
-      aria-label={`Video details: ${video?.title ?? videoId}`}
-    >
-      <div className="prune-video-details__header">
-        <div>
-          <span className="botanical-eyebrow">
-            VIDEO DETAILS
-          </span>
-          <h4>{video?.title || videoId}</h4>
-        </div>
-
-        <button
-          type="button"
-          className="prune-video-details__close"
-          onClick={onClose}
-          aria-label="Close video details"
-        >
-          ×
-        </button>
-      </div>
-
-      {!video && (
-        <p>Additional information is unavailable for this video.</p>
-      )}
-
-      {video && (
-        <>
-          <div className="prune-video-details__meta">
-            <span className="prune-video-details__pill">
-              {video.platform === 'youtube'
-                ? 'YouTube'
-                : video.platform === 'instagram'
-                  ? 'Instagram'
-                  : video.platform || 'Video'}
-            </span>
-
-            <span
-              className={
-                `prune-video-details__pill prune-video-details__pill--${
-                  assessment?.negative_for_user === 'yes'
-                    ? 'warning'
-                    : 'status'
-                }`
-              }
-            >
-              {assessmentLabel(assessment?.negative_for_user)}
-            </span>
-          </div>
-
-          {url && (
-            <a
-              className="prune-video-details__link"
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Open original video ↗
-            </a>
-          )}
-
-          {video.caption && (
-            <div className="prune-video-details__section">
-              <h5>Caption</h5>
-              <p>{video.caption}</p>
-            </div>
-          )}
-
-          {assessment && (
-            <div className="prune-video-details__section">
-              <h5>AI assessment</h5>
-
-              {assessment.context_summary && (
-                <p>{assessment.context_summary}</p>
-              )}
-
-              {assessment.reason && (
-                <p>{assessment.reason}</p>
-              )}
-
-              {!assessment.context_summary &&
-                !assessment.reason && (
-                  <p>No explanation is available.</p>
-                )}
-            </div>
-          )}
-
-          {sentiment && (
-            <div className="prune-video-details__section">
-              <h5>Comment sentiment</h5>
-
-              <div className="prune-video-details__sentiment">
-                <span>
-                  Positive
-                  <strong>{sentiment.counts?.positive ?? 0}</strong>
-                </span>
-                <span>
-                  Neutral
-                  <strong>{sentiment.counts?.neutral ?? 0}</strong>
-                </span>
-                <span>
-                  Negative
-                  <strong>{sentiment.counts?.negative ?? 0}</strong>
-                </span>
-              </div>
-            </div>
-          )}
-
-          {comments.length > 0 && (
-            <div className="prune-video-details__section">
-              <h5>Comments</h5>
-
-              <div className="prune-video-details__comments">
-                {comments.map((comment, index) => (
-                  <div
-                    key={index}
-                    className="prune-video-details__comment"
-                  >
-                    <p>{comment.text}</p>
-                    {comment.sentiment && (
-                      <span>{comment.sentiment}</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {canEdit && (
-            <div className="prune-video-details__section">
-              <label className="prune-video-details__field">
-                Move video to another category
-
-                <select
-                  disabled={busy}
-                  value={categoryId}
-                  onChange={event => {
-                    if (event.target.value) {
-                      onMove(videoId, event.target.value)
-                    }
-                  }}
-                >
-                  <option value="" disabled>
-                    Choose category
-                  </option>
-
-                  {categories.map(category => (
-                    <option
-                      key={category.id}
-                      value={category.id}
-                    >
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-          )}
-        </>
-      )}
-    </section>
-  )
-}
-
 export default function WebsiteTopicEditor({
   inspectedId,
 }: {
@@ -279,14 +38,19 @@ export default function WebsiteTopicEditor({
 }) {
   const {
     taxonomy,
+    tree,
+    videoCount,
     cuts,
     pruned,
     setPruned,
     setSelected,
     selectedId,
-    moveVideo,
     busy,
   } = usePrune()
+
+  const sortId = useId()
+  const [sortOrder, setSortOrder] = useState<TopicSort>('tree')
+  const [highlightConcerns, setHighlightConcerns] = useState(false)
 
   const [expanded, setExpanded] = useState<
     Record<string, boolean>
@@ -295,13 +59,17 @@ export default function WebsiteTopicEditor({
   const [selectedVideo, setSelectedVideo] =
     useState<string | null>(null)
 
-  const [actionError, setActionError] =
-    useState<string | null>(null)
-
   const allRoots = useMemo(
     () => taxonomy?.tree ?? [],
     [taxonomy]
   )
+
+  const sortedRoots = useMemo(() => {
+    const data = gardenTreeData(tree, taxonomy, cuts, videoCount)
+    const evidence = new Map((data.tree_videos ?? []).map(video => [video.video_id, video]))
+    const scores = new Map(flattenTree(data.tree).map(topic => [topic.id, topicRisk(topic, evidence).score]))
+    return sortTopics(allRoots, scores, sortOrder)
+  }, [allRoots, tree, taxonomy, cuts, videoCount, sortOrder])
 
   const topics = useMemo(
     () => flatten(allRoots),
@@ -309,14 +77,14 @@ export default function WebsiteTopicEditor({
   )
 
   const inspectedTopic = inspectedId
-    ? findTopic(allRoots, inspectedId)
+    ? findTopic(sortedRoots, inspectedId)
     : undefined
 
   const roots = inspectedId
     ? inspectedTopic
       ? [inspectedTopic]
       : []
-    : allRoots
+    : sortedRoots
 
   const videos = useMemo(() => {
     const result = new Map<string, VideoRecord>()
@@ -338,45 +106,27 @@ export default function WebsiteTopicEditor({
     return result
   }, [taxonomy])
 
-  const assignments = useMemo(() => {
-    const result = new Map<string, string[]>()
+  const concernVideos = useMemo(() => new Set(
+    [...videos].filter(([, video]) => hasNegativeConcerns(video.analysis?.assessment)).map(([id]) => id)
+  ), [videos])
+  const visibleConcernCount = new Set(flatten(roots).flatMap(topic =>
+    (topic.video_ids ?? []).filter(id => concernVideos.has(id))
+  )).size
 
-    for (const topic of topics) {
-      for (const id of topic.video_ids ?? []) {
-        const existing = result.get(id) ?? []
-
-        if (!existing.includes(topic.id)) {
-          existing.push(topic.id)
-        }
-
-        result.set(id, existing)
-      }
+  function toggleConcerns() {
+    const enabled = !highlightConcerns
+    setHighlightConcerns(enabled)
+    if (!enabled) return
+    // Reveal concerned videos even if their topic or an ancestor was collapsed.
+    const reveal: Record<string, boolean> = {}
+    function visit(node: Topic): boolean {
+      const childMatches = (node.children ?? []).map(visit).some(Boolean)
+      const matches = childMatches || (node.video_ids ?? []).some(id => concernVideos.has(id))
+      if (matches) reveal[node.id] = true
+      return matches
     }
-
-    return result
-  }, [topics])
-
-  async function reassign(
-    videoId: string,
-    categoryId: string
-  ) {
-    if (
-      isDemo(videoId) ||
-      isDemo(categoryId)
-    ) {
-      return
-    }
-
-    try {
-      setActionError(null)
-      await moveVideo(videoId, categoryId)
-    } catch (error) {
-      setActionError(
-        error instanceof Error
-          ? error.message
-          : 'Could not move video.'
-      )
-    }
+    roots.forEach(visit)
+    setExpanded(previous => ({ ...previous, ...reveal }))
   }
 
   function branch(
@@ -386,8 +136,6 @@ export default function WebsiteTopicEditor({
     const open =
       expanded[node.id] ??
       (depth === 0 || node.id === inspectedId)
-
-    const demo = isDemo(node.id)
 
     const directVideos = (node.video_ids ?? []).filter(
       id =>
@@ -498,7 +246,6 @@ export default function WebsiteTopicEditor({
                 {directVideos.map(id => {
                   const video = videos.get(id)
                   const selected = selectedVideo === id
-                  const assigned = assignments.get(id) ?? []
 
                   return (
                     <li
@@ -508,7 +255,7 @@ export default function WebsiteTopicEditor({
                           selected
                             ? ' website-topic-video--selected'
                             : ''
-                        }`
+                        }${highlightConcerns && concernVideos.has(id) ? ' website-topic-video--concern' : ''}`
                       }
                     >
                       <div className="website-topic-video__row">
@@ -532,29 +279,16 @@ export default function WebsiteTopicEditor({
                           <span>
                             {video?.title || id}
                           </span>
+                          {highlightConcerns && concernVideos.has(id) && (
+                            <span className="website-topic-video__concern"><AlertTriangle size={14} aria-hidden="true" />Negative concern</span>
+                          )}
                         </button>
                       </div>
 
                       {selected && (
-                        <VideoDetails
+                        <VideoSummary
                           video={video}
                           videoId={id}
-                          busy={busy}
-                          canEdit={!demo}
-                          categoryId={
-                            assigned.length === 1
-                              ? assigned[0]
-                              : ''
-                          }
-                          categories={topics.filter(
-                            topic => !isDemo(topic.id)
-                          )}
-                          onMove={(videoId, categoryId) =>
-                            void reassign(
-                              videoId,
-                              categoryId
-                            )
-                          }
                           onClose={() =>
                             setSelectedVideo(null)
                           }
@@ -576,13 +310,29 @@ export default function WebsiteTopicEditor({
       className="website-topic-editor"
       aria-label="Topic editor"
     >
-      {actionError && (
-        <p role="alert" className="error">
-          {actionError}
-        </p>
-      )}
-
       <div className="website-topic-editor__organizer">
+        <div className="website-topic-editor__sort">
+          <label htmlFor={sortId}>Sort by</label>
+          <select id={sortId} value={sortOrder} aria-describedby={`${sortId}-hint`}
+            onChange={event => setSortOrder(event.target.value as TopicSort)}>
+            <option value="tree">Tree order</option>
+            <option value="critical-desc">Criticalness: highest first</option>
+            <option value="critical-asc">Criticalness: lowest first</option>
+          </select>
+          <button type="button" className="website-topic-editor__highlight" aria-pressed={highlightConcerns}
+            onClick={toggleConcerns}>
+            <AlertTriangle size={15} aria-hidden="true" />Highlight concerns
+          </button>
+          <button type="button" className="website-topic-editor__collapse-all" disabled={!roots.length}
+            onClick={() => {
+              setExpanded(Object.fromEntries(topics.map(topic => [topic.id, false])))
+              setSelectedVideo(null)
+            }}>
+            Collapse all
+          </button>
+          <p id={`${sortId}-hint`}>Criticalness uses warnings and negative comment signals. Unrated topics appear last.</p>
+          {highlightConcerns && <p role="status">{visibleConcernCount ? `${visibleConcernCount} ${visibleConcernCount === 1 ? 'video with negative concerns' : 'videos with negative concerns'} highlighted.` : 'No videos flagged with negative concerns in these topics.'}</p>}
+        </div>
         <ul className="website-topic-editor__categories">
           {roots.map(root => branch(root))}
         </ul>

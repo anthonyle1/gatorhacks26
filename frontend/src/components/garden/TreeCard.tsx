@@ -4,7 +4,7 @@ import { ZoomIn, ZoomOut } from 'lucide-react'
 import { useTreeCamera } from '../../tree/useTreeCamera'
 import { TopicTree } from '../../tree/TopicTree'
 // import WebsiteTopicEditor from '../../tree/WebsiteTopicEditor'
-import type { Topic, TreeData } from '../../tree/types'
+import { gardenTreeData } from '../../tree/gardenTreeData'
 import { usePrune } from '../../state/prune-context'
 
 // const LEGEND = [
@@ -27,6 +27,8 @@ export default function TreeCard() {
     busy,
     error,
     videoCount,
+    setSelected,
+    selectedId,
   } = usePrune()
 
   const viewportRef = useRef<HTMLDivElement>(null)
@@ -36,65 +38,7 @@ export default function TreeCard() {
     height: 0,
   })
 
-  // Index the full taxonomy so the SVG tree
-  // can retain video IDs from the backend.
-  const treeData = useMemo<TreeData>(() => {
-    const taxonomyTopics = new Map<
-      string,
-      { video_ids?: string[] }
-    >()
-
-    function indexTopics(
-      nodes: NonNullable<typeof taxonomy>['tree']
-    ) {
-      for (const topic of nodes) {
-        taxonomyTopics.set(topic.id, topic)
-        indexTopics(topic.children ?? [])
-      }
-    }
-
-    indexTopics(taxonomy?.tree ?? [])
-
-    function convert(
-      nodes: typeof tree,
-      inherited = false
-    ): Topic[] {
-      return nodes.map(branch => {
-        const selected = !!cuts[branch.id]
-        const reduce = inherited || selected
-
-        return {
-          id: branch.id,
-          name: branch.name,
-          description: branch.why || '',
-          video_count: branch.videoCount ?? 0,
-          video_ids:
-            taxonomyTopics.get(branch.id)?.video_ids ?? [],
-          selected,
-          inherited,
-          reduce,
-          children: convert(
-            branch.children ?? [],
-            reduce
-          ),
-        }
-      })
-    }
-
-    return {
-      tree: convert(tree),
-      global_video_count: videoCount,
-      tree_videos: (taxonomy?.tree_videos ?? []).map(video => {
-        const counts = video.analysis?.sentiment?.counts
-        const validCounts = counts && typeof counts.positive === 'number' && typeof counts.neutral === 'number' && typeof counts.negative === 'number'
-        return { video_id: video.video_id, title: video.title, platform: video.platform,
-          analysis: video.analysis ? {
-            assessment: video.analysis.assessment,
-            sentiment: validCounts ? { counts: { positive: counts.positive!, neutral: counts.neutral!, negative: counts.negative! } } : null,
-          } : undefined }
-      }),
-    }
-  }, [tree, taxonomy, cuts, videoCount])
+  const treeData = useMemo(() => gardenTreeData(tree, taxonomy, cuts, videoCount), [tree, taxonomy, cuts, videoCount])
 
   // Preserve falling-branch animations.
   const fallingIds = useMemo(
@@ -166,21 +110,6 @@ export default function TreeCard() {
         </p>
       )}
 
-      {/* Tree toolbar */}
-      <div className="website-tree-toolbar">
-        <span>
-          {growingTopics} growing topics
-        </span>
-
-      </div>
-      <div className="website-tree-legend" aria-label="Leaf color scale">
-        <span><i style={{ background: '#a8c394' }} />Lower</span>
-        <span><i style={{ background: '#d8bf86' }} />Some</span>
-        <span><i style={{ background: '#cb9582' }} />Higher</span>
-        <span><i style={{ background: '#d8ded3' }} />Unrated</span>
-      </div>
-      <p className="website-tree-color-note">Colors compare warnings and negative-comment shares across your topics, including child topics. Gray means analysis is unavailable.</p>
-
       {/* Main layout: SVG tree + Chrome-style editor */}
       <div className="website-tree-layout">
         <div className="website-tree-scene">
@@ -194,10 +123,21 @@ export default function TreeCard() {
           <div id="tree" ref={viewportRef} className="website-tree-viewport" tabIndex={0}
             aria-label="Topic tree. Drag to pan. Use the mouse wheel or zoom buttons to zoom.">
             <TopicTree data={treeData} falling={fallingIds} busy={busy} zoom={camera.zoom} loading={loading}
-              onPrune={setPruned} onSize={handleSize} onPan={camera.panTo} />
+              onPrune={setPruned} onSize={handleSize} onPan={camera.panTo} onFocusTopic={camera.focusTopic}
+              selectedId={selectedId} onInspectTopic={id => {
+                setSelected(id)
+                window.dispatchEvent(new CustomEvent('prune:inspect-topic', { detail: id }))
+              }} />
           </div>
         </div>
       </div>
+            <div className="website-tree-legend" aria-label="Leaf color scale">
+        <span><i style={{ background: '#a8c394' }} />Lower</span>
+        <span><i style={{ background: '#d8bf86' }} />Some</span>
+        <span><i style={{ background: '#cb9582' }} />Higher</span>
+        <span><i style={{ background: '#d8ded3' }} />Unrated</span>
+      </div>
+
 
       {/* Empty tree state */}
       {!loading && branches.length === 0 && (

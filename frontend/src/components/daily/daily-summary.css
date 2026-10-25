@@ -1,0 +1,26 @@
+.daily-today-summary { margin: 22px 0; padding: 22px; background: #fffdf7; border: 1px solid #dcdcca; border-radius: 20px; }
+.daily-today-summary > h2 { margin: 0 0 16px; }
+.daily-summary-view { min-width: 0; color: #35573c; font: 14px/1.5 Inter, system-ui, sans-serif; }
+.daily-summary-view h3 { margin: 18px 0 8px; font-size: 17px; }
+.daily-summary-view__stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.daily-summary-view__stats > div { padding: 12px; border: 1px solid #dbe4d3; border-radius: 12px; background: #f3f7ed; }
+.daily-summary-view__stats strong { display: block; font-size: 24px; line-height: 1.2; }
+.daily-summary-view__stats strong small { font-size: 13px; color: #617158; }
+.daily-summary-view__stats span, .daily-summary-view__note { color: #617158; font-size: 12px; }
+.daily-summary-view__note { margin: 8px 0; }
+.daily-summary-view__topics, .daily-summary-view__videos { list-style: none; margin: 0; padding: 0; }
+.daily-summary-view__topics li { display: grid; grid-template-columns: 1fr auto; gap: 3px 10px; margin: 8px 0; }
+.daily-summary-view__topics strong { font-size: 12px; }
+.daily-summary-view__topic-bar { grid-column: 1 / -1; height: 4px; border-radius: 4px; background: #edf1e6; overflow: hidden; }
+.daily-summary-view__topic-bar i { display: block; height: 100%; background: #8cab76; }
+.daily-summary-view__videos > li { border: 1px solid #dfe5d8; border-radius: 9px; overflow: hidden; margin-top: 6px; background: #fffefa; }
+.daily-summary-view .daily-summary-view__video { display: flex; align-items: center; gap: 7px; width: 100%; padding: 8px 10px; border: 0; background: transparent; color: #35573c; text-align: left; cursor: pointer; font: inherit; }
+.daily-summary-view__video > span { flex: 1; min-width: 0; }
+.daily-summary-view__video strong { display: block; font-size: 14px; overflow-wrap: anywhere; }
+.daily-summary-view__video small { display: block; font-size: 12px; color: #617158; }
+.daily-summary-view__video > svg { flex-shrink: 0; }
+.daily-summary-view .daily-summary-view__video:hover { background: #edf3e7; }
+.daily-summary-view__warning { color: #a4643e; }
+.daily-summary-view__more { padding: 7px 10px; margin-top: 10px; border: 1px solid #c0ceb4; border-radius: 7px; background: #edf3e7; color: #35573c; cursor: pointer; font: inherit; }
+.daily-summary-view button:focus-visible { outline: 2px solid #648957; outline-offset: -2px; }
+.daily-summary-view .video-summary { border-top: 1px solid #dfe5d8; }

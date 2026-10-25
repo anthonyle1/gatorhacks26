@@ -214,6 +214,7 @@
 // }
 
 import { useEffect, useMemo, useState } from 'react'
+import DailySummaryView from '../components/daily/DailySummaryView'
 import { Link, useSearchParams } from 'react-router-dom'
 
 import {
@@ -237,24 +238,6 @@ function dateKey(date: Date) {
 
 function monthKey(date: Date) {
   return dateKey(date).slice(0, 7)
-}
-
-function duration(seconds: number) {
-  const minutes = Math.floor(seconds / 60)
-  return `${minutes}m ${Math.round(seconds % 60)}s`
-}
-
-function statusLabel(value?: string) {
-  switch (value) {
-    case 'yes':
-      return 'Potential warning'
-    case 'no':
-      return 'No concern identified'
-    case 'uncertain':
-      return 'Insufficient evidence'
-    default:
-      return 'Not assessed'
-  }
 }
 
 export default function Calendar() {
@@ -538,125 +521,7 @@ export default function Calendar() {
           <p role="alert">{dayError}</p>
         )}
 
-        {daily && !dayLoading && (
-          <div className="journal-day-details">
-            <div className="daily-insights__stats">
-              <div className="daily-insights__stat">
-                <strong>{daily.summary.videos_watched}</strong>
-                <span>Video encounters</span>
-              </div>
-
-              <div className="daily-insights__stat">
-                <strong>
-                  {duration(daily.summary.watch_seconds)}
-                </strong>
-                <span>Time watched</span>
-              </div>
-
-              <div className="daily-insights__stat">
-                <strong>{daily.summary.warning_count}</strong>
-                <span>Warnings</span>
-              </div>
-              <div className="daily-insights__stat">
-                <strong>{daily.summary.positive_insight_count}</strong>
-                <span>Positive insights</span>
-              </div>
-            </div>
-
-            {daily.summary.not_assessed_count > 0 && (
-              <p className="journal-note">
-                {daily.summary.not_assessed_count} encounters
-                had no available assessment.
-              </p>
-            )}
-
-            <h3>Most-watched topics</h3>
-
-            {daily.top_categories.length === 0 && (
-              <p>No topics were recorded for this date.</p>
-            )}
-
-            {daily.top_categories.map(category => (
-              <div
-                className="daily-insights__category"
-                key={category.id}
-              >
-                <div className="daily-insights__category-label">
-                  <strong>{category.name}</strong>
-                  <span>
-                    {category.video_count} encounters ·{' '}
-                    {category.percentage}%
-                  </span>
-                </div>
-
-                <div className="daily-insights__bar">
-                  <div
-                    style={{
-                      width: `${category.percentage}%`,
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
-
-            <h3>Videos watched</h3>
-
-            {daily.videos.length === 0 && (
-              <p>No recorded activity for this date.</p>
-            )}
-
-            {daily.videos.map((video, index) => (
-              <article
-                className="daily-insights__video"
-                key={`${video.watched_at}-${video.video_id}-${index}`}
-              >
-                <div className="daily-insights__video-head">
-                  <strong>{video.title}</strong>
-                  <span>
-                    {statusLabel(
-                      video.assessment?.negative_for_user
-                    )}
-                  </span>
-                </div>
-
-                <p>
-                  {video.category_name} ·{' '}
-                  {duration(video.dwell_seconds)}
-                </p>
-                <p>{video.warning_count === null ? 'Content insights pending or unavailable' :
-                  `${video.warning_count} warnings · ${video.positive_insight_count} positive insights`}</p>
-                <p>{video.comment_counts ? `Comments: ${video.comment_counts.positive} positive · ${video.comment_counts.neutral} neutral · ${video.comment_counts.negative} negative` :
-                  'Comment analysis pending or unavailable'}</p>
-
-                <details>
-                  <summary>View assessment</summary>
-
-                  {video.assessment ? (
-                    <>
-                      <p>{video.assessment.reason}</p>
-                      <p>
-                        {video.assessment.context_summary}
-                      </p>
-
-                      {video.assessment.content_signals.map(
-                        (signal, signalIndex) => (
-                          <p key={signalIndex}>
-                            <strong>
-                              {signal.id.replaceAll('_', ' ')}
-                            </strong>
-                            : {signal.evidence}
-                          </p>
-                        )
-                      )}
-                    </>
-                  ) : (
-                    <p>No assessment is available.</p>
-                  )}
-                </details>
-              </article>
-            ))}
-          </div>
-        )}
+        {daily && !dayLoading && <DailySummaryView key={daily.date} data={daily} />}
 
         <Link to="/" className="botanical-inline-link">
           Return to your Garden →

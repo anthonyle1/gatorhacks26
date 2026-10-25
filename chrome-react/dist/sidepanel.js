@@ -442,6 +442,7 @@
 
     if (!container) return;
 
+    window.clearDailySummary?.(container);
     container.replaceChildren();
 
     const heading = el('strong', '', `Daily insights · ${date}`);
@@ -458,6 +459,10 @@
       const data = await response.json();
       if (requestId !== calendarDetailRequestId) return;
 
+      if (window.renderDailySummary) {
+        window.renderDailySummary(container, data);
+        return;
+      }
       container.replaceChildren(heading);
 
       const summary = data.summary;
