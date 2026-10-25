@@ -11,9 +11,9 @@
       href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Inter:wght@400;500;600&display=swap"
     />
     <link rel="stylesheet" href="/sidepanel.css" />
-    <script type="module" crossorigin src="/assets/sidepanel-DnqhdTmE.js"></script>
-    <link rel="modulepreload" crossorigin href="/assets/jsx-runtime-BIqctyxS.js">
-    <link rel="stylesheet" crossorigin href="/assets/sidepanel-DSZbfweA.css">
+    <script type="module" crossorigin src="/assets/sidepanel-T6bus7no.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/jsx-runtime-DoWnie3Z.js">
+    <link rel="stylesheet" crossorigin href="/assets/sidepanel-BNJA4eR2.css">
   </head>
   <body>
     <main class="panel">
@@ -97,13 +97,18 @@
           Your saved topics grow into branches, with child topics growing from their parents.
           Pruning drops a branch and all its children. Leaf color is unrated until hostility data is available.
         </span> -->
+        <div class="tree-risk-legend" aria-label="Leaf color scale">
+          <span><i style="background: #a8c394"></i>Lower</span><span><i style="background: #d8bf86"></i>Some</span><span><i style="background: #cb9582"></i>Higher</span><span><i style="background: #d8ded3"></i>Unrated</span>
+        </div>
+          <details class="tree-risk-explanation"><summary>How leaf colors are scaled</summary><p>Leaf colors are scaled relative to your saved topics: the lowest score is green, the highest is red, and scores between them blend through amber. Even small differences use the full color range. If all scores are equal, colors use the underlying score. Warning counts use a logarithmic scale from 0 to 1, capped at 4 warnings per video. Negative comments are divided by all rated comments for each video. Each measure is averaged across videos, then available measures get equal weight. Larger topics and popular videos do not automatically score higher. Missing analysis is excluded; gray means no usable data. Red means relatively stronger signals in this tree, not a diagnosis of harm. Review redder topics to decide what to prune. Click a topic for counts and analysis coverage, including child topics.</p></details>
+        <div class="tree-viewport">
         <div class="tree-zoom" role="group" aria-label="Tree zoom controls">
-          <button class="btn btn--outline" id="tree-zoom-out" type="button" aria-label="Zoom out">−</button>
-          <output id="tree-zoom-level" aria-live="polite">100%</output>
-          <button class="btn btn--outline" id="tree-zoom-in" type="button" aria-label="Zoom in">+</button>
+          <button class="btn btn--outline" id="tree-zoom-out" type="button" aria-label="Zoom out" title="Zoom out"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3M8 11h6"/></svg></button>
+          <button class="btn btn--outline" id="tree-zoom-in" type="button" aria-label="Zoom in" title="Zoom in"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3M8 11h6M11 8v6"/></svg></button>
           <button class="btn btn--outline" id="tree-zoom-reset" type="button">Fit tree</button>
         </div>
         <div class="tree" id="tree" tabindex="0" aria-label="Topic tree. Drag to pan. Use the mouse wheel or zoom buttons to zoom."></div>
+        </div>
         <div id="topic-inspector"></div>
 
         <p class="note" id="topic-tree-status" role="status" hidden></p>
@@ -180,6 +185,6 @@
     </main>
 
     <script src="/collection-policy.js"></script>
-    <script src="/audio-status.js"></script>
+    <script src="/audio-status.js"></script>
   </body>
 </html>

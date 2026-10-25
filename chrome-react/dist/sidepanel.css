@@ -275,8 +275,10 @@ button {
   overscroll-behavior: contain;
   align-self: center;
 }
-.tree-zoom { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.tree-zoom output { min-width: 48px; text-align: center; font-variant-numeric: tabular-nums; font-size: 12px; }
+.tree-viewport { position: relative; min-width: 0; }
+.tree-zoom { position: absolute; top: 8px; left: 8px; z-index: 2; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; padding: 4px; border: 1px solid #d5dfcc; border-radius: 9px; background: #f0f4e9ed; box-shadow: 0 2px 8px #243d2512; }
+.tree-zoom .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 26px; padding: 4px 7px; border-radius: 6px; font-size: 10px; line-height: 16px; }
+.tree-zoom #tree-zoom-in, .tree-zoom #tree-zoom-out { width: 26px; padding: 5px; }
 .topic-tree__label { font-family: Inter, sans-serif; font-weight: 600; fill: #1f3a2e; }
 .topic-tree__count { font-family: Inter, sans-serif; fill: #425d49; }
 .topic-limb--falling {
