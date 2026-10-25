@@ -35,6 +35,7 @@ export interface DailyCategory {
 export interface DailySummary {
   date: string
   timezone: string
+  synthetic?: boolean
   summary: {
     videos_watched: number
     watch_seconds: number
@@ -51,6 +52,7 @@ export interface DailySummary {
 export interface MonthlySummary {
   month: string
   timezone: string
+  synthetic?: boolean
   days: {
     date: string
     videos_watched: number
@@ -64,6 +66,12 @@ function timezone() {
   return Intl.DateTimeFormat().resolvedOptions().timeZone
 }
 
+function apiBase() {
+  return localStorage.getItem('prune-demo-enabled') === 'true'
+    ? '/api/demo/daily'
+    : '/api/local-sessions/daily'
+}
+
 export async function fetchMonth(
   month: string
 ): Promise<MonthlySummary> {
@@ -73,7 +81,8 @@ export async function fetchMonth(
   })
 
   const response = await fetch(
-    `/api/local-sessions/daily?${params}`
+    `${apiBase()}?${params}`,
+    { cache: 'no-store' }
   )
 
   if (!response.ok) {
@@ -91,7 +100,8 @@ export async function fetchDay(
   })
 
   const response = await fetch(
-    `/api/local-sessions/daily/${date}?${params}`
+    `${apiBase()}/${date}?${params}`,
+    { cache: 'no-store' }
   )
 
   if (!response.ok) {

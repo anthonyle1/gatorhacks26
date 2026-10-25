@@ -4769,3 +4769,622 @@ body {
   }
 
 }
+
+
+/* ==========================================================
+   Botanical Topic Editor — unified Garden styling
+   ========================================================== */
+
+.garden-topic-editor-section {
+  width: 100%;
+  min-width: 0;
+  margin-top: 28px;
+}
+
+.garden-topic-editor-section .botanical-topic-editor {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  box-sizing: border-box;
+  padding: clamp(20px, 3vw, 36px);
+  border: 1px solid #d9e1cf;
+  border-radius: 24px;
+  background: #fffdf7;
+  box-shadow: 0 5px 20px rgba(55, 76, 48, 0.045);
+}
+
+.botanical-topic-editor__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  padding-bottom: 22px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e4e8da;
+}
+
+.botanical-topic-editor__header h2 {
+  margin: 8px 0 10px;
+  color: #304a36;
+  font-family: Georgia, serif;
+  font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.botanical-topic-editor__header p {
+  max-width: 590px;
+  margin: 0;
+  color: #71806c;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.botanical-topic-editor__flourish {
+  color: #9bad88;
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
+.garden-topic-editor-section .website-topic-editor {
+  width: 100%;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+  color: #304a36;
+}
+
+/* WebsiteTopicEditor already has its own heading.
+   Hide the duplicate, retaining the surrounding header. */
+.garden-topic-editor-section .website-topic-editor__heading {
+  display: none;
+}
+
+.garden-topic-editor-section
+.website-topic-editor__category-row {
+  padding: 12px 14px;
+  border: 1px solid #e1e8da;
+  border-radius: 12px;
+  background: #f6f8f0;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.garden-topic-editor-section
+.website-topic-editor__category-row:hover {
+  background: #eaf1e4;
+  border-color: #bbceb5;
+}
+
+.garden-topic-editor-section
+.website-topic-editor__category-row.is-selected {
+  background: #e3eddf;
+  border-color: #94b18d;
+}
+
+.garden-topic-editor-section
+.website-topic-editor__video {
+  border: 1px solid #e0e7db;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.garden-topic-editor-section
+.website-topic-editor__video:hover {
+  background: #f0f5ea;
+}
+
+.garden-topic-editor-section button:focus-visible,
+.garden-topic-editor-section input:focus-visible,
+.garden-topic-editor-section select:focus-visible {
+  outline: 2px solid #517b54;
+  outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .garden-topic-editor-section .botanical-topic-editor {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .botanical-topic-editor__header {
+    gap: 12px;
+  }
+
+  .botanical-topic-editor__flourish {
+    font-size: 1.8rem;
+  }
+}
+
+
+/* ==========================================
+   PRUNE — TOPIC EDITOR POLISH
+   ========================================== */
+
+/* Category hierarchy */
+
+.garden-topic-editor-section
+.website-topic-editor__categories {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.garden-topic-editor-section
+.website-topic-editor__category-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: #f3f5ec;
+  border: 1px solid #dce5d4;
+  border-radius: 14px;
+  color: #304b35;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.garden-topic-editor-section
+.website-topic-editor__category-row:hover {
+  background: #edf3e7;
+  border-color: #bfd2b9;
+}
+
+.garden-topic-editor-section
+.website-topic-editor__category-row.is-selected {
+  background: #e4eedf;
+  border-color: #a8c2a1;
+}
+
+.garden-topic-editor-section
+.website-topic-editor__name {
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #304b35;
+}
+
+.garden-topic-editor-section
+.website-topic-editor__count {
+  font-size: 0.82rem;
+  color: #778774;
+  white-space: nowrap;
+}
+
+.garden-topic-editor-section
+.website-topic-editor__expand {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  color: #426447;
+  font-size: 1.2rem;
+}
+
+.garden-topic-editor-section
+.website-topic-editor__expand:hover {
+  background: #dbe8d6;
+}
+
+.garden-topic-editor-section
+.website-topic-editor__children {
+  margin: 14px 0 12px 22px;
+  padding-left: 18px;
+  border-left: 2px solid #d5e2cf;
+}
+
+.garden-topic-editor-section
+.website-topic-description {
+  margin: 10px 8px 14px;
+  color: #7a8974;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* Prune / Restore buttons */
+
+.garden-topic-editor-section
+.prune-topic-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 84px;
+  min-height: 36px;
+  padding: 8px 16px;
+  border: 1px solid #a4bfa0;
+  border-radius: 999px;
+  background: #e6f0e3;
+  color: #2d5837;
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.garden-topic-editor-section
+.prune-topic-action:hover:not(:disabled) {
+  background: #d2e6cf;
+  transform: translateY(-1px);
+}
+
+.garden-topic-editor-section
+.prune-topic-action--restore {
+  border-color: #d7b995;
+  background: #f5ebda;
+  color: #855c38;
+}
+
+.garden-topic-editor-section
+.prune-topic-action--restore:hover:not(:disabled) {
+  background: #eee0c8;
+}
+
+.garden-topic-editor-section
+.prune-topic-action:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Video rows */
+
+.garden-topic-editor-section
+.website-topic-editor__videos {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 18px;
+}
+
+.garden-topic-editor-section
+.website-topic-video {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #e1e7dc;
+  border-radius: 13px;
+  background: #fffefa;
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.garden-topic-editor-section
+.website-topic-video:hover {
+  border-color: #bdcfb8;
+}
+
+.garden-topic-editor-section
+.website-topic-video--selected {
+  border-color: #92b18e;
+  background: #fcfdf8;
+}
+
+.garden-topic-editor-section
+.website-topic-video__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.garden-topic-editor-section
+.website-topic-video .website-topic-editor__video {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 15px 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #38503a;
+  font-size: 0.93rem;
+  font-weight: 600;
+  text-align: left;
+  line-height: 1.5;
+}
+
+.garden-topic-editor-section
+.website-topic-video .website-topic-editor__video:hover {
+  background: #f1f6ed;
+}
+
+.website-topic-video__chevron {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  color: #5e8060;
+  background: #e9f1e4;
+  font-size: 0.9rem;
+}
+
+/* Inline video details */
+
+.garden-topic-editor-section
+.prune-video-details {
+  padding: 22px 24px;
+  border-top: 1px solid #dfe8da;
+  background: #f7f9f2;
+  color: #36503d;
+  overflow-wrap: anywhere;
+}
+
+.prune-video-details__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.prune-video-details__header h4 {
+  margin: 6px 0 0;
+  color: #2d4e36;
+  font-family: Georgia, serif;
+  font-size: 1.3rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.garden-topic-editor-section
+.prune-video-details__close {
+  display: grid;
+  place-items: center;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid #d6e0d0;
+  border-radius: 50%;
+  background: #fffdf8;
+  color: #4e6952;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.garden-topic-editor-section
+.prune-video-details__close:hover {
+  background: #e8f0e2;
+}
+
+.prune-video-details__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.prune-video-details__pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: #e7eddf;
+  color: #466148;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.prune-video-details__pill--status {
+  background: #e9efe3;
+  color: #57715a;
+}
+
+.prune-video-details__pill--warning {
+  background: #f6e8dc;
+  color: #98543d;
+}
+
+.prune-video-details__link {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 14px;
+  margin-bottom: 8px;
+  border: 1px solid #bbd0b5;
+  border-radius: 9px;
+  background: #e9f2e5;
+  color: #315b3b;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.prune-video-details__link:hover {
+  background: #dcebd6;
+}
+
+.prune-video-details__section {
+  margin-top: 18px;
+  padding: 16px 18px;
+  border: 1px solid #e0e7d8;
+  border-radius: 12px;
+  background: #fffdf8;
+}
+
+.prune-video-details__section h5 {
+  margin: 0 0 10px;
+  color: #36543c;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.prune-video-details__section p {
+  margin: 0 0 9px;
+  color: #60705f;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.prune-video-details__section p:last-child {
+  margin-bottom: 0;
+}
+
+/* Sentiment summary */
+
+.prune-video-details__sentiment {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.prune-video-details__sentiment span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 11px;
+  border-radius: 8px;
+  background: #f1f5ec;
+  color: #526b54;
+  font-size: 0.84rem;
+}
+
+.prune-video-details__sentiment strong {
+  color: #315b3b;
+}
+
+/* Individual comments */
+
+.prune-video-details__comments {
+  display: grid;
+  gap: 9px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.prune-video-details__comment {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 13px;
+  border: 1px solid #e5eadf;
+  border-radius: 9px;
+  background: #f9faf5;
+}
+
+.prune-video-details__comment p {
+  flex: 1;
+  margin: 0;
+}
+
+.prune-video-details__comment span {
+  flex-shrink: 0;
+  color: #71856e;
+  font-size: 0.75rem;
+  text-transform: capitalize;
+}
+
+/* Category reassignment */
+
+.prune-video-details__field {
+  display: grid;
+  gap: 9px;
+  color: #38563e;
+  font-size: 0.87rem;
+  font-weight: 700;
+}
+
+.garden-topic-editor-section
+.prune-video-details__field select {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 12px;
+  border: 1px solid #cbdac4;
+  border-radius: 9px;
+  background: #fff;
+  color: #38503a;
+  font: inherit;
+  font-weight: 400;
+}
+
+/* Existing category management controls */
+
+.garden-topic-editor-section
+.website-topic-category-manager {
+  padding: 16px 18px;
+  margin-top: 18px;
+  border: 1px solid #dce5d6;
+  border-radius: 12px;
+  background: #f8faf4;
+}
+
+.garden-topic-editor-section
+.website-topic-category-manager summary {
+  color: #3b6346;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.garden-topic-editor-section
+.website-topic-category-manager input,
+.garden-topic-editor-section
+.website-topic-category-manager select {
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid #cbdac4;
+  border-radius: 8px;
+  background: #fff;
+  color: #354a38;
+  font: inherit;
+}
+
+.garden-topic-editor-section
+.website-topic-category-manager button {
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1px solid #bbceb4;
+  border-radius: 9px;
+  background: #e6f0e2;
+  color: #315d3b;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.garden-topic-editor-section
+.website-topic-category-manager button:hover:not(:disabled) {
+  background: #d5e7d0;
+}
+
+/* Mobile */
+
+@media (max-width: 640px) {
+  .garden-topic-editor-section
+  .website-topic-editor__category-row {
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .garden-topic-editor-section
+  .website-topic-editor__count {
+    font-size: 0.74rem;
+  }
+
+  .garden-topic-editor-section
+  .prune-topic-action {
+    min-width: 68px;
+    padding: 7px 11px;
+    font-size: 0.78rem;
+  }
+
+  .garden-topic-editor-section
+  .prune-video-details {
+    padding: 16px;
+  }
+
+  .prune-video-details__comment {
+    flex-direction: column;
+    gap: 4px;
+  }
+}

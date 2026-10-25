@@ -1,4 +1,3 @@
-
 import type { Branch } from '../types'
 
 export interface TopicVideo {
@@ -106,30 +105,6 @@ function normalizeTopics(
   })
 }
 
-function mergeVideos(
-  demo: TopicVideo[],
-  live: TopicVideo[]
-): TopicVideo[] {
-  const videos = new Map<string, TopicVideo>()
-
-  for (const video of demo) {
-    videos.set(video.video_id, {
-      ...video,
-      synthetic: true,
-    })
-  }
-
-  // A real record takes precedence if its ID matches a demo record.
-  for (const video of live) {
-    videos.set(video.video_id, {
-      ...video,
-      synthetic: false,
-    })
-  }
-
-  return [...videos.values()]
-}
-
 export async function requestTree(
   body?: { category_id: string; reduce: boolean }
 ): Promise<TopicTree> {
@@ -160,49 +135,31 @@ export async function requestTree(
     return response.json()
   }
 
-  const [demoResult, liveResult] = await Promise.allSettled([
-    fetchTree(DEMO_URL),
-    fetchTree(LIVE_URL),
-  ])
+  const demoEnabled =
+    localStorage.getItem('prune-demo-enabled') === 'true'
 
-  if (
-    demoResult.status === 'rejected' &&
-    liveResult.status === 'rejected'
-  ) {
-    throw new Error(
-      'Could not load demo or live topic data.'
-    )
+  if (demoEnabled) {
+    const demo = await fetchTree(DEMO_URL)
+
+    return {
+      ...demo,
+      tree: normalizeTopics(demo.tree, 'demo'),
+      tree_videos: (demo.tree_videos ?? []).map(video => ({
+        ...video,
+        synthetic: true,
+      })),
+    }
   }
 
-  const demo = demoResult.status === 'fulfilled'
-    ? demoResult.value
-    : {
-        tree: [],
-        tree_videos: [],
-        global_video_count: 0,
-      }
-
-  const live = liveResult.status === 'fulfilled'
-    ? liveResult.value
-    : {
-        tree: [],
-        tree_videos: [],
-        global_video_count: 0,
-      }
-
-  const videos = mergeVideos(
-    demo.tree_videos ?? [],
-    live.tree_videos ?? []
-  )
+  const live = await fetchTree(LIVE_URL)
 
   return {
-    tree: [
-      ...normalizeTopics(demo.tree, 'demo'),
-      ...normalizeTopics(live.tree, 'live'),
-    ],
-    tree_videos: videos,
-    global_video_count: videos.length ||
-      demo.global_video_count + live.global_video_count,
+    ...live,
+    tree: normalizeTopics(live.tree, 'live'),
+    tree_videos: (live.tree_videos ?? []).map(video => ({
+      ...video,
+      synthetic: false,
+    })),
   }
 }
 
