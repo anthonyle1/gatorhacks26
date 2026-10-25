@@ -8,7 +8,7 @@ from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.models.session import VideoEvent
-from app.models.session_categories import CategoryEdit, TopicPreference
+from app.models.session_categories import CategoryEdit, TopicPreference, VideoCategoryMove
 from app.services.local_sessions import LocalSessions, LOCAL_USER, process_local_session, prefetch_occurrence
 from app.models.audio import Occurrence, AudioSegment, EvidenceManifest
 from app.services.audio_ingestion import AudioIngestion
@@ -213,6 +213,17 @@ def edit(session_id: UUID, category_id: str, body: CategoryEdit):
     require(jobs, session_id)
     try:
         jobs.store.edit_category(LOCAL_USER, category_id, **body.model_dump())
+    except ValueError as error:
+        raise HTTPException(422, str(error)) from None
+    return jobs.view(str(session_id))
+
+
+@router.patch("/{session_id}/taxonomy/videos/{video_id}")
+def move_video(session_id: UUID, video_id: str, body: VideoCategoryMove):
+    jobs = LocalSessions()
+    require(jobs, session_id)
+    try:
+        jobs.store.move_video(LOCAL_USER, video_id, body.category_id)
     except ValueError as error:
         raise HTTPException(422, str(error)) from None
     return jobs.view(str(session_id))

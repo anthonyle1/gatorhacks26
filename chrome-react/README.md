@@ -50,6 +50,10 @@ Scroll through videos, open the popup, and choose **Finish and review session**.
 
 Expand topic branches to see the actual linked videos under each category. **Analyzed video results** lists individual content decisions, reasons, summaries, sentiment counts/balance, comment samples, and JSON. Results appear progressively while work runs. Use **Open full summary** to view the tree and results in a full browser tab. Check a category to save a **See less** preference; a parent includes all descendants, while a child affects only that branch. **Manage category** supports rename, move, and merge while preserving saved identities/preferences. Start a new session after finishing. The latest completed session remains available for review. Preferences are saved for matching; automatic feed hiding/recommendation changes are not implemented.
 
+The latest review uses the dashboard's green cards, with vine connectors between parent and child topics. Drag a topic by its grip onto another topic to make it a child, between topics to reorder or change its level, or onto the top-level drop area to detach it from its parent. Arrow buttons and **Manage category** provide alternatives to dragging. Move a video by dragging its grip onto a topic or choosing **Move video to**. These edits are saved locally; manual video assignments also survive later analysis.
+
+Video results start collapsed, showing counts of positive and negative assessment signals plus the positive/neutral/negative comment proportions. Unavailable analysis is labelled explicitly. Expand a result for the complete assessment, evidence, comment samples, audio coverage, and full original video JSON. The session JSON remains available separately.
+
 The popup flags accepted Gemini fallback results and exposes the session JSON. Partial/failed classifications can be retried without repeating successful batches. Raw titles, captions, comments, and model responses are treated as text/data.
 
 ```powershell

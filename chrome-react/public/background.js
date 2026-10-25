@@ -270,10 +270,11 @@ async function sessionControl(message) {
   if (message.type === "RETRY_SESSION_TAXONOMY") return apiRequest(`${base}/retry`, { method: "POST" });
   if (message.type === "TOPIC_PREFERENCE") return apiRequest(`${base}/preferences`, { method: "PATCH", body: JSON.stringify({ category_id: message.category_id, reduce: message.reduce }) });
   if (message.type === "EDIT_TOPIC_CATEGORY") return apiRequest(`${base}/categories/${encodeURIComponent(message.category_id)}`, { method: "PATCH", body: JSON.stringify(message.change) });
+  if (message.type === "MOVE_TOPIC_VIDEO") return apiRequest(`${base}/videos/${encodeURIComponent(message.video_id)}`, { method: "PATCH", body: JSON.stringify({ category_id: message.category_id }) });
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (!["AUDIO_DIAGNOSTICS", "RESET_TOPIC_TREE", "FINISH_SESSION", "START_SESSION", "SESSION_TAXONOMY", "RETRY_SESSION_TAXONOMY", "TOPIC_PREFERENCE", "EDIT_TOPIC_CATEGORY"].includes(message?.type)) return false;
+  if (!["AUDIO_DIAGNOSTICS", "RESET_TOPIC_TREE", "FINISH_SESSION", "START_SESSION", "SESSION_TAXONOMY", "RETRY_SESSION_TAXONOMY", "TOPIC_PREFERENCE", "EDIT_TOPIC_CATEGORY", "MOVE_TOPIC_VIDEO"].includes(message?.type)) return false;
   sessionControl(message).then(data => sendResponse({ success: true, data })).catch(error => sendResponse({ success: false, error: error.message }));
   return true;
 });
