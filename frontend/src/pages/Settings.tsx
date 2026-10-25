@@ -1,15 +1,3 @@
-// export default function Settings() {
-//   return (
-//     <div className="stack stack--narrow">
-//       <h1 className="h1 h1--md">Settings</h1>
-//       <section className="card">
-//         <p className="body">Settings are not designed yet. This page is a placeholder.</p>
-//       </section>
-//     </div>
-//   )
-// }
-
-
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -22,6 +10,7 @@ type Appearance = {
 }
 
 const STORAGE_KEY = 'prune-appearance'
+const DEMO_KEY = 'prune-demo-enabled'
 
 const defaults: Appearance = {
   reduceMotion: false,
@@ -29,7 +18,11 @@ const defaults: Appearance = {
   theme: 'forest',
 }
 
-const themes: { id: ThemeName; label: string; color: string }[] = [
+const themes: {
+  id: ThemeName
+  label: string
+  color: string
+}[] = [
   { id: 'forest', label: 'Forest & sage', color: '#315B43' },
   { id: 'olive', label: 'Olive grove', color: '#798044' },
   { id: 'rose', label: 'Dusty rose', color: '#A36F70' },
@@ -42,6 +35,7 @@ function readAppearance(): Appearance {
     if (!saved) return defaults
 
     const parsed: Partial<Appearance> = JSON.parse(saved)
+
     return {
       reduceMotion: parsed.reduceMotion === true,
       largerText: parsed.largerText === true,
@@ -71,9 +65,12 @@ function SettingToggle({
         <h3>{label}</h3>
         <p>{description}</p>
       </div>
+
       <button
         type="button"
-        className={`botanical-toggle${checked ? ' botanical-toggle--on' : ''}`}
+        className={
+          `botanical-toggle${checked ? ' botanical-toggle--on' : ''}`
+        }
         role="switch"
         aria-checked={checked}
         aria-label={label}
@@ -88,14 +85,27 @@ function SettingToggle({
 export default function Settings() {
   const [appearance, setAppearance] = useState(readAppearance)
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(appearance))
+  const [demoEnabled, setDemoEnabled] = useState(
+    () => localStorage.getItem(DEMO_KEY) === 'true'
+  )
 
-    document.documentElement.dataset.pruneTheme = appearance.theme
+  const [demoBusy, setDemoBusy] = useState(false)
+  const [demoError, setDemoError] = useState('')
+
+  useEffect(() => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(appearance)
+    )
+
+    document.documentElement.dataset.pruneTheme =
+      appearance.theme
+
     document.documentElement.classList.toggle(
       'prune-reduce-motion',
       appearance.reduceMotion
     )
+
     document.documentElement.classList.toggle(
       'prune-larger-text',
       appearance.largerText
@@ -103,16 +113,69 @@ export default function Settings() {
   }, [appearance])
 
   const update = (changes: Partial<Appearance>) => {
-    setAppearance(current => ({ ...current, ...changes }))
+    setAppearance(current => ({
+      ...current,
+      ...changes,
+    }))
+  }
+
+  async function toggleDemo() {
+    if (demoBusy) return
+
+    setDemoError('')
+
+    if (demoEnabled) {
+      localStorage.setItem(DEMO_KEY, 'false')
+      setDemoEnabled(false)
+      window.location.reload()
+      return
+    }
+
+    setDemoBusy(true)
+
+    try {
+      const response = await fetch(
+        '/api/demo/taxonomy',
+        { cache: 'no-store' }
+      )
+
+      if (!response.ok) {
+        throw new Error(
+          'Sample data is unavailable. Run the demo data loader.'
+        )
+      }
+
+      const data = await response.json()
+
+      if (!Array.isArray(data.tree) || data.tree.length === 0) {
+        throw new Error(
+          'The sample database contains no topics.'
+        )
+      }
+
+      localStorage.setItem(DEMO_KEY, 'true')
+      setDemoEnabled(true)
+      window.location.reload()
+    } catch (error) {
+      setDemoError(
+        error instanceof Error
+          ? error.message
+          : 'Could not enable sample data.'
+      )
+    } finally {
+      setDemoBusy(false)
+    }
   }
 
   return (
     <div className="botanical-settings">
       <div className="botanical-page-heading">
         <div className="botanical-eyebrow">✧ SETTINGS</div>
+
         <h1>
           Tend your <em>garden.</em>
         </h1>
+
         <p>
           Make this space feel like your own. Appearance settings
           are saved on this browser.
@@ -120,22 +183,103 @@ export default function Settings() {
       </div>
 
       <section className="botanical-panel">
-        <span className="botanical-panel__decoration" aria-hidden="true">
+        <span
+          className="botanical-panel__decoration"
+          aria-hidden="true"
+        >
           ❧
         </span>
+
         <h2>See less topics</h2>
+
         <p>
           Topics you've chosen to reduce belong in your garden
           preferences. These choices don't directly change what
           YouTube or Instagram recommends.
         </p>
+
         <Link to="/" className="botanical-inline-link">
           Visit your Garden to manage topics →
         </Link>
       </section>
 
+      <section className="botanical-panel">
+        <span
+          className="botanical-panel__decoration"
+          aria-hidden="true"
+        >
+          ❧
+        </span>
+
+        <h2>Sample garden</h2>
+
+        <p>
+          Explore Prune with simulated scrolling sessions,
+          historical activity, topics, and precomputed AI
+          assessments.
+        </p>
+
+        <p>
+          Sample data is clearly separated from your actual
+          scrolling history. Removing it from view will not
+          delete your real activity.
+        </p>
+
+        <div
+          className="botanical-setting-row"
+          style={{ gap: '16px', flexWrap: 'wrap' }}
+        >
+          <div>
+            <h3>
+              {demoEnabled
+                ? 'Sample data is enabled'
+                : 'Sample data is disabled'}
+            </h3>
+
+            <p>
+              {demoEnabled
+                ? 'Your Garden and Growth Journey are showing example activity.'
+                : 'Your Garden and Growth Journey are showing real activity.'}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            className="botanical-primary-btn"
+            onClick={() => void toggleDemo()}
+            disabled={demoBusy}
+            aria-busy={demoBusy}
+          >
+            {demoBusy
+              ? 'Loading sample data…'
+              : demoEnabled
+                ? 'Remove Sample Data'
+                : 'Add Sample Data'}
+          </button>
+        </div>
+
+        {demoEnabled && (
+          <p role="status" style={{ marginTop: '12px' }}>
+            Demo mode is active. The displayed history is
+            simulated, not recorded from your browser.
+          </p>
+        )}
+
+        {demoError && (
+          <p
+            role="alert"
+            style={{
+              marginTop: '12px',
+              color: '#9a4138',
+            }}
+          >
+            {demoError}
+          </p>
+        )}
+      </section>
+
       <section className="botanical-panel botanical-panel--settings">
-        <h2>Comfort & accessibility</h2>
+        <h2>Comfort &amp; accessibility</h2>
 
         <SettingToggle
           label="Reduce motion"
@@ -154,7 +298,9 @@ export default function Settings() {
         <div className="botanical-setting-row botanical-setting-row--column">
           <div>
             <h3>Botanical accent</h3>
-            <p>Choose the color that feels most like your garden.</p>
+            <p>
+              Choose the color that feels most like your garden.
+            </p>
           </div>
 
           <div className="botanical-theme-options">
@@ -162,17 +308,25 @@ export default function Settings() {
               <button
                 key={theme.id}
                 type="button"
-                className={`botanical-theme-option${
+                className={
+                  `botanical-theme-option${
+                    appearance.theme === theme.id
+                      ? ' botanical-theme-option--selected'
+                      : ''
+                  }`
+                }
+                onClick={() => update({
+                  theme: theme.id,
+                })}
+                aria-pressed={
                   appearance.theme === theme.id
-                    ? ' botanical-theme-option--selected'
-                    : ''
-                }`}
-                onClick={() => update({ theme: theme.id })}
-                aria-pressed={appearance.theme === theme.id}
+                }
               >
                 <span
                   className="botanical-theme-option__swatch"
-                  style={{ background: theme.color }}
+                  style={{
+                    background: theme.color,
+                  }}
                 />
                 {theme.label}
               </button>

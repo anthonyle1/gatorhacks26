@@ -41,9 +41,9 @@ function LimbView({ limb, from, carried = false }: { limb: Limb; from: Point; ca
       <g className="topic-node" role="button" tabIndex={cut ? -1 : 0}
         aria-label={`${branch.name}, ${branch.videoCount ?? 0} videos. Inspect topic.`}
         aria-pressed={selectedId === branch.id}
-        onClick={() => { if (!cut) setSelected(branch.id) }}
+        onClick={() => { if (!cut) { setSelected(branch.id); window.dispatchEvent(new CustomEvent('prune:inspect-topic', { detail: branch.id })) } }}
         onKeyDown={event => {
-          if (!cut && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); setSelected(branch.id) }
+          if (!cut && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); setSelected(branch.id); window.dispatchEvent(new CustomEvent('prune:inspect-topic', { detail: branch.id })) }
         }}>
         <title>{branch.name}: {branch.videoCount ?? 0} videos</title>
         <circle cx={point.x} cy={point.y} r={radius + 7} fill={selectedId === branch.id ? '#e3b44f' : 'transparent'} />

@@ -1,0 +1,436 @@
+
+/* ==========================================================
+   PRUNE — GARDEN LAYOUT & TOPIC EDITOR
+   Keeps the botanical design without fixed-height panels.
+   ========================================================== */
+
+/* Two independent, naturally sized columns */
+
+.botanical-garden__content .garden-balanced-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr);
+  gap: 24px;
+  align-items: start;
+  width: 100%;
+}
+
+.botanical-garden__content .garden-balanced-column {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 24px;
+  min-width: 0;
+  min-height: 0;
+}
+
+.botanical-garden__content .garden-measured-card {
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+}
+
+/* Tree card */
+
+.botanical-garden__content
+.garden-measured-card > .tree-card {
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Pruning Station: natural height, no forced scroll */
+
+.botanical-garden__content
+.garden-measured-card > .station {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  flex: none;
+  gap: 16px;
+  margin: 0;
+  padding: clamp(20px, 2.5vw, 30px);
+  overflow: visible;
+  box-sizing: border-box;
+  border: 1px solid #dcdcca;
+  border-radius: 26px;
+  background: #f3f2e5;
+  box-shadow: var(--botanical-shadow);
+}
+
+.botanical-garden__content
+.garden-measured-card .station__title {
+  flex: none;
+  margin: 0;
+}
+
+.botanical-garden__content
+.garden-measured-card .station__scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: none;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  scrollbar-width: none;
+}
+
+.botanical-garden__content
+.garden-measured-card .station__row {
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.botanical-garden__content
+.garden-measured-card .station__footer {
+  flex: none;
+  margin-top: 6px;
+  padding-top: 16px;
+}
+
+/* Separate Compost and Garden Summary cards */
+
+.botanical-garden__content
+.garden-balanced-column > .compost,
+.botanical-garden__content
+.garden-balanced-column > .change {
+  display: block;
+  position: static;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  min-width: 0;
+  margin: 0;
+  padding: clamp(20px, 2.5vw, 28px);
+  border: 1px solid #dedfce;
+  border-radius: 24px;
+  background: #fffdf7;
+  box-shadow: 0 5px 20px rgba(55, 76, 48, 0.045);
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.botanical-garden__content
+.garden-balanced-column .compost__intro,
+.botanical-garden__content
+.garden-balanced-column .change__intro {
+  display: block;
+}
+
+.botanical-garden__content
+.garden-balanced-column .compost__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.botanical-garden__content
+.garden-balanced-column .pile {
+  display: block;
+  position: relative;
+  width: 100%;
+  max-width: 260px;
+  height: 200px;
+  min-height: 0;
+  margin: 12px auto;
+  overflow: hidden;
+}
+
+.botanical-garden__content
+.garden-balanced-column .compost__empty,
+.botanical-garden__content
+.garden-balanced-column .compost__none {
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.botanical-garden__content
+.garden-balanced-column .compost__list {
+  width: 100%;
+  max-height: none;
+  overflow: visible;
+}
+
+.botanical-garden__content
+.garden-balanced-column > .change {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.botanical-garden__content
+.garden-balanced-column .change__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+/* Full-width editor always below both columns */
+
+.botanical-garden__content .garden-topic-editor-section {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin: 32px 0 0;
+  scroll-margin-top: 110px;
+}
+
+.botanical-garden__content
+.garden-topic-editor-section .botanical-topic-editor {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  padding: clamp(20px, 3vw, 36px);
+  border: 1px solid #d9e1cf;
+  border-radius: 24px;
+  background: #fffdf7;
+  box-shadow: 0 5px 20px rgba(55, 76, 48, 0.045);
+  box-sizing: border-box;
+}
+
+.botanical-garden__content
+.garden-topic-editor-section .website-topic-editor {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  max-height: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+/* Remove the editor's duplicate built-in header */
+
+.botanical-garden__content
+.garden-topic-editor-section
+.website-topic-editor__heading {
+  display: none;
+}
+
+/* Topic and subtopic cards */
+
+.botanical-garden__content
+.garden-topic-editor-section
+.website-topic-editor__categories {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.botanical-garden__content
+.garden-topic-editor-section
+.website-topic-editor__category-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  border: 1px solid #dce5d4;
+  border-radius: 13px;
+  background: #f3f5ec;
+  color: #304b35;
+  cursor: default;
+}
+
+.botanical-garden__content
+.garden-topic-editor-section
+.website-topic-editor__category-row:hover {
+  background: #edf3e7;
+}
+
+.botanical-garden__content
+.garden-topic-editor-section
+.website-topic-editor__category-row.is-selected {
+  background: #e4eedf;
+  border-color: #a8c2a1;
+}
+
+.botanical-garden__content
+.garden-topic-editor-section
+.website-topic-editor__name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 700;
+  color: #304b35;
+}
+
+.botanical-garden__content
+.garden-topic-editor-section
+.website-topic-editor__count {
+  flex-shrink: 0;
+  font-size: 0.82rem;
+  color: #778774;
+}
+
+.botanical-garden__content
+.garden-topic-editor-section
+.website-topic-editor__children {
+  margin: 12px 0 10px 20px;
+  padding-left: 15px;
+  border-left: 2px solid #d5e2cf;
+}
+
+/* Prune and Restore */
+
+.botanical-garden__content
+.garden-topic-editor-section .prune-topic-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: 8px 16px;
+  border: 1px solid #a4bfa0;
+  border-radius: 999px;
+  background: #e6f0e3;
+  color: #2d5837;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.botanical-garden__content
+.garden-topic-editor-section .prune-topic-action:hover:not(:disabled) {
+  background: #d2e6cf;
+}
+
+.botanical-garden__content
+.garden-topic-editor-section .prune-topic-action--restore {
+  border-color: #d7b995;
+  background: #f5ebda;
+  color: #855c38;
+}
+
+.botanical-garden__content
+.garden-topic-editor-section .prune-topic-action:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Videos expand directly beneath the selected video */
+
+.botanical-garden__content
+.garden-topic-editor-section
+.website-topic-editor__videos {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 18px;
+}
+
+.botanical-garden__content
+.garden-topic-editor-section .website-topic-video {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #e1e7dc;
+  border-radius: 13px;
+  background: #fffefa;
+  overflow: hidden;
+}
+
+.botanical-garden__content
+.garden-topic-editor-section .website-topic-video__row {
+  display: flex;
+  min-width: 0;
+}
+
+.botanical-garden__content
+.garden-topic-editor-section
+.website-topic-video .website-topic-editor__video {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #38503a;
+  font-size: 0.93rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.botanical-garden__content
+.garden-topic-editor-section
+.website-topic-video .website-topic-editor__video:hover {
+  background: #f1f6ed;
+}
+
+.botanical-garden__content
+.garden-topic-editor-section .prune-video-details {
+  padding: 20px;
+  border-top: 1px solid #dfe8da;
+  background: #f7f9f2;
+}
+
+.botanical-garden__content
+.garden-topic-editor-section .prune-video-details__section {
+  padding: 16px 18px;
+  border: 1px solid #e0e7d8;
+  border-radius: 12px;
+  background: #fffdf8;
+}
+
+/* Accessibility */
+
+.botanical-garden__content
+.garden-topic-editor-section button:focus-visible,
+.botanical-garden__content
+.garden-topic-editor-section select:focus-visible {
+  outline: 2px solid #315b43;
+  outline-offset: 3px;
+}
+
+/* Responsive layout */
+
+@media (max-width: 900px) {
+  .botanical-garden__content .garden-balanced-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .botanical-garden__content
+  .garden-topic-editor-section .botanical-topic-editor {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .botanical-garden__content
+  .garden-topic-editor-section
+  .website-topic-editor__category-row {
+    flex-wrap: wrap;
+    padding: 11px;
+  }
+
+  .botanical-garden__content
+  .garden-topic-editor-section .prune-topic-action {
+    padding: 7px 12px;
+  }
+
+  .botanical-garden__content
+  .garden-topic-editor-section .prune-video-details {
+    padding: 16px;
+  }
+}

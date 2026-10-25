@@ -1,0 +1,4202 @@
+[
+  {
+    "video_id": "demo_short_0001",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "I tested an AI study assistant",
+    "caption": "Comparing AI flashcards with my normal study routine. #AI #studytips",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 30,
+    "watch_duration_seconds": 19,
+    "liked": true,
+    "rewatched": true,
+    "viewed_at": "2026-10-24T18:03:00+00:00",
+    "demo_topic": "Technology",
+    "demo_subtopic": "AI Tools"
+  },
+  {
+    "video_id": "demo_short_0002",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Python tips for beginners",
+    "caption": "Three ways to debug a Python loop. #python #coding",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 17,
+    "watch_duration_seconds": 6,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T18:06:00+00:00",
+    "demo_topic": "Technology",
+    "demo_subtopic": "Programming"
+  },
+  {
+    "video_id": "demo_short_0003",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Can AI really write your whole app?",
+    "caption": "Trying an AI coding assistant on a small project. #coding #AI",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Interesting perspective",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Could you explain more?",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This helped a bit",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 60,
+    "watch_duration_seconds": 46,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T18:09:00+00:00",
+    "demo_topic": "Technology",
+    "demo_subtopic": "AI Tools"
+  },
+  {
+    "video_id": "demo_short_0004",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "My first Raspberry Pi project",
+    "caption": "Building a blinking LED circuit from scratch. #raspberrypi",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 15,
+    "watch_duration_seconds": 15,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T18:12:00+00:00",
+    "demo_topic": "Technology",
+    "demo_subtopic": "Programming"
+  },
+  {
+    "video_id": "demo_short_0005",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "This AI trick will make you rich overnight",
+    "caption": "You must buy my secret AI prompt pack today! #AI #money",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 28,
+    "watch_duration_seconds": 28,
+    "liked": false,
+    "rewatched": true,
+    "viewed_at": "2026-10-24T18:15:00+00:00",
+    "demo_topic": "Technology",
+    "demo_subtopic": "AI Tools"
+  },
+  {
+    "video_id": "demo_short_0006",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Python tips for beginners",
+    "caption": "Three ways to debug a Python loop. #python #coding",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 53,
+    "watch_duration_seconds": 21,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T18:18:00+00:00",
+    "demo_topic": "Technology",
+    "demo_subtopic": "Programming"
+  },
+  {
+    "video_id": "demo_short_0007",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "I tested an AI study assistant",
+    "caption": "Comparing AI flashcards with my normal study routine. #AI #studytips",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 50,
+    "watch_duration_seconds": 23,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T18:21:00+00:00",
+    "demo_topic": "Technology",
+    "demo_subtopic": "AI Tools"
+  },
+  {
+    "video_id": "demo_short_0008",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "My first Raspberry Pi project",
+    "caption": "Building a blinking LED circuit from scratch. #raspberrypi",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 60,
+    "watch_duration_seconds": 9,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T18:24:00+00:00",
+    "demo_topic": "Technology",
+    "demo_subtopic": "Programming"
+  },
+  {
+    "video_id": "demo_short_0009",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Can AI really write your whole app?",
+    "caption": "Trying an AI coding assistant on a small project. #coding #AI",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Could you explain more?",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Interesting perspective",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This helped a bit",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 21,
+    "watch_duration_seconds": 21,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T18:27:00+00:00",
+    "demo_topic": "Technology",
+    "demo_subtopic": "AI Tools"
+  },
+  {
+    "video_id": "demo_short_0010",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Python tips for beginners",
+    "caption": "Three ways to debug a Python loop. #python #coding",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 37,
+    "watch_duration_seconds": 18,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T18:30:00+00:00",
+    "demo_topic": "Technology",
+    "demo_subtopic": "Programming"
+  },
+  {
+    "video_id": "demo_short_0011",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "This AI trick will make you rich overnight",
+    "caption": "You must buy my secret AI prompt pack today! #AI #money",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 49,
+    "watch_duration_seconds": 49,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T18:33:00+00:00",
+    "demo_topic": "Technology",
+    "demo_subtopic": "AI Tools"
+  },
+  {
+    "video_id": "demo_short_0012",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "My first Raspberry Pi project",
+    "caption": "Building a blinking LED circuit from scratch. #raspberrypi",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 58,
+    "watch_duration_seconds": 25,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T18:36:00+00:00",
+    "demo_topic": "Technology",
+    "demo_subtopic": "Programming"
+  },
+  {
+    "video_id": "demo_short_0013",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "I tested an AI study assistant",
+    "caption": "Comparing AI flashcards with my normal study routine. #AI #studytips",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 40,
+    "watch_duration_seconds": 22,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T18:39:00+00:00",
+    "demo_topic": "Technology",
+    "demo_subtopic": "AI Tools"
+  },
+  {
+    "video_id": "demo_short_0014",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Python tips for beginners",
+    "caption": "Three ways to debug a Python loop. #python #coding",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 40,
+    "watch_duration_seconds": 40,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T18:42:00+00:00",
+    "demo_topic": "Technology",
+    "demo_subtopic": "Programming"
+  },
+  {
+    "video_id": "demo_short_0015",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Can AI really write your whole app?",
+    "caption": "Trying an AI coding assistant on a small project. #coding #AI",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "I have mixed feelings",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Could you explain more?",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This helped a bit",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 52,
+    "watch_duration_seconds": 32,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T18:45:00+00:00",
+    "demo_topic": "Technology",
+    "demo_subtopic": "AI Tools"
+  },
+  {
+    "video_id": "demo_short_0016",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "My first Raspberry Pi project",
+    "caption": "Building a blinking LED circuit from scratch. #raspberrypi",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 20,
+    "watch_duration_seconds": 20,
+    "liked": true,
+    "rewatched": true,
+    "viewed_at": "2026-10-24T18:48:00+00:00",
+    "demo_topic": "Technology",
+    "demo_subtopic": "Programming"
+  },
+  {
+    "video_id": "demo_short_0017",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "This AI trick will make you rich overnight",
+    "caption": "You must buy my secret AI prompt pack today! #AI #money",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 53,
+    "watch_duration_seconds": 9,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T18:51:00+00:00",
+    "demo_topic": "Technology",
+    "demo_subtopic": "AI Tools"
+  },
+  {
+    "video_id": "demo_short_0018",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Python tips for beginners",
+    "caption": "Three ways to debug a Python loop. #python #coding",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 50,
+    "watch_duration_seconds": 5,
+    "liked": false,
+    "rewatched": true,
+    "viewed_at": "2026-10-24T18:54:00+00:00",
+    "demo_topic": "Technology",
+    "demo_subtopic": "Programming"
+  },
+  {
+    "video_id": "demo_short_0019",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "I tested an AI study assistant",
+    "caption": "Comparing AI flashcards with my normal study routine. #AI #studytips",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 22,
+    "watch_duration_seconds": 22,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T18:57:00+00:00",
+    "demo_topic": "Technology",
+    "demo_subtopic": "AI Tools"
+  },
+  {
+    "video_id": "demo_short_0020",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "My first Raspberry Pi project",
+    "caption": "Building a blinking LED circuit from scratch. #raspberrypi",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 47,
+    "watch_duration_seconds": 11,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T19:00:00+00:00",
+    "demo_topic": "Technology",
+    "demo_subtopic": "Programming"
+  },
+  {
+    "video_id": "demo_short_0021",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "My cozy Minecraft starter house",
+    "caption": "A simple build tutorial for a survival world. #minecraft",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 25,
+    "watch_duration_seconds": 25,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T19:03:00+00:00",
+    "demo_topic": "Gaming",
+    "demo_subtopic": "Minecraft"
+  },
+  {
+    "video_id": "demo_short_0022",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Best crosshair practice routine",
+    "caption": "Warm-up drills before a ranked match. #valorant",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 46,
+    "watch_duration_seconds": 6,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T19:06:00+00:00",
+    "demo_topic": "Gaming",
+    "demo_subtopic": "Valorant"
+  },
+  {
+    "video_id": "demo_short_0023",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "I lost everything in hardcore mode",
+    "caption": "One mistake ended my longest survival run. #minecraft",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Could you explain more?",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Interesting perspective",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This helped a bit",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 30,
+    "watch_duration_seconds": 30,
+    "liked": false,
+    "rewatched": true,
+    "viewed_at": "2026-10-24T19:09:00+00:00",
+    "demo_topic": "Gaming",
+    "demo_subtopic": "Minecraft"
+  },
+  {
+    "video_id": "demo_short_0024",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Ranked teammates are all terrible",
+    "caption": "Ranting about teammates after a bad match. #valorant",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 23,
+    "watch_duration_seconds": 23,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T19:12:00+00:00",
+    "demo_topic": "Gaming",
+    "demo_subtopic": "Valorant"
+  },
+  {
+    "video_id": "demo_short_0025",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "My cozy Minecraft starter house",
+    "caption": "A simple build tutorial for a survival world. #minecraft",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 28,
+    "watch_duration_seconds": 28,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T19:15:00+00:00",
+    "demo_topic": "Gaming",
+    "demo_subtopic": "Minecraft"
+  },
+  {
+    "video_id": "demo_short_0026",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Best crosshair practice routine",
+    "caption": "Warm-up drills before a ranked match. #valorant",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 43,
+    "watch_duration_seconds": 38,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T19:18:00+00:00",
+    "demo_topic": "Gaming",
+    "demo_subtopic": "Valorant"
+  },
+  {
+    "video_id": "demo_short_0027",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "I lost everything in hardcore mode",
+    "caption": "One mistake ended my longest survival run. #minecraft",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Interesting perspective",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "I have mixed feelings",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This helped a bit",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 52,
+    "watch_duration_seconds": 40,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T19:21:00+00:00",
+    "demo_topic": "Gaming",
+    "demo_subtopic": "Minecraft"
+  },
+  {
+    "video_id": "demo_short_0028",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Ranked teammates are all terrible",
+    "caption": "Ranting about teammates after a bad match. #valorant",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 29,
+    "watch_duration_seconds": 9,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T19:24:00+00:00",
+    "demo_topic": "Gaming",
+    "demo_subtopic": "Valorant"
+  },
+  {
+    "video_id": "demo_short_0029",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "My cozy Minecraft starter house",
+    "caption": "A simple build tutorial for a survival world. #minecraft",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 32,
+    "watch_duration_seconds": 32,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T19:27:00+00:00",
+    "demo_topic": "Gaming",
+    "demo_subtopic": "Minecraft"
+  },
+  {
+    "video_id": "demo_short_0030",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Best crosshair practice routine",
+    "caption": "Warm-up drills before a ranked match. #valorant",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 41,
+    "watch_duration_seconds": 17,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T19:30:00+00:00",
+    "demo_topic": "Gaming",
+    "demo_subtopic": "Valorant"
+  },
+  {
+    "video_id": "demo_short_0031",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "I lost everything in hardcore mode",
+    "caption": "One mistake ended my longest survival run. #minecraft",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Could you explain more?",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "I have mixed feelings",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This helped a bit",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 44,
+    "watch_duration_seconds": 44,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T19:33:00+00:00",
+    "demo_topic": "Gaming",
+    "demo_subtopic": "Minecraft"
+  },
+  {
+    "video_id": "demo_short_0032",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Ranked teammates are all terrible",
+    "caption": "Ranting about teammates after a bad match. #valorant",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 36,
+    "watch_duration_seconds": 11,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T19:36:00+00:00",
+    "demo_topic": "Gaming",
+    "demo_subtopic": "Valorant"
+  },
+  {
+    "video_id": "demo_short_0033",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "My cozy Minecraft starter house",
+    "caption": "A simple build tutorial for a survival world. #minecraft",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 26,
+    "watch_duration_seconds": 22,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T19:39:00+00:00",
+    "demo_topic": "Gaming",
+    "demo_subtopic": "Minecraft"
+  },
+  {
+    "video_id": "demo_short_0034",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Best crosshair practice routine",
+    "caption": "Warm-up drills before a ranked match. #valorant",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 18,
+    "watch_duration_seconds": 18,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T19:42:00+00:00",
+    "demo_topic": "Gaming",
+    "demo_subtopic": "Valorant"
+  },
+  {
+    "video_id": "demo_short_0035",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "I lost everything in hardcore mode",
+    "caption": "One mistake ended my longest survival run. #minecraft",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Interesting perspective",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This helped a bit",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Could you explain more?",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 41,
+    "watch_duration_seconds": 36,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T19:45:00+00:00",
+    "demo_topic": "Gaming",
+    "demo_subtopic": "Minecraft"
+  },
+  {
+    "video_id": "demo_short_0036",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Ranked teammates are all terrible",
+    "caption": "Ranting about teammates after a bad match. #valorant",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 15,
+    "watch_duration_seconds": 15,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T19:48:00+00:00",
+    "demo_topic": "Gaming",
+    "demo_subtopic": "Valorant"
+  },
+  {
+    "video_id": "demo_short_0037",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "My cozy Minecraft starter house",
+    "caption": "A simple build tutorial for a survival world. #minecraft",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 59,
+    "watch_duration_seconds": 51,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T19:51:00+00:00",
+    "demo_topic": "Gaming",
+    "demo_subtopic": "Minecraft"
+  },
+  {
+    "video_id": "demo_short_0038",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Best crosshair practice routine",
+    "caption": "Warm-up drills before a ranked match. #valorant",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 33,
+    "watch_duration_seconds": 18,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T19:54:00+00:00",
+    "demo_topic": "Gaming",
+    "demo_subtopic": "Valorant"
+  },
+  {
+    "video_id": "demo_short_0039",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "I lost everything in hardcore mode",
+    "caption": "One mistake ended my longest survival run. #minecraft",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Interesting perspective",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Could you explain more?",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "I have mixed feelings",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": null,
+    "duration_seconds": 18,
+    "watch_duration_seconds": 8,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T19:57:00+00:00",
+    "demo_topic": "Gaming",
+    "demo_subtopic": "Minecraft"
+  },
+  {
+    "video_id": "demo_short_0040",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Ranked teammates are all terrible",
+    "caption": "Ranting about teammates after a bad match. #valorant",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 26,
+    "watch_duration_seconds": 9,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T20:00:00+00:00",
+    "demo_topic": "Gaming",
+    "demo_subtopic": "Valorant"
+  },
+  {
+    "video_id": "demo_short_0041",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Realistic college morning routine",
+    "caption": "A slow morning before an 8 AM class. #college",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 51,
+    "watch_duration_seconds": 20,
+    "liked": false,
+    "rewatched": true,
+    "viewed_at": "2026-10-24T20:03:00+00:00",
+    "demo_topic": "Lifestyle",
+    "demo_subtopic": "College Life"
+  },
+  {
+    "video_id": "demo_short_0042",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Easy everyday makeup look",
+    "caption": "A simple five-minute makeup tutorial. #beauty",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 31,
+    "watch_duration_seconds": 18,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T20:06:00+00:00",
+    "demo_topic": "Lifestyle",
+    "demo_subtopic": "Beauty"
+  },
+  {
+    "video_id": "demo_short_0043",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Everyone else has their life together",
+    "caption": "Comparing my grades and internship offers with classmates. #college",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 57,
+    "watch_duration_seconds": 46,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T20:09:00+00:00",
+    "demo_topic": "Lifestyle",
+    "demo_subtopic": "College Life"
+  },
+  {
+    "video_id": "demo_short_0044",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Fix your face with these products",
+    "caption": "You need all of these products to look acceptable. #beauty",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 54,
+    "watch_duration_seconds": 41,
+    "liked": false,
+    "rewatched": true,
+    "viewed_at": "2026-10-24T20:12:00+00:00",
+    "demo_topic": "Lifestyle",
+    "demo_subtopic": "Beauty"
+  },
+  {
+    "video_id": "demo_short_0045",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Realistic college morning routine",
+    "caption": "A slow morning before an 8 AM class. #college",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 23,
+    "watch_duration_seconds": 23,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T20:15:00+00:00",
+    "demo_topic": "Lifestyle",
+    "demo_subtopic": "College Life"
+  },
+  {
+    "video_id": "demo_short_0046",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Easy everyday makeup look",
+    "caption": "A simple five-minute makeup tutorial. #beauty",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 43,
+    "watch_duration_seconds": 39,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T20:18:00+00:00",
+    "demo_topic": "Lifestyle",
+    "demo_subtopic": "Beauty"
+  },
+  {
+    "video_id": "demo_short_0047",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Everyone else has their life together",
+    "caption": "Comparing my grades and internship offers with classmates. #college",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 57,
+    "watch_duration_seconds": 11,
+    "liked": false,
+    "rewatched": true,
+    "viewed_at": "2026-10-24T20:21:00+00:00",
+    "demo_topic": "Lifestyle",
+    "demo_subtopic": "College Life"
+  },
+  {
+    "video_id": "demo_short_0048",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Fix your face with these products",
+    "caption": "You need all of these products to look acceptable. #beauty",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 32,
+    "watch_duration_seconds": 23,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T20:24:00+00:00",
+    "demo_topic": "Lifestyle",
+    "demo_subtopic": "Beauty"
+  },
+  {
+    "video_id": "demo_short_0049",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Realistic college morning routine",
+    "caption": "A slow morning before an 8 AM class. #college",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 47,
+    "watch_duration_seconds": 36,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T20:27:00+00:00",
+    "demo_topic": "Lifestyle",
+    "demo_subtopic": "College Life"
+  },
+  {
+    "video_id": "demo_short_0050",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Easy everyday makeup look",
+    "caption": "A simple five-minute makeup tutorial. #beauty",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 32,
+    "watch_duration_seconds": 7,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T20:30:00+00:00",
+    "demo_topic": "Lifestyle",
+    "demo_subtopic": "Beauty"
+  },
+  {
+    "video_id": "demo_short_0051",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Everyone else has their life together",
+    "caption": "Comparing my grades and internship offers with classmates. #college",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 50,
+    "watch_duration_seconds": 50,
+    "liked": false,
+    "rewatched": true,
+    "viewed_at": "2026-10-24T20:33:00+00:00",
+    "demo_topic": "Lifestyle",
+    "demo_subtopic": "College Life"
+  },
+  {
+    "video_id": "demo_short_0052",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Fix your face with these products",
+    "caption": "You need all of these products to look acceptable. #beauty",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 49,
+    "watch_duration_seconds": 7,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T20:36:00+00:00",
+    "demo_topic": "Lifestyle",
+    "demo_subtopic": "Beauty"
+  },
+  {
+    "video_id": "demo_short_0053",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Realistic college morning routine",
+    "caption": "A slow morning before an 8 AM class. #college",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 17,
+    "watch_duration_seconds": 17,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T20:39:00+00:00",
+    "demo_topic": "Lifestyle",
+    "demo_subtopic": "College Life"
+  },
+  {
+    "video_id": "demo_short_0054",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Easy everyday makeup look",
+    "caption": "A simple five-minute makeup tutorial. #beauty",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 58,
+    "watch_duration_seconds": 20,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T20:42:00+00:00",
+    "demo_topic": "Lifestyle",
+    "demo_subtopic": "Beauty"
+  },
+  {
+    "video_id": "demo_short_0055",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Everyone else has their life together",
+    "caption": "Comparing my grades and internship offers with classmates. #college",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 30,
+    "watch_duration_seconds": 15,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T20:45:00+00:00",
+    "demo_topic": "Lifestyle",
+    "demo_subtopic": "College Life"
+  },
+  {
+    "video_id": "demo_short_0056",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Fix your face with these products",
+    "caption": "You need all of these products to look acceptable. #beauty",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 36,
+    "watch_duration_seconds": 36,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T20:48:00+00:00",
+    "demo_topic": "Lifestyle",
+    "demo_subtopic": "Beauty"
+  },
+  {
+    "video_id": "demo_short_0057",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Realistic college morning routine",
+    "caption": "A slow morning before an 8 AM class. #college",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 59,
+    "watch_duration_seconds": 11,
+    "liked": false,
+    "rewatched": true,
+    "viewed_at": "2026-10-24T20:51:00+00:00",
+    "demo_topic": "Lifestyle",
+    "demo_subtopic": "College Life"
+  },
+  {
+    "video_id": "demo_short_0058",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Easy everyday makeup look",
+    "caption": "A simple five-minute makeup tutorial. #beauty",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 44,
+    "watch_duration_seconds": 27,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T20:54:00+00:00",
+    "demo_topic": "Lifestyle",
+    "demo_subtopic": "Beauty"
+  },
+  {
+    "video_id": "demo_short_0059",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Everyone else has their life together",
+    "caption": "Comparing my grades and internship offers with classmates. #college",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 57,
+    "watch_duration_seconds": 17,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T20:57:00+00:00",
+    "demo_topic": "Lifestyle",
+    "demo_subtopic": "College Life"
+  },
+  {
+    "video_id": "demo_short_0060",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Fix your face with these products",
+    "caption": "You need all of these products to look acceptable. #beauty",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 56,
+    "watch_duration_seconds": 37,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T21:00:00+00:00",
+    "demo_topic": "Lifestyle",
+    "demo_subtopic": "Beauty"
+  },
+  {
+    "video_id": "demo_short_0061",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Ten minute beginner workout",
+    "caption": "Low-impact exercises with breaks and modifications. #fitness",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 31,
+    "watch_duration_seconds": 16,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T21:03:00+00:00",
+    "demo_topic": "Fitness",
+    "demo_subtopic": "Workouts"
+  },
+  {
+    "video_id": "demo_short_0062",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Quick high-protein lunch idea",
+    "caption": "Simple lunch prep with affordable ingredients. #mealprep",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 37,
+    "watch_duration_seconds": 37,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T21:06:00+00:00",
+    "demo_topic": "Fitness",
+    "demo_subtopic": "Nutrition"
+  },
+  {
+    "video_id": "demo_short_0063",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "No excuses: train through pain",
+    "caption": "If you skip today you are lazy and weak. #gym",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 31,
+    "watch_duration_seconds": 7,
+    "liked": false,
+    "rewatched": true,
+    "viewed_at": "2026-10-24T21:09:00+00:00",
+    "demo_topic": "Fitness",
+    "demo_subtopic": "Workouts"
+  },
+  {
+    "video_id": "demo_short_0064",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "What I eat in a day",
+    "caption": "Sharing one person’s meals, not a universal plan. #nutrition",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "I have mixed feelings",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This helped a bit",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Could you explain more?",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 19,
+    "watch_duration_seconds": 19,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T21:12:00+00:00",
+    "demo_topic": "Fitness",
+    "demo_subtopic": "Nutrition"
+  },
+  {
+    "video_id": "demo_short_0065",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Ten minute beginner workout",
+    "caption": "Low-impact exercises with breaks and modifications. #fitness",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 47,
+    "watch_duration_seconds": 24,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T21:15:00+00:00",
+    "demo_topic": "Fitness",
+    "demo_subtopic": "Workouts"
+  },
+  {
+    "video_id": "demo_short_0066",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Quick high-protein lunch idea",
+    "caption": "Simple lunch prep with affordable ingredients. #mealprep",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 27,
+    "watch_duration_seconds": 27,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T21:18:00+00:00",
+    "demo_topic": "Fitness",
+    "demo_subtopic": "Nutrition"
+  },
+  {
+    "video_id": "demo_short_0067",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "No excuses: train through pain",
+    "caption": "If you skip today you are lazy and weak. #gym",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 40,
+    "watch_duration_seconds": 40,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T21:21:00+00:00",
+    "demo_topic": "Fitness",
+    "demo_subtopic": "Workouts"
+  },
+  {
+    "video_id": "demo_short_0068",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "What I eat in a day",
+    "caption": "Sharing one person’s meals, not a universal plan. #nutrition",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "I have mixed feelings",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This helped a bit",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Could you explain more?",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 44,
+    "watch_duration_seconds": 33,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T21:24:00+00:00",
+    "demo_topic": "Fitness",
+    "demo_subtopic": "Nutrition"
+  },
+  {
+    "video_id": "demo_short_0069",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Ten minute beginner workout",
+    "caption": "Low-impact exercises with breaks and modifications. #fitness",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 57,
+    "watch_duration_seconds": 10,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T21:27:00+00:00",
+    "demo_topic": "Fitness",
+    "demo_subtopic": "Workouts"
+  },
+  {
+    "video_id": "demo_short_0070",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Quick high-protein lunch idea",
+    "caption": "Simple lunch prep with affordable ingredients. #mealprep",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 58,
+    "watch_duration_seconds": 24,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T21:30:00+00:00",
+    "demo_topic": "Fitness",
+    "demo_subtopic": "Nutrition"
+  },
+  {
+    "video_id": "demo_short_0071",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "No excuses: train through pain",
+    "caption": "If you skip today you are lazy and weak. #gym",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 45,
+    "watch_duration_seconds": 44,
+    "liked": false,
+    "rewatched": true,
+    "viewed_at": "2026-10-24T21:33:00+00:00",
+    "demo_topic": "Fitness",
+    "demo_subtopic": "Workouts"
+  },
+  {
+    "video_id": "demo_short_0072",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "What I eat in a day",
+    "caption": "Sharing one person’s meals, not a universal plan. #nutrition",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This helped a bit",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Could you explain more?",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Interesting perspective",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 60,
+    "watch_duration_seconds": 49,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T21:36:00+00:00",
+    "demo_topic": "Fitness",
+    "demo_subtopic": "Nutrition"
+  },
+  {
+    "video_id": "demo_short_0073",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Ten minute beginner workout",
+    "caption": "Low-impact exercises with breaks and modifications. #fitness",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 21,
+    "watch_duration_seconds": 21,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T21:39:00+00:00",
+    "demo_topic": "Fitness",
+    "demo_subtopic": "Workouts"
+  },
+  {
+    "video_id": "demo_short_0074",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Quick high-protein lunch idea",
+    "caption": "Simple lunch prep with affordable ingredients. #mealprep",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 22,
+    "watch_duration_seconds": 22,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T21:42:00+00:00",
+    "demo_topic": "Fitness",
+    "demo_subtopic": "Nutrition"
+  },
+  {
+    "video_id": "demo_short_0075",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "No excuses: train through pain",
+    "caption": "If you skip today you are lazy and weak. #gym",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 50,
+    "watch_duration_seconds": 33,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T21:45:00+00:00",
+    "demo_topic": "Fitness",
+    "demo_subtopic": "Workouts"
+  },
+  {
+    "video_id": "demo_short_0076",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "What I eat in a day",
+    "caption": "Sharing one person’s meals, not a universal plan. #nutrition",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This helped a bit",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "I have mixed feelings",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Could you explain more?",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 30,
+    "watch_duration_seconds": 30,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T21:48:00+00:00",
+    "demo_topic": "Fitness",
+    "demo_subtopic": "Nutrition"
+  },
+  {
+    "video_id": "demo_short_0077",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Ten minute beginner workout",
+    "caption": "Low-impact exercises with breaks and modifications. #fitness",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 32,
+    "watch_duration_seconds": 32,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T21:51:00+00:00",
+    "demo_topic": "Fitness",
+    "demo_subtopic": "Workouts"
+  },
+  {
+    "video_id": "demo_short_0078",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Quick high-protein lunch idea",
+    "caption": "Simple lunch prep with affordable ingredients. #mealprep",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 49,
+    "watch_duration_seconds": 10,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T21:54:00+00:00",
+    "demo_topic": "Fitness",
+    "demo_subtopic": "Nutrition"
+  },
+  {
+    "video_id": "demo_short_0079",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "No excuses: train through pain",
+    "caption": "If you skip today you are lazy and weak. #gym",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 19,
+    "watch_duration_seconds": 19,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T21:57:00+00:00",
+    "demo_topic": "Fitness",
+    "demo_subtopic": "Workouts"
+  },
+  {
+    "video_id": "demo_short_0080",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "What I eat in a day",
+    "caption": "Sharing one person’s meals, not a universal plan. #nutrition",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This helped a bit",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Interesting perspective",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Could you explain more?",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 41,
+    "watch_duration_seconds": 29,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T22:00:00+00:00",
+    "demo_topic": "Fitness",
+    "demo_subtopic": "Nutrition"
+  },
+  {
+    "video_id": "demo_short_0081",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Budgeting as a college student",
+    "caption": "How I track rent, groceries, and savings. #budget",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 45,
+    "watch_duration_seconds": 5,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T22:03:00+00:00",
+    "demo_topic": "Finance",
+    "demo_subtopic": "Budgeting"
+  },
+  {
+    "video_id": "demo_short_0082",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "If you are 20 and not rich you failed",
+    "caption": "Everyone your age is making six figures except you. #success",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 46,
+    "watch_duration_seconds": 19,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T22:06:00+00:00",
+    "demo_topic": "Finance",
+    "demo_subtopic": "Wealth Culture"
+  },
+  {
+    "video_id": "demo_short_0083",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Saving five dollars a day",
+    "caption": "Small saving habits that worked for me. #saving",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 25,
+    "watch_duration_seconds": 25,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T22:09:00+00:00",
+    "demo_topic": "Finance",
+    "demo_subtopic": "Budgeting"
+  },
+  {
+    "video_id": "demo_short_0084",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Double your money in one week",
+    "caption": "Guaranteed returns if you send money now. #investing",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 20,
+    "watch_duration_seconds": 20,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T22:12:00+00:00",
+    "demo_topic": "Finance",
+    "demo_subtopic": "Wealth Culture"
+  },
+  {
+    "video_id": "demo_short_0085",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Budgeting as a college student",
+    "caption": "How I track rent, groceries, and savings. #budget",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 39,
+    "watch_duration_seconds": 25,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T22:15:00+00:00",
+    "demo_topic": "Finance",
+    "demo_subtopic": "Budgeting"
+  },
+  {
+    "video_id": "demo_short_0086",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "If you are 20 and not rich you failed",
+    "caption": "Everyone your age is making six figures except you. #success",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 31,
+    "watch_duration_seconds": 10,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T22:18:00+00:00",
+    "demo_topic": "Finance",
+    "demo_subtopic": "Wealth Culture"
+  },
+  {
+    "video_id": "demo_short_0087",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Saving five dollars a day",
+    "caption": "Small saving habits that worked for me. #saving",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 56,
+    "watch_duration_seconds": 9,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T22:21:00+00:00",
+    "demo_topic": "Finance",
+    "demo_subtopic": "Budgeting"
+  },
+  {
+    "video_id": "demo_short_0088",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Double your money in one week",
+    "caption": "Guaranteed returns if you send money now. #investing",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 16,
+    "watch_duration_seconds": 16,
+    "liked": true,
+    "rewatched": true,
+    "viewed_at": "2026-10-24T22:24:00+00:00",
+    "demo_topic": "Finance",
+    "demo_subtopic": "Wealth Culture"
+  },
+  {
+    "video_id": "demo_short_0089",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Budgeting as a college student",
+    "caption": "How I track rent, groceries, and savings. #budget",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 44,
+    "watch_duration_seconds": 44,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T22:27:00+00:00",
+    "demo_topic": "Finance",
+    "demo_subtopic": "Budgeting"
+  },
+  {
+    "video_id": "demo_short_0090",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "If you are 20 and not rich you failed",
+    "caption": "Everyone your age is making six figures except you. #success",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 21,
+    "watch_duration_seconds": 21,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T22:30:00+00:00",
+    "demo_topic": "Finance",
+    "demo_subtopic": "Wealth Culture"
+  },
+  {
+    "video_id": "demo_short_0091",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Saving five dollars a day",
+    "caption": "Small saving habits that worked for me. #saving",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 19,
+    "watch_duration_seconds": 19,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T22:33:00+00:00",
+    "demo_topic": "Finance",
+    "demo_subtopic": "Budgeting"
+  },
+  {
+    "video_id": "demo_short_0092",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Double your money in one week",
+    "caption": "Guaranteed returns if you send money now. #investing",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 58,
+    "watch_duration_seconds": 43,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T22:36:00+00:00",
+    "demo_topic": "Finance",
+    "demo_subtopic": "Wealth Culture"
+  },
+  {
+    "video_id": "demo_short_0093",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Budgeting as a college student",
+    "caption": "How I track rent, groceries, and savings. #budget",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 57,
+    "watch_duration_seconds": 28,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T22:39:00+00:00",
+    "demo_topic": "Finance",
+    "demo_subtopic": "Budgeting"
+  },
+  {
+    "video_id": "demo_short_0094",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "If you are 20 and not rich you failed",
+    "caption": "Everyone your age is making six figures except you. #success",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 21,
+    "watch_duration_seconds": 21,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T22:42:00+00:00",
+    "demo_topic": "Finance",
+    "demo_subtopic": "Wealth Culture"
+  },
+  {
+    "video_id": "demo_short_0095",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Saving five dollars a day",
+    "caption": "Small saving habits that worked for me. #saving",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 42,
+    "watch_duration_seconds": 16,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T22:45:00+00:00",
+    "demo_topic": "Finance",
+    "demo_subtopic": "Budgeting"
+  },
+  {
+    "video_id": "demo_short_0096",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Double your money in one week",
+    "caption": "Guaranteed returns if you send money now. #investing",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 44,
+    "watch_duration_seconds": 32,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T22:48:00+00:00",
+    "demo_topic": "Finance",
+    "demo_subtopic": "Wealth Culture"
+  },
+  {
+    "video_id": "demo_short_0097",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Budgeting as a college student",
+    "caption": "How I track rent, groceries, and savings. #budget",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 32,
+    "watch_duration_seconds": 32,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T22:51:00+00:00",
+    "demo_topic": "Finance",
+    "demo_subtopic": "Budgeting"
+  },
+  {
+    "video_id": "demo_short_0098",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "If you are 20 and not rich you failed",
+    "caption": "Everyone your age is making six figures except you. #success",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 46,
+    "watch_duration_seconds": 25,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T22:54:00+00:00",
+    "demo_topic": "Finance",
+    "demo_subtopic": "Wealth Culture"
+  },
+  {
+    "video_id": "demo_short_0099",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Saving five dollars a day",
+    "caption": "Small saving habits that worked for me. #saving",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 53,
+    "watch_duration_seconds": 49,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T22:57:00+00:00",
+    "demo_topic": "Finance",
+    "demo_subtopic": "Budgeting"
+  },
+  {
+    "video_id": "demo_short_0100",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Double your money in one week",
+    "caption": "Guaranteed returns if you send money now. #investing",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 41,
+    "watch_duration_seconds": 36,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T23:00:00+00:00",
+    "demo_topic": "Finance",
+    "demo_subtopic": "Wealth Culture"
+  },
+  {
+    "video_id": "demo_short_0101",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Learning a dance in 30 seconds",
+    "caption": "Trying a trending dance for fun. #dance",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 43,
+    "watch_duration_seconds": 43,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T23:03:00+00:00",
+    "demo_topic": "Entertainment",
+    "demo_subtopic": "Music"
+  },
+  {
+    "video_id": "demo_short_0102",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Creator argument explained",
+    "caption": "A neutral recap of an online disagreement. #internet",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This helped a bit",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Could you explain more?",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Interesting perspective",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 34,
+    "watch_duration_seconds": 34,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T23:06:00+00:00",
+    "demo_topic": "Entertainment",
+    "demo_subtopic": "Internet Drama"
+  },
+  {
+    "video_id": "demo_short_0103",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "My favorite guitar riff",
+    "caption": "Practicing a short riff after class. #music",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 37,
+    "watch_duration_seconds": 37,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T23:09:00+00:00",
+    "demo_topic": "Entertainment",
+    "demo_subtopic": "Music"
+  },
+  {
+    "video_id": "demo_short_0104",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "You need to hate this creator",
+    "caption": "Watch this clip and flood their comments. #drama",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 35,
+    "watch_duration_seconds": 12,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T23:12:00+00:00",
+    "demo_topic": "Entertainment",
+    "demo_subtopic": "Internet Drama"
+  },
+  {
+    "video_id": "demo_short_0105",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Learning a dance in 30 seconds",
+    "caption": "Trying a trending dance for fun. #dance",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 45,
+    "watch_duration_seconds": 22,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T23:15:00+00:00",
+    "demo_topic": "Entertainment",
+    "demo_subtopic": "Music"
+  },
+  {
+    "video_id": "demo_short_0106",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Creator argument explained",
+    "caption": "A neutral recap of an online disagreement. #internet",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Could you explain more?",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Interesting perspective",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This helped a bit",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 33,
+    "watch_duration_seconds": 19,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T23:18:00+00:00",
+    "demo_topic": "Entertainment",
+    "demo_subtopic": "Internet Drama"
+  },
+  {
+    "video_id": "demo_short_0107",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "My favorite guitar riff",
+    "caption": "Practicing a short riff after class. #music",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 18,
+    "watch_duration_seconds": 18,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T23:21:00+00:00",
+    "demo_topic": "Entertainment",
+    "demo_subtopic": "Music"
+  },
+  {
+    "video_id": "demo_short_0108",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "You need to hate this creator",
+    "caption": "Watch this clip and flood their comments. #drama",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This makes me feel bad about myself",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 51,
+    "watch_duration_seconds": 23,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T23:24:00+00:00",
+    "demo_topic": "Entertainment",
+    "demo_subtopic": "Internet Drama"
+  },
+  {
+    "video_id": "demo_short_0109",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Learning a dance in 30 seconds",
+    "caption": "Trying a trending dance for fun. #dance",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 45,
+    "watch_duration_seconds": 12,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T23:27:00+00:00",
+    "demo_topic": "Entertainment",
+    "demo_subtopic": "Music"
+  },
+  {
+    "video_id": "demo_short_0110",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Creator argument explained",
+    "caption": "A neutral recap of an online disagreement. #internet",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Interesting perspective",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Could you explain more?",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This helped a bit",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 24,
+    "watch_duration_seconds": 14,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T23:30:00+00:00",
+    "demo_topic": "Entertainment",
+    "demo_subtopic": "Internet Drama"
+  },
+  {
+    "video_id": "demo_short_0111",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "My favorite guitar riff",
+    "caption": "Practicing a short riff after class. #music",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 50,
+    "watch_duration_seconds": 50,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T23:33:00+00:00",
+    "demo_topic": "Entertainment",
+    "demo_subtopic": "Music"
+  },
+  {
+    "video_id": "demo_short_0112",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "You need to hate this creator",
+    "caption": "Watch this clip and flood their comments. #drama",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 43,
+    "watch_duration_seconds": 33,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T23:36:00+00:00",
+    "demo_topic": "Entertainment",
+    "demo_subtopic": "Internet Drama"
+  },
+  {
+    "video_id": "demo_short_0113",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Learning a dance in 30 seconds",
+    "caption": "Trying a trending dance for fun. #dance",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 54,
+    "watch_duration_seconds": 52,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T23:39:00+00:00",
+    "demo_topic": "Entertainment",
+    "demo_subtopic": "Music"
+  },
+  {
+    "video_id": "demo_short_0114",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Creator argument explained",
+    "caption": "A neutral recap of an online disagreement. #internet",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "I have mixed feelings",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "This helped a bit",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Interesting perspective",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 25,
+    "watch_duration_seconds": 20,
+    "liked": true,
+    "rewatched": true,
+    "viewed_at": "2026-10-24T23:42:00+00:00",
+    "demo_topic": "Entertainment",
+    "demo_subtopic": "Internet Drama"
+  },
+  {
+    "video_id": "demo_short_0115",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "My favorite guitar riff",
+    "caption": "Practicing a short riff after class. #music",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 59,
+    "watch_duration_seconds": 43,
+    "liked": false,
+    "rewatched": true,
+    "viewed_at": "2026-10-24T23:45:00+00:00",
+    "demo_topic": "Entertainment",
+    "demo_subtopic": "Music"
+  },
+  {
+    "video_id": "demo_short_0116",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "You need to hate this creator",
+    "caption": "Watch this clip and flood their comments. #drama",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 59,
+    "watch_duration_seconds": 34,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T23:48:00+00:00",
+    "demo_topic": "Entertainment",
+    "demo_subtopic": "Internet Drama"
+  },
+  {
+    "video_id": "demo_short_0117",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Learning a dance in 30 seconds",
+    "caption": "Trying a trending dance for fun. #dance",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Nice video",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 42,
+    "watch_duration_seconds": 12,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T23:51:00+00:00",
+    "demo_topic": "Entertainment",
+    "demo_subtopic": "Music"
+  },
+  {
+    "video_id": "demo_short_0118",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "Creator argument explained",
+    "caption": "A neutral recap of an online disagreement. #internet",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Could you explain more?",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Interesting perspective",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This helped a bit",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 18,
+    "watch_duration_seconds": 15,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T23:54:00+00:00",
+    "demo_topic": "Entertainment",
+    "demo_subtopic": "Internet Drama"
+  },
+  {
+    "video_id": "demo_short_0119",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "My favorite guitar riff",
+    "caption": "Practicing a short riff after class. #music",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Thanks for explaining",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "I am going to try this",
+        "sentiment": "positive",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This was genuinely helpful!",
+        "sentiment": "positive",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": 1.0,
+    "duration_seconds": 44,
+    "watch_duration_seconds": 44,
+    "liked": true,
+    "rewatched": false,
+    "viewed_at": "2026-10-24T23:57:00+00:00",
+    "demo_topic": "Entertainment",
+    "demo_subtopic": "Music"
+  },
+  {
+    "video_id": "demo_short_0120",
+    "platform": "youtube_shorts",
+    "synthetic": true,
+    "title": "You need to hate this creator",
+    "caption": "Watch this clip and flood their comments. #drama",
+    "comments": [
+      {
+        "id": "comment:0",
+        "text": "Why is this so aggressive?",
+        "sentiment": "negative",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:1",
+        "text": "Not sure I agree",
+        "sentiment": "neutral",
+        "confidence": 0.92
+      },
+      {
+        "id": "comment:2",
+        "text": "This is misleading",
+        "sentiment": "negative",
+        "confidence": 0.92
+      }
+    ],
+    "sentiment_balance": -1.0,
+    "duration_seconds": 43,
+    "watch_duration_seconds": 10,
+    "liked": false,
+    "rewatched": false,
+    "viewed_at": "2026-10-25T00:00:00+00:00",
+    "demo_topic": "Entertainment",
+    "demo_subtopic": "Internet Drama"
+  }
+]

@@ -1,32 +1,73 @@
-import { usePrune } from '../../state/prune-context'
-import Chip from '../Chip'
+import { useEffect, useState } from 'react'
+import WebsiteTopicEditor from '../../tree/WebsiteTopicEditor'
 
 export default function Inspector() {
-  const { branches, pruned, selectedId, setSelected, setPruned } = usePrune()
-  const branch = branches.find(item => item.id === selectedId) ?? branches[0]
-  if (!branch) return <section className="card card--lg inspector"><h3 className="h2">Inspect a topic</h3><p>Topics appear after you finish and review a scrolling session.</p></section>
-  const inherited = !!branch.parentId && !!pruned[branch.parentId]
+  const [inspectedId, setInspectedId] = useState<string | null>(null)
+
+  useEffect(() => {
+    const handleInspect = (event: Event) => {
+      const categoryId = (event as CustomEvent<string>).detail
+
+      if (!categoryId) return
+
+      setInspectedId(categoryId)
+
+      window.requestAnimationFrame(() => {
+        document
+          .getElementById('garden-topic-editor')
+          ?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          })
+      })
+    }
+
+    window.addEventListener('prune:inspect-topic', handleInspect)
+
+    return () => {
+      window.removeEventListener('prune:inspect-topic', handleInspect)
+    }
+  }, [])
+
   return (
-    <section className="card card--lg inspector" aria-labelledby="inspect-heading">
-      <span className="eyebrow">Inspecting topic</span>
-      <div className="inspector__head">
-        <h3 id="inspect-heading" className="h2">{branch.name}</h3>
-        <Chip level={pruned[branch.id] ? 'cut' : branch.level} size="md" />
-      </div>
-      <p className="inspector__why">{branch.why || 'A topic discovered from your completed sessions.'}</p>
-      <p className="fine">{branch.videoCount ?? 0} videos · {branch.children?.length ?? 0} child topics</p>
-      <button type="button" className="btn btn--outline" disabled={inherited}
-        onClick={() => setPruned(branch.id, !pruned[branch.id])}>
-        {inherited ? 'Restore the parent branch first' : pruned[branch.id] ? 'Restore branch' : 'Prune branch and children'}
-      </button>
-      <span className="inspector__sub">Child topics</span>
-      {(branch.children ?? []).map(child => (
-        <div key={child.id} className="twig">
-          <button type="button" className="btn btn--outline-soft" onClick={() => setSelected(child.id)}>{child.name}</button>
-          <Chip level={pruned[child.id] ? 'cut' : child.level} />
+    <section
+      className="inspector inspector--topic-editor botanical-topic-editor"
+      aria-label="Explore and manage topics"
+    >
+      <div className="botanical-topic-editor__header">
+        <div>
+          <span className="botanical-eyebrow">
+            CULTIVATE YOUR INTERESTS
+          </span>
+
+          <h2>Explore &amp; manage topics</h2>
+
+          <p>
+            {inspectedId
+              ? 'Explore this topic, its subtopics, and watched videos.'
+              : "Explore what's growing in your feed, inspect videos, and prune topics you want to see less often."}
+          </p>
         </div>
-      ))}
-      <span className="fine">Pruning removes this branch and its descendants from your garden. Restore it from compost. Saved preferences do not yet change platform recommendations.</span>
+
+        {inspectedId ? (
+          <button
+            type="button"
+            className="botanical-topic-editor__close"
+            onClick={() => setInspectedId(null)}
+          >
+            Show all topics ×
+          </button>
+        ) : (
+          <span
+            className="botanical-topic-editor__flourish"
+            aria-hidden="true"
+          >
+            ❧
+          </span>
+        )}
+      </div>
+
+      <WebsiteTopicEditor inspectedId={inspectedId} />
     </section>
   )
 }
