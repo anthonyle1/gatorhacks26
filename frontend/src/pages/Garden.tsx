@@ -1,12 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
-import CompostPile from '../components/garden/CompostPile'
+import GardenTools from '../components/garden/GardenTools'
+import TodaySummary from '../components/daily/TodaySummary'
 import Inspector from '../components/garden/Inspector'
-import PruningStation from '../components/garden/PruningStation'
 import TreeCard from '../components/garden/TreeCard'
 import { usePrune } from '../state/prune-context'
 import '../styles/garden-layout-fix.css'
-import { Leaf } from 'lucide-react'
 
 function BotanicalSprig() {
   return (
@@ -103,87 +100,6 @@ function HeroTree() {
 export default function Garden() {
   const { prunedCount, branches, videoCount } = usePrune()
   const total = branches.length
-
-  const treeRef = useRef<HTMLDivElement>(null)
-  const stationRef = useRef<HTMLDivElement>(null)
-
-  // Extra cards appear beneath whichever upper card is shorter.
-  const [extrasOnLeft, setExtrasOnLeft] = useState(false)
-
-  useEffect(() => {
-    const tree = treeRef.current
-    const station = stationRef.current
-
-    if (!tree || !station) return
-
-    const updatePlacement = () => {
-      if (window.innerWidth <= 900) {
-        setExtrasOnLeft(false)
-        return
-      }
-
-      const treeHeight = tree.getBoundingClientRect().height
-      const stationHeight = station.getBoundingClientRect().height
-
-      setExtrasOnLeft(treeHeight < stationHeight)
-    }
-
-    const observer = new ResizeObserver(updatePlacement)
-    observer.observe(tree)
-    observer.observe(station)
-
-    window.addEventListener('resize', updatePlacement)
-    updatePlacement()
-
-    return () => {
-      observer.disconnect()
-      window.removeEventListener('resize', updatePlacement)
-    }
-  }, [])
-
-  const additionalCards = (
-    <>
-      <CompostPile />
-
-      <section
-        className="card card--lg change"
-        aria-labelledby="change-heading"
-      >
-        <h2 id="change-heading" className="h3">
-          Your garden now
-        </h2>
-
-        <p className="change__intro">
-          See how your garden changes as you prune
-          and restore topics.
-        </p>
-
-        <div className="change__grid">
-          <div className="change__cell">
-            <span className="change__label">
-              Growing topics
-            </span>
-            <span className="change__value">
-              {total - prunedCount}
-            </span>
-          </div>
-
-          <div className="change__cell change__cell--after">
-            <span className="change__label">
-              Removed topics
-            </span>
-            <span className="change__value">
-              {prunedCount}
-            </span>
-          </div>
-        </div>
-
-        <Link to="/calendar" className="link-strong">
-          Explore your growth journey →
-        </Link>
-      </section>
-    </>
-  )
 
   return (
     <div className="stack botanical-garden">
@@ -342,21 +258,17 @@ export default function Garden() {
           </div>
         </div>
 
+        <TodaySummary />
         <div className="garden-balanced-layout">
           <div className="garden-balanced-column">
-            <div ref={treeRef} className="garden-measured-card">
+            <div className="garden-measured-card">
               <TreeCard />
             </div>
 
-            {extrasOnLeft && additionalCards}
           </div>
 
           <div className="garden-balanced-column">
-            <div ref={stationRef} className="garden-measured-card">
-              <PruningStation />
-            </div>
-
-            {!extrasOnLeft && additionalCards}
+            <GardenTools />
           </div>
         </div>
 

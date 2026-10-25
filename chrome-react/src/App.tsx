@@ -3,6 +3,7 @@ import { Sprout, Video as VideoIcon, GitBranch, Clock3 } from 'lucide-react';
 import { TopicEditor } from './review/TopicEditor';
 import { flatten } from './review/hierarchy';
 import { VideoResult } from './review/VideoResult';
+import DailyPopupSummary from './review/DailyPopupSummary';
 import type { Change, Review } from './review/types';
 import "./App.css";
 
@@ -96,6 +97,7 @@ function App() {
       <div><GitBranch size={17} aria-hidden="true" /><span>Saved topics</span><strong>{options.length}</strong></div>
       <div><Clock3 size={17} aria-hidden="true" /><span>Time scrolling</span><strong>{Math.floor(activity.durationSeconds / 60)}:{Math.floor(activity.durationSeconds % 60).toString().padStart(2, '0')}</strong></div>
     </div>
+    <DailyPopupSummary />
     <details className="stat-card session-controls"><summary>Session controls <span>{paused ? 'Paused' : 'Recording'}</span></summary><div>
     <section className="stat-card"><span>{paused ? unfinished ? "Session paused; finish pending" : "Session ended" : "Recording activity"}</span><h2>{Math.floor(activity.durationSeconds / 60)}:{Math.floor(activity.durationSeconds % 60).toString().padStart(2, "0")}</h2><p>{activity.videoCount} videos encountered</p>
       <button disabled={!available || busy || (paused && !unfinished)} onClick={() => void finish()}>{busy ? "Working..." : "Finish and review session"}</button>

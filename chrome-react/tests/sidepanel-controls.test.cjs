@@ -4,13 +4,13 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-async function panel({ topics = [] } = {}) {
+async function panel({ topics = [], calendarDays = [] } = {}) {
   let savedTopics = structuredClone(topics), restoreFailure = false, deleteFailure = false;
   const restores = [], deletions = [], confirmations = [], classChanges = [];
   const nodes = new Map();
   function element() {
     return { textContent: '', hidden: false, style: {}, dataset: {}, listeners: {}, children: [],
-      classList: { add(name) { classChanges.push(name); }, remove() {} }, appendChild(child) { this.children.push(child); }, replaceChildren(...children) { this.children = children; }, setAttribute(name, value) { (this.attributes ||= {})[name] = value; }, closest: () => element(),
+      classList: { add(name) { classChanges.push(name); }, remove() {} }, append(...children) { this.children.push(...children); }, appendChild(child) { this.children.push(child); }, replaceChildren(...children) { this.children = children; }, setAttribute(name, value) { (this.attributes ||= {})[name] = value; }, closest: () => element(),
       addEventListener(name, callback) { this.listeners[name] = callback; } };
   }
   const node = selector => {
@@ -43,7 +43,7 @@ async function panel({ topics = [] } = {}) {
         savedTopics = savedTopics.filter(topic => topic.id !== body.category_id);
         return { ok: true, json: async () => ({ blacklist_version: `version-${restores.length}` }) };
       }
-      return { ok: true, json: async () => ({ topics: savedTopics, blacklist_version: 'a'.repeat(64), days: [], videos: [] }) };
+      return { ok: true, json: async () => ({ topics: savedTopics, blacklist_version: 'a'.repeat(64), days: calendarDays, videos: [] }) };
     },
     window: { matchMedia: () => ({ matches: true }), addEventListener(name, listener) { windowEvents[name] = listener; }, confirm(message) { confirmations.push(message); return confirmed; }, TopicGarden: class {
       start() {}
@@ -262,4 +262,28 @@ test('showing or refocusing the extension refreshes topics immediately', async (
   ui.context.document.visibilityState = 'visible';
   ui.documentEvents.visibilitychange();
   assert.equal(ui.refreshCount(),4);
+});
+
+test('calendar selection uses a pressed border on one recorded date at a time and weeks start Monday', async () => {
+  const now = new Date();
+  const year = now.getFullYear(), month = now.getMonth();
+  const key = day => `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  const recorded = day => ({ date: key(day), videos_watched: 2, warning_count: 1 });
+  const days = now.getDate() > 1 ? [1, 2] : [1];
+  const ui = await panel({ calendarDays: days.map(recorded) });
+  const cells = ui.node('#cal-grid').children;
+  const offset = (new Date(year, month, 1).getDay() + 6) % 7;
+  const first = cells[offset];
+  assert.equal(first.children[0].textContent, '1');
+  assert.equal(first.children[1].textContent, '2 videos');
+  assert.equal(first.attributes['aria-pressed'], 'false');
+  first.listeners.click({ preventDefault() {} });
+  assert.equal(first.attributes['aria-pressed'], 'true');
+  if (days.length > 1) {
+    const second = cells[offset + 1];
+    second.listeners.click({ preventDefault() {} });
+    assert.equal(first.attributes['aria-pressed'], 'false');
+    assert.equal(second.attributes['aria-pressed'], 'true');
+  }
+  await new Promise(resolve => setImmediate(resolve));
 });

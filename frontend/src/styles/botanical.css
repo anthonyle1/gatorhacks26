@@ -3287,51 +3287,17 @@ h1, h2, h3, h4, h5, h6 {
 
 }
 
-.website-tree-zoom {
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 8px;
-
-}
-
-.website-tree-zoom button {
-
-  min-width: 36px;
-
-  min-height: 36px;
-
-  padding: 6px 12px;
-
-  border: 1px solid var(--botanical-border);
-
-  border-radius: 10px;
-
-  background: var(--botanical-cream);
-
-  color: var(--botanical-accent);
-
-  font: inherit;
-
-  cursor: pointer;
-
-}
-
-.website-tree-zoom button:hover {
-
-  background: var(--botanical-accent-soft);
-
-}
-
-.website-tree-zoom span {
-
-  min-width: 48px;
-
-  text-align: center;
-
-}
+.website-tree-scene { position: relative; min-width: 0; }
+.website-tree-zoom { position: absolute; top: 8px; left: 8px; z-index: 2; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; padding: 4px; border: 1px solid #d5dfcc; border-radius: 9px; background: #f0f4e9ed; box-shadow: 0 2px 8px #243d2512; }
+.website-tree-zoom button { display: inline-flex; align-items: center; justify-content: center; min-height: 26px; padding: 4px 7px; border: 1px solid #cbd7c5; border-radius: 6px; background: #f5f8ee; color: #35573c; font: 600 10px/16px Inter, system-ui, sans-serif; cursor: pointer; }
+.website-tree-zoom button[aria-label] { width: 26px; padding: 5px; }
+.website-tree-zoom button:hover:not(:disabled) { background: #dce8d2; }
+.website-tree-zoom button:disabled { opacity: .45; cursor: default; }
+.website-tree-zoom button:focus-visible { outline: 2px solid #63884f; outline-offset: 2px; }
+.website-tree-legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 0 6px; color: #40533c; font: 11px Inter, system-ui, sans-serif; }
+.website-tree-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.website-tree-legend i { width: 12px; height: 12px; border-radius: 50%; border: 1px solid #87917f; }
+.website-tree-color-note { color: #5b6b62; font-size: 11px; margin-bottom: 10px; }
 
 .website-tree-layout {
 

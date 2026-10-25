@@ -29,6 +29,8 @@ export interface TopicVideo {
       }
     }
     assessment?: {
+      content_signals?: { id: string; evidence?: string }[]
+      signal_polarities?: Record<string, string>
       negative_for_user?: string
       reason?: string
       context_summary?: string

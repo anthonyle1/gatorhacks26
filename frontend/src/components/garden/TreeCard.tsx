@@ -1,8 +1,10 @@
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
+import { ZoomIn, ZoomOut } from 'lucide-react'
+import { useTreeCamera } from '../../tree/useTreeCamera'
 import { TopicTree } from '../../tree/TopicTree'
 // import WebsiteTopicEditor from '../../tree/WebsiteTopicEditor'
-import type { Topic, TreeData } from '../../tree/types'
+import { gardenTreeData } from '../../tree/gardenTreeData'
 import { usePrune } from '../../state/prune-context'
 
 // const LEGEND = [
@@ -25,65 +27,18 @@ export default function TreeCard() {
     busy,
     error,
     videoCount,
+    setSelected,
+    selectedId,
   } = usePrune()
 
-  const [zoom, setZoom] = useState(1)
+  const viewportRef = useRef<HTMLDivElement>(null)
 
   const [treeSize, setTreeSize] = useState({
     width: 0,
     height: 0,
   })
 
-  // Index the full taxonomy so the SVG tree
-  // can retain video IDs from the backend.
-  const treeData = useMemo<TreeData>(() => {
-    const taxonomyTopics = new Map<
-      string,
-      { video_ids?: string[] }
-    >()
-
-    function indexTopics(
-      nodes: NonNullable<typeof taxonomy>['tree']
-    ) {
-      for (const topic of nodes) {
-        taxonomyTopics.set(topic.id, topic)
-        indexTopics(topic.children ?? [])
-      }
-    }
-
-    indexTopics(taxonomy?.tree ?? [])
-
-    function convert(
-      nodes: typeof tree,
-      inherited = false
-    ): Topic[] {
-      return nodes.map(branch => {
-        const selected = !!cuts[branch.id]
-        const reduce = inherited || selected
-
-        return {
-          id: branch.id,
-          name: branch.name,
-          description: branch.why || '',
-          video_count: branch.videoCount ?? 0,
-          video_ids:
-            taxonomyTopics.get(branch.id)?.video_ids ?? [],
-          selected,
-          inherited,
-          reduce,
-          children: convert(
-            branch.children ?? [],
-            reduce
-          ),
-        }
-      })
-    }
-
-    return {
-      tree: convert(tree),
-      global_video_count: videoCount,
-    }
-  }, [tree, taxonomy, cuts, videoCount])
+  const treeData = useMemo(() => gardenTreeData(tree, taxonomy, cuts, videoCount), [tree, taxonomy, cuts, videoCount])
 
   // Preserve falling-branch animations.
   const fallingIds = useMemo(
@@ -108,33 +63,7 @@ export default function TreeCard() {
     []
   )
 
-  // Fit the SVG tree inside its viewport.
-  const fitTree = useCallback(() => {
-    const viewport = document.getElementById('tree')
-
-    if (
-      !viewport ||
-      !treeSize.width ||
-      !treeSize.height
-    ) {
-      setZoom(1)
-      return
-    }
-
-    const widthRatio =
-      viewport.clientWidth / treeSize.width
-
-    const heightRatio =
-      viewport.clientHeight / treeSize.height
-
-    setZoom(
-      Math.max(
-        0.15,
-        Math.min(1, widthRatio, heightRatio)
-      )
-    )
-  }, [treeSize])
-
+  const camera = useTreeCamera(viewportRef, treeSize)
   const growingTopics = useMemo(
     () =>
       branches.filter(
@@ -181,71 +110,34 @@ export default function TreeCard() {
         </p>
       )}
 
-      {/* Tree toolbar */}
-      <div className="website-tree-toolbar">
-        <span>
-          {growingTopics} growing topics
-        </span>
-
-        <div className="website-tree-zoom">
-          <button
-            type="button"
-            onClick={() =>
-              setZoom(current =>
-                Math.max(0.15, current / 1.2)
-              )
-            }
-            aria-label="Zoom out"
-          >
-            −
-          </button>
-
-          <span>
-            {Math.round(zoom * 100)}%
-          </span>
-
-          <button
-            type="button"
-            onClick={() =>
-              setZoom(current =>
-                Math.min(3, current * 1.2)
-              )
-            }
-            aria-label="Zoom in"
-          >
-            +
-          </button>
-
-          <button
-            type="button"
-            onClick={fitTree}
-          >
-            Fit
-          </button>
-        </div>
-      </div>
-
       {/* Main layout: SVG tree + Chrome-style editor */}
       <div className="website-tree-layout">
-  <div
-    id="tree"
-    className="website-tree-viewport"
-  >
-    <TopicTree
-      data={treeData}
-      falling={fallingIds}
-      busy={busy}
-      zoom={zoom}
-      loading={loading}
-      onPrune={setPruned}
-      onSize={handleSize}
-    />
-  </div>
-
-  {/* <div className="website-tree-details">
-    <WebsiteTopicEditor />
-  </div> */}
+        <div className="website-tree-scene">
+          <div className="website-tree-zoom" role="group" aria-label="Tree zoom controls">
+            <button type="button" onClick={camera.zoomOut} disabled={camera.zoom <= camera.limits.min + 1e-8 || !growingTopics}
+              aria-label="Zoom out" title="Zoom out"><ZoomOut size={14} aria-hidden="true" /></button>
+            <button type="button" onClick={camera.zoomIn} disabled={camera.zoom >= camera.limits.max - 1e-8 || !growingTopics}
+              aria-label="Zoom in" title="Zoom in"><ZoomIn size={14} aria-hidden="true" /></button>
+            <button type="button" onClick={camera.fit} disabled={!growingTopics}>Fit tree</button>
+          </div>
+          <div id="tree" ref={viewportRef} className="website-tree-viewport" tabIndex={0}
+            aria-label="Topic tree. Drag to pan. Use the mouse wheel or zoom buttons to zoom.">
+            <TopicTree data={treeData} falling={fallingIds} busy={busy} zoom={camera.zoom} loading={loading}
+              onPrune={setPruned} onSize={handleSize} onPan={camera.panTo} onFocusTopic={camera.focusTopic}
+              selectedId={selectedId} onInspectTopic={id => {
+                setSelected(id)
+                window.dispatchEvent(new CustomEvent('prune:inspect-topic', { detail: id }))
+              }} />
+          </div>
+        </div>
       </div>
+            <div className="website-tree-legend" aria-label="Leaf color scale">
+        <span><i style={{ background: '#a8c394' }} />Lower</span>
+        <span><i style={{ background: '#d8bf86' }} />Some</span>
+        <span><i style={{ background: '#cb9582' }} />Higher</span>
+        <span><i style={{ background: '#d8ded3' }} />Unrated</span>
+      </div>
+
 
       {/* Empty tree state */}
       {!loading && branches.length === 0 && (
