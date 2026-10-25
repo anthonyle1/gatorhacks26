@@ -255,7 +255,6 @@
   // Wire up
   // ---------------------------------------------------------------------------
   function setLinks() {
-    $('#settings-link').href = `${WEBSITE_URL}/settings`;
     $('#full-tree-link').href = WEBSITE_URL;
     $('#measure-link').href = `${WEBSITE_URL}/how-we-measure`;
   }
@@ -276,6 +275,43 @@
     setLinks();
     renderCalendar();
     topicGarden = new window.TopicGarden(API_BASE);
+    const showView = settings => {
+      $('#garden-view').hidden = settings;
+      $('#settings-view').hidden = !settings;
+      $('#settings-link').setAttribute('aria-expanded', String(settings));
+      if (!settings) void topicGarden.refresh();
+    };
+    $('#settings-link').addEventListener('click', () => { showView(true); $('#settings-back').focus(); });
+    $('#settings-back').addEventListener('click', () => { showView(false); $('#settings-link').focus(); });
+    let minimum = 0, lastMinimum = 2;
+    const renderMinimum = value => {
+      minimum = globalThis.PruneCollection?.seconds(value) || 0;
+      $('#skip-short-videos').checked = minimum > 0;
+      $('#minimum-watch-seconds').value = String(minimum);
+      $('#minimum-watch-value').textContent = `${minimum} ${minimum === 1 ? 'second' : 'seconds'}`;
+      $('#minimum-watch-seconds').setAttribute('aria-valuetext', minimum ? `${minimum} seconds minimum` : 'Collect all videos');
+      $('#collection-setting-description').textContent = minimum ? `Videos played for less than ${minimum} ${minimum === 1 ? 'second' : 'seconds'} will be skipped.` : 'All played videos are collected.';
+    };
+    const saveMinimum = async value => {
+      renderMinimum(value);
+      if (minimum > 0) lastMinimum = minimum;
+      try {
+        await chrome.storage.local.set({ minimumWatchSeconds: minimum, lastMinimumWatchSeconds: lastMinimum });
+        $('#collection-settings-error').hidden = true;
+        $('#collection-settings-saved').textContent = 'Saved for your next session';
+      } catch {
+        $('#collection-settings-error').textContent = 'Could not save your settings. Please try again.';
+        $('#collection-settings-error').hidden = false;
+      }
+    };
+    $('#skip-short-videos').addEventListener('change', event => { void saveMinimum(event.target.checked ? lastMinimum || 2 : 0); });
+    $('#minimum-watch-seconds').addEventListener('input', event => renderMinimum(event.target.value));
+    $('#minimum-watch-seconds').addEventListener('change', event => { void saveMinimum(event.target.value); });
+    const refreshVisibleTree = () => { if (document.visibilityState !== 'hidden') void topicGarden.refresh(); };
+    document.addEventListener('visibilitychange', refreshVisibleTree);
+    window.addEventListener('focus', refreshVisibleTree);
+    window.addEventListener('pageshow', refreshVisibleTree);
+    chrome.runtime?.onMessage?.addListener(message => { if (message?.type === 'REFRESH_TOPIC_TREE') refreshVisibleTree(); });
     $('#session-toggle').addEventListener('click', toggleSession);
     $('#audio-enabled').addEventListener('change', async event => {
       await chrome.storage.local.set({ audioCaptureEnabled: event.target.checked });
@@ -325,12 +361,18 @@
     });
 
     if (hasStorage) {
-      const stored = await chrome.storage.local.get(['scrollingSession', 'pruneTopicTree', 'lastSessionReview', 'audioCaptureEnabled', 'audioCaptureStatus', 'audioBackendStatus', ...SESSION_KEYS]);
+      const stored = await chrome.storage.local.get(['scrollingSession', 'pruneTopicTree', 'lastSessionReview', 'audioCaptureEnabled', 'audioCaptureStatus', 'audioBackendStatus', 'minimumWatchSeconds', 'lastMinimumWatchSeconds', ...SESSION_KEYS]);
+      lastMinimum = globalThis.PruneCollection?.seconds(stored.lastMinimumWatchSeconds) || 2;
+      renderMinimum(stored.minimumWatchSeconds);
+      $('#skip-short-videos').disabled = false;
+      $('#minimum-watch-seconds').disabled = false;
       $('#audio-enabled').checked = stored.audioCaptureEnabled !== false;
       renderAudio(stored.audioCaptureStatus, stored.audioBackendStatus);
       void topicGarden.start(stored.pruneTopicTree || stored.lastSessionReview);
       chrome.storage.onChanged.addListener((changes, area) => {
         if (area !== 'local') return;
+        if (changes.minimumWatchSeconds) renderMinimum(changes.minimumWatchSeconds.newValue);
+        if (changes.lastMinimumWatchSeconds) lastMinimum = globalThis.PruneCollection?.seconds(changes.lastMinimumWatchSeconds.newValue) || 2;
         if (changes.audioCaptureEnabled) { $('#audio-enabled').checked = changes.audioCaptureEnabled.newValue !== false; renderAudio(); }
         if (changes.audioCaptureStatus) renderAudio(changes.audioCaptureStatus.newValue);
         if (changes.audioBackendStatus) renderAudio(audioValue, changes.audioBackendStatus.newValue);
@@ -346,7 +388,7 @@
     }
 
     if (!hasStorage) void topicGarden.start();
-    setInterval(() => { void topicGarden.refresh(); }, 3000);
+    setInterval(refreshVisibleTree, 3000);
     renderSession();
     renderToday();
     updateToday();

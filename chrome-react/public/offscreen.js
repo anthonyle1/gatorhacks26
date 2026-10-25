@@ -86,6 +86,12 @@ async function deliver() {
         continue;
       }
       try {
+        if (row.collection_gate) {
+          const policy = await chrome.runtime.sendMessage({ target: 'background', type: 'AUDIO_COLLECTION_POLICY', occurrence: row.occurrence });
+          if (!policy?.success || policy.data?.decision === 'pending') continue;
+          if (policy.data?.decision === 'skipped') { await records('delete', row.id); continue; }
+          if (policy.data?.decision !== 'approved') continue;
+        }
         // Ownership registration always precedes a binary upload, including offline recovery.
         await request(`/local-sessions/${row.occurrence.review_session_id}/occurrences`, {
           method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(row.occurrence),
@@ -176,7 +182,8 @@ function closeSegment(reason) {
     // Persist the expected ID before attempting delivery, so Finish can mark lost segments missing.
     const expected = await chrome.runtime.sendMessage({ type: "AUDIO_EXPECTED", occurrence, segment_id: id });
     if (!expected?.success) throw new Error("Could not persist expected audio evidence");
-    await records("put", { id, occurrence, metadata, blob, created: Date.now(), attempts: 0 });
+    if (expected.data?.discard) return;
+    await records("put", { id, occurrence, metadata, blob, collection_gate: Boolean(segment.tick.minimum_watch_seconds), created: Date.now(), attempts: 0 });
     capturedSeconds += duration;
     await status({ captured_seconds: capturedSeconds, pending: (await records("getAll")).length });
     void deliver().catch(() => {});

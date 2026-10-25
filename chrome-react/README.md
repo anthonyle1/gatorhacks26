@@ -1,5 +1,16 @@
 # Session review Chrome extension
 
+The gear button opens **Settings** inside the extension side panel. **Skip quick scrolls**
+is off by default (collect all played videos). Enabling it initially selects 2 seconds;
+the slider accepts 0–10 seconds. Zero disables filtering; any nonzero value enables it.
+Changes apply to new sessions. A visit must meet the cutoff before it counts or sends
+evidence to the backend. Paused time is excluded. Audio is buffered locally until a visit
+qualifies, then uploaded with its opening audio intact. Skipped visits and their occurrence
+manifests are excluded from model input; their buffered audio is discarded. Replays/seeks
+share the visit decision. Finish retries retain the same immutable filtered snapshot.
+
+Reopening or refocusing the extension immediately refreshes the saved topic tree.
+
 This is the extension UI for tracking YouTube Shorts/Instagram Reels and reviewing topic trees after a scrolling session. The plain `chrome/` folder retains the tracker scripts; use this React build for category controls.
 
 Start the backend on port 8000, following [analysis setup](../backend/analysis/README.md). UF NaviGator is the default LLM provider; configure its key in the repository-root `.env`. **MongoDB and a demo user are not required.** Set `YOUTUBE_API_KEY` to fetch YouTube titles and comments; without it, reviews use captured page metadata and explicitly report unavailable comment analysis.
