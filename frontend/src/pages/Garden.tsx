@@ -3,19 +3,11 @@ import CompostPile from '../components/garden/CompostPile'
 import Inspector from '../components/garden/Inspector'
 import PruningStation from '../components/garden/PruningStation'
 import TreeCard from '../components/garden/TreeCard'
-import { PRUNABLE_BRANCHES, SAMPLE_SHORTS_LAST_30_DAYS } from '../data/sample'
 import { usePrune } from '../state/prune-context'
 
-function treeHealth(pruned: number, total: number) {
-  if (pruned === 0) return { label: 'Wilting', className: 'stat__value--wilting' }
-  if (pruned < total) return { label: 'Recovering', className: 'stat__value--recovering' }
-  return { label: 'Thriving', className: 'stat__value--thriving' }
-}
-
 export default function Garden() {
-  const { prunedCount } = usePrune()
-  const total = PRUNABLE_BRANCHES.length
-  const health = treeHealth(prunedCount, total)
+  const { prunedCount, branches, videoCount } = usePrune()
+  const total = branches.length
 
   return (
     <div className="stack">
@@ -23,25 +15,23 @@ export default function Garden() {
         <div className="page-head__text">
           <h1 className="h1">Your feed garden</h1>
           <p className="lede">
-            Every category you watched in the last 30 days. Cut the withered branches to clean up what your feed
-            shows you.
+            Topics discovered across your completed scrolling sessions. Prune a branch to remove it and its children from your garden.
           </p>
         </div>
         <div className="stats">
           <div className="stat">
-            <span className="stat__label">Tree health</span>
-            <span className={`stat__value ${health.className}`}>{health.label}</span>
+            <span className="stat__label">Growing topics</span>
+            <span className="stat__value">{total - prunedCount}</span>
           </div>
           <div className="stat">
             <span className="stat__label">Branches pruned</span>
             <span className="stat__value">
-              {prunedCount} of {total} withered
+              {prunedCount} of {total} topics
             </span>
           </div>
           <div className="stat">
-            <span className="stat__label">Shorts, last 30 days</span>
-            {/* Sample number: replace with the real count from the API. */}
-            <span className="stat__value">{SAMPLE_SHORTS_LAST_30_DAYS}</span>
+            <span className="stat__label">Videos in your topic tree</span>
+            <span className="stat__value">{videoCount}</span>
           </div>
         </div>
       </div>
@@ -57,17 +47,16 @@ export default function Garden() {
       <div className="row">
         <CompostPile />
         <section className="card card--lg change" aria-labelledby="change-heading">
-          <h2 id="change-heading" className="h3">How your garden changed</h2>
-          <p className="compost__intro">After each prune, we track whether your feed gets calmer.</p>
+          <h2 id="change-heading" className="h3">Your garden now</h2>
+          <p className="compost__intro">A cut removes every topic below it. Restore a branch from the compost pile.</p>
           <div className="change__grid">
             <div className="change__cell">
-              <span className="change__label">Before pruning</span>
-              {/* Placeholder: fill from real before/after hostility levels. */}
-              <span className="change__value">[level]</span>
+              <span className="change__label">Growing topics</span>
+              <span className="change__value">{total - prunedCount}</span>
             </div>
             <div className="change__cell change__cell--after">
-              <span className="change__label">Since pruning</span>
-              <span className="change__value">[level]</span>
+              <span className="change__label">Removed topics</span>
+              <span className="change__value">{prunedCount}</span>
             </div>
           </div>
           <Link to="/calendar" className="link-strong">Open your calendar</Link>

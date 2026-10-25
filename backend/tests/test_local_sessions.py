@@ -12,7 +12,7 @@ from analysis.session_classification import validate_discovery
 from analysis.video_assessment import AssessmentResult
 from analysis.ollama_client import OllamaError
 from app.routes.local_sessions import router
-from app.services.local_sessions import LocalSessions, process_local_session, aggregate
+from app.services.local_sessions import LocalSessions, LOCAL_USER, process_local_session, aggregate
 
 
 def event(source="clip1", platform="instagram", event_id="event1"):
@@ -50,6 +50,47 @@ class LocalReviewTests(unittest.TestCase):
             body["events"][0]["title"] = "Changed snapshot"
             self.assertEqual(self.client.post(f"/local-sessions/{self.session_id}/finish", json=body).status_code, 409)
             self.assertEqual(self.client.get("/local-sessions/health").json()["mongodb_required"], False)
+
+    def test_global_tree_and_pruning_include_descendants_and_restore(self):
+        def topic(key, parent=None, videos=None):
+            return {"key": key.lower(), "name": key, "description": f"Topics about {key}",
+                    "parent_key": parent.lower() if parent else None, "existing_category_id": None, "video_ids": videos or []}
+
+        result = validate_discovery({"topics": [topic("Technology"), topic("Programming", "Technology"),
+            topic("React", "Programming", ["youtube:a"]), topic("Cooking", videos=["youtube:b"])],
+            "unclassified_video_ids": []}, {"youtube:a", "youtube:b"}, set())
+        assignments = self.jobs.store.apply_discovery(LOCAL_USER, result)
+        self.jobs.store.save_session(self.session_id, LOCAL_USER, {"assignments": assignments,
+            "videos": [{"video_id": video_id} for video_id in assignments]})
+        with patch("app.routes.local_sessions.LocalSessions", return_value=self.jobs):
+            response = self.client.get("/local-sessions/taxonomy")
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json()["global_video_count"], 2)
+            roots = response.json()["tree"]
+            tech = next(node for node in roots if node["name"] == "Technology")
+            cooking = next(node for node in roots if node["name"] == "Cooking")
+            body = {"category_id": tech["id"], "reduce": True}
+            response = self.client.patch("/local-sessions/taxonomy/preferences", json=body)
+            self.assertEqual(response.status_code, 200)
+            saved = self.client.get("/local-sessions/taxonomy").json()
+            tech = next(node for node in saved["tree"] if node["id"] == tech["id"])
+            self.assertTrue(tech["selected"])
+            self.assertTrue(tech["children"][0]["reduce"])
+            self.assertTrue(tech["children"][0]["children"][0]["reduce"])
+            self.assertFalse(next(node for node in saved["tree"] if node["id"] == cooking["id"])["reduce"])
+            body["reduce"] = False
+            restored = self.client.patch("/local-sessions/taxonomy/preferences", json=body).json()
+            self.assertEqual(restored["reduce_video_ids"], [])
+            self.assertEqual(restored["global_video_count"], 2)
+            self.assertEqual(self.client.patch("/local-sessions/taxonomy/preferences",
+                json={"category_id": "missing", "reduce": True}).status_code, 404)
+
+    def test_empty_global_tree_needs_no_session(self):
+        with patch("app.routes.local_sessions.LocalSessions", return_value=self.jobs):
+            response = self.client.get("/local-sessions/taxonomy")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["tree"], [])
+        self.assertEqual(response.json()["global_video_count"], 0)
 
     def test_duplicate_events_are_rejected_before_processing(self):
         with patch("app.routes.local_sessions.LocalSessions", return_value=self.jobs):

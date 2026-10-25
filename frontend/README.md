@@ -4,10 +4,13 @@ React + TypeScript (Vite) build of the Prune website from the design handoff.
 
 ```bash
 npm install
-npm run dev       # http://localhost:5173
+npm run dev       # Vite + backend on http://localhost:8000
 npm run build     # typecheck + production build to dist/
 npm run preview
 ```
+
+Complete the [backend setup](../backend/analysis/README.md#setup) first.
+Use `npm run dev:ui` to run only Vite (normally http://localhost:5173).
 
 ## Pages
 
@@ -26,18 +29,21 @@ The Chrome side panel screens (`Main`, `FirstRun`, `DayOne`, `InContext`) are no
 src/
   styles/tokens.css       colors, fonts, radii from the design README
   styles/app.css          all component styles
-  data/sample.ts          SAMPLE data (branches, days). Replace with API data
-  state/                  prune/snip/compost state shared by Garden and Calendar
+  data/topics.ts          topic API, hierarchy and branch sizes
+  data/sample.ts          sample calendar data
+  state/                  saved topic cuts, falling animation and compost state
   components/             Layout, Chip, Tree (SVG), icons, garden/*
   pages/                  Garden, Calendar, HowWeMeasure, Settings
 ```
 
-## Still to wire up
+## Topic tree
 
-- `data/sample.ts` is mockup data. Branch levels should come from `GET /hostility/{video_id}`
-  (`calm`, `some`, `heavy`, `not_rated`). Branch size: sprout under 3% of the last 30 days of
-  Shorts, growing 3 to 10%, full over 10%.
-- `state/PruneProvider.tsx` keeps pruning in memory only. Pruning a branch should hide that
-  category's Shorts, snipping hides one channel, and burning the compost pile clears history
-  only (pruned branches stay pruned).
-- Placeholders from the design are left as `[level]` and the privacy line on How we measure.
+- The Garden reads the global topic hierarchy from `GET /local-sessions/taxonomy` and
+  refreshes every ten seconds. Pruning saves a preference with `PATCH /local-sessions/taxonomy/preferences`.
+  The branch and descendants fall together, then leave the drawing. Restore reverses the cut;
+  independently pruned children stay removed. Reduced-motion preferences use a short fade.
+- Topic sizes use their share of globally classified videos: sprout under 3%, growing 3–10%,
+  full over 10%. Topic discovery does not supply hostility ratings, so leaves show **Not rated**.
+- Cuts persist in the backend and are shared with extension preferences. They remove topics
+  from the garden but do not yet change platform recommendations. Burning clears the current
+  compost display; cuts remain saved. The Calendar still uses sample days.

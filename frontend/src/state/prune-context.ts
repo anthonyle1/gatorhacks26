@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react'
+import type { Branch } from '../types'
 
 export type PilePhase = 'idle' | 'burning' | 'ash'
 
@@ -11,18 +12,22 @@ export interface CompostItem {
 }
 
 export interface PruneState {
+  tree: Branch[]
+  branches: Branch[]
+  falling: Record<string, boolean>
+  cuts: Record<string, boolean>
+  loading: boolean
+  error: string | null
+  videoCount: number
   /** Branch ids that have been pruned. Burning the pile does NOT unprune them. */
   pruned: Record<string, boolean>
-  /** Twig (channel) ids that have been snipped. */
-  snipped: Record<string, boolean>
   selectedId: string
   phase: PilePhase
   compost: CompostItem[]
-  /** Prunable (non-calm) branches pruned so far. */
+  /** All removed topics, including descendants of a cut branch. */
   prunedCount: number
   setSelected: (id: string) => void
   setPruned: (branchId: string, value: boolean) => void
-  setSnipped: (twigId: string, value: boolean) => void
   pruneAll: () => void
   /** Burn the compost pile: clears pruning history only; pruned branches stay pruned. */
   burnPile: () => void

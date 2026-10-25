@@ -1,10 +1,9 @@
-import { PRUNABLE_BRANCHES } from '../../data/sample'
 import { usePrune } from '../../state/prune-context'
 import Chip from '../Chip'
 import { ScissorsIcon } from '../icons'
 
 export default function PruningStation() {
-  const { pruned, setPruned, setSelected, pruneAll } = usePrune()
+  const { tree, pruned, setPruned, setSelected, pruneAll } = usePrune()
 
   return (
     <section className="station" aria-labelledby="station-heading">
@@ -13,10 +12,10 @@ export default function PruningStation() {
         <h2 id="station-heading" className="h2">Pruning station</h2>
       </div>
       <p className="station__intro">
-        Suggested cuts, worst first. Prune a whole branch, or open it and snip single channels.
+        Prune a topic and all its children, or inspect it to cut a smaller branch.
       </p>
 
-      {PRUNABLE_BRANCHES.map((b) => {
+      {tree.map((b) => {
         const isPruned = !!pruned[b.id]
         return (
           <div key={b.id} className="station__row">
@@ -43,8 +42,8 @@ export default function PruningStation() {
       })}
 
       <div className="station__footer">
-        <span>Prune all {PRUNABLE_BRANCHES.length} and your tree goes from Wilting to Thriving.</span>
-        <button type="button" className="btn btn--gold" onClick={pruneAll}>
+        <span>{tree.length} main topics. Every cut includes the child branches.</span>
+        <button type="button" className="btn btn--gold" disabled={!tree.some(branch => !pruned[branch.id])} onClick={pruneAll}>
           Prune all
         </button>
       </div>

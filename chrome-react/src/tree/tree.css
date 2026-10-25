@@ -1,0 +1,27 @@
+.living-tree { touch-action: none; cursor: grab; user-select: none; }
+.living-tree:active { cursor: grabbing; }
+.living-wood { transition: d .4s ease, fill .15s; animation: woodAppear .35s both; animation-delay: var(--grow-delay); }
+.living-branch-growth { transition: d .4s ease; stroke-dasharray: 1; animation: branchGrow .55s ease-out both; animation-delay: var(--grow-delay); }
+.living-trunk { transform-box: fill-box; transform-origin: bottom; animation: trunkGrow .45s ease-out both; }
+.living-foliage { transition: transform .4s ease; animation: foliageAppear .4s ease-out both; animation-delay: calc(var(--grow-delay) + .25s); }
+.living-children { opacity: 1; transition: opacity .2s, visibility .2s, transform .2s; }
+.living-children--collapsed { opacity: 0; visibility: hidden; pointer-events: none; transform: scale(.96); }
+.living-sway { transform-box: fill-box; transform-origin: bottom center; animation: canopySway 9s ease-in-out infinite; }
+.living-preview, .living-inspector { border: 1px solid #becbb8; background: #f0f4e9; border-radius: 12px; padding: 12px; font-size: 12px; }
+.living-preview { border-color: #9f874c; }
+.living-preview h3, .living-inspector h3 { margin: 0 0 8px; font-size: 15px; }
+.living-preview .btn { display: inline-flex; margin: 4px 5px 0 0; }
+.living-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.living-topic-link { border: 0; padding: 0; background: none; color: #244c32; text-align: left; font: inherit; font-weight: 600; cursor: pointer; }
+.living-videos { padding-left: 18px; max-height: 180px; overflow: auto; overflow-wrap: anywhere; }
+#topic-inspector { display: grid; gap: 10px; }
+#tree { height: 560px; max-height: 68vh; max-width: 100%; min-width: 0; scrollbar-width: thin; }
+@keyframes branchGrow { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes trunkGrow { from { transform: scaleY(.1); } to { transform: scaleY(1); } }
+@keyframes foliageAppear { from { opacity: 0; } to { opacity: 1; } }
+@keyframes woodAppear { from { opacity: 0; } to { opacity: 1; } }
+@keyframes canopySway { 0%, 100% { transform: rotate(-.6deg); } 50% { transform: rotate(.6deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .living-wood, .living-trunk, .living-branch-growth, .living-foliage, .living-sway { animation: none; transition: none; }
+  .living-children { transition: none; }
+}
