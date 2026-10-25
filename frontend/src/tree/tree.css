@@ -1,5 +1,7 @@
 .living-tree { touch-action: none; cursor: grab; user-select: none; }
 .living-tree:active { cursor: grabbing; }
+.topic-tree__label { font-family: Inter, sans-serif; font-weight: 600; fill: #1f3a2e; }
+.topic-tree__count { font-family: Inter, sans-serif; fill: #425d49; }
 .living-wood { transition: d .4s ease, fill .15s; animation: woodAppear .35s both; animation-delay: var(--grow-delay); }
 .living-branch-growth { transition: d .4s ease; stroke-dasharray: 1; animation: branchGrow .55s ease-out both; animation-delay: var(--grow-delay); }
 .living-trunk { transform-box: fill-box; transform-origin: bottom; animation: trunkGrow .45s ease-out both; }

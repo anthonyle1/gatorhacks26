@@ -6,7 +6,6 @@ import PruningStation from '../components/garden/PruningStation'
 import TreeCard from '../components/garden/TreeCard'
 import { usePrune } from '../state/prune-context'
 import '../styles/garden-layout-fix.css'
-import { Leaf } from 'lucide-react'
 
 function BotanicalSprig() {
   return (

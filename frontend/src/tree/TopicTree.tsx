@@ -1,8 +1,9 @@
 import { useMemo, useRef, type CSSProperties, type PointerEvent } from 'react'
 import { usePrune } from '../state/prune-context'
-import { bushPath, growTree, seeded, type Limb } from './layout'
+import { bushPath, growTree, type Limb } from './layout'
 import { flatten, type Topic, type TreeData } from './types'
 import './tree.css'
+import { scaleTopicRisks, topicRisk } from './risk'
 
 interface Props {
   data: TreeData
@@ -12,6 +13,7 @@ interface Props {
   loading: boolean
   onPrune: (id: string, value: boolean) => void
   onSize: (width: number, height: number) => void
+  onPan?: (left: number, top: number) => void
 }
 
 function tapered(limb: Limb): string {
@@ -31,37 +33,14 @@ function tapered(limb: Limb): string {
   return `M${left.join(' L')} L${right.join(' L')} Z`
 }
 
-type HostilityLevel = 'calm' | 'some' | 'heavy'
-
-// Stable demo-only colors until real hostility ratings are available.
-function getHostilityLevel(id: string): HostilityLevel {
-  let hash = 0
-  for (let i = 0; i < id.length; i++) {
-    hash = (hash * 31 + id.charCodeAt(i)) | 0
-  }
-  const value = (hash >>> 0) % 10
-  if (value < 5) return 'calm'
-  if (value < 8) return 'some'
-  return 'heavy'
-}
-
-const LEAF_COLORS: Record<HostilityLevel, { fill: string; stroke: string; accent: string; label: string }> = {
-  calm: { fill: '#4e9a63', stroke: '#367747', accent: '#7dbb8b', label: 'Calm' },
-  some: { fill: '#e3b44f', stroke: '#b58a32', accent: '#e9c46a', label: 'Some hostility' },
-  heavy: { fill: '#8a5a3b', stroke: '#684129', accent: '#a9784f', label: 'Heavy hostility' },
-}
-
-function getLeafColor(id: string): string {
-  return LEAF_COLORS[getHostilityLevel(id)].fill
-}
-
-function getLeafStroke(id: string): string {
-  return LEAF_COLORS[getHostilityLevel(id)].stroke
-}
-
-export function TopicTree({ data, falling, zoom, loading, onSize }: Props) {
+export function TopicTree({ data, falling, zoom, loading, onSize, onPan }: Props) {
   const { setSelected } = usePrune()
   const all = useMemo(() => flatten(data.tree), [data.tree])
+  const risks = useMemo(() => {
+    const videos = new Map((data.tree_videos || []).map(video => [video.video_id, video]))
+    const scaled = scaleTopicRisks(all.map(topic => topicRisk(topic, videos)))
+    return new Map(all.map((topic, index) => [topic.id, scaled[index]]))
+  }, [all, data.tree_videos])
   const signature = [...falling].join(',')
   const layout = useMemo(() => {
     const active = (nodes: Topic[], carried = false): Topic[] => nodes
@@ -90,8 +69,11 @@ export function TopicTree({ data, falling, zoom, loading, onSize }: Props) {
     drag.current.moved = true
     event.currentTarget.setPointerCapture(event.pointerId)
     const viewport = document.getElementById('tree')!
-    viewport.scrollLeft = drag.current.left - dx
-    viewport.scrollTop = drag.current.top - dy
+    if (onPan) onPan(drag.current.left - dx, drag.current.top - dy)
+    else {
+      viewport.scrollLeft = drag.current.left - dx
+      viewport.scrollTop = drag.current.top - dy
+    }
   }
   function branch(limb: Limb, carried = false) {
     const { topic, end, start } = limb
@@ -112,14 +94,11 @@ export function TopicTree({ data, falling, zoom, loading, onSize }: Props) {
         <path
   className="topic-leaf__shape"
   d={outline}
-  fill={getLeafColor(topic.id)}
-  stroke={getLeafStroke(topic.id)}
+  fill={risks.get(topic.id)!.fill}
+  stroke={risks.get(topic.id)!.stroke}
   strokeWidth={1}
 />
-        <g transform={`translate(${-limb.width * .35} ${-limb.height * .24})`} pointerEvents="none">
-          <ellipse className="living-sway" rx={limb.fontSize * .5} ry={limb.fontSize * .2} fill={LEAF_COLORS[getHostilityLevel(topic.id)].accent} style={{ animationDelay: `${-seeded(topic.id, 'sway') * 9}s` }} />
-        </g>
-        <title>{topic.name}: {topic.video_count} videos. {LEAF_COLORS[getHostilityLevel(topic.id)].label} (demo).</title>
+        <title>{topic.name}: {topic.video_count} videos. {risks.get(topic.id)!.detail}</title>
         <text x="0" y={-(limb.lines.length + 1) * limb.fontSize * 1.3 / 2 + limb.fontSize}
           textAnchor="middle" className="topic-tree__label" fontSize={limb.fontSize}>
           {limb.lines.map((line, index) => <tspan key={index} x="0" dy={index ? limb.fontSize * 1.3 : 0}>{line}</tspan>)}

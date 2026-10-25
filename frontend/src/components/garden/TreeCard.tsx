@@ -1,5 +1,7 @@
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
+import { ZoomIn, ZoomOut } from 'lucide-react'
+import { useTreeCamera } from '../../tree/useTreeCamera'
 import { TopicTree } from '../../tree/TopicTree'
 // import WebsiteTopicEditor from '../../tree/WebsiteTopicEditor'
 import type { Topic, TreeData } from '../../tree/types'
@@ -27,7 +29,7 @@ export default function TreeCard() {
     videoCount,
   } = usePrune()
 
-  const [zoom, setZoom] = useState(1)
+  const viewportRef = useRef<HTMLDivElement>(null)
 
   const [treeSize, setTreeSize] = useState({
     width: 0,
@@ -82,6 +84,15 @@ export default function TreeCard() {
     return {
       tree: convert(tree),
       global_video_count: videoCount,
+      tree_videos: (taxonomy?.tree_videos ?? []).map(video => {
+        const counts = video.analysis?.sentiment?.counts
+        const validCounts = counts && typeof counts.positive === 'number' && typeof counts.neutral === 'number' && typeof counts.negative === 'number'
+        return { video_id: video.video_id, title: video.title, platform: video.platform,
+          analysis: video.analysis ? {
+            assessment: video.analysis.assessment,
+            sentiment: validCounts ? { counts: { positive: counts.positive!, neutral: counts.neutral!, negative: counts.negative! } } : null,
+          } : undefined }
+      }),
     }
   }, [tree, taxonomy, cuts, videoCount])
 
@@ -108,33 +119,7 @@ export default function TreeCard() {
     []
   )
 
-  // Fit the SVG tree inside its viewport.
-  const fitTree = useCallback(() => {
-    const viewport = document.getElementById('tree')
-
-    if (
-      !viewport ||
-      !treeSize.width ||
-      !treeSize.height
-    ) {
-      setZoom(1)
-      return
-    }
-
-    const widthRatio =
-      viewport.clientWidth / treeSize.width
-
-    const heightRatio =
-      viewport.clientHeight / treeSize.height
-
-    setZoom(
-      Math.max(
-        0.15,
-        Math.min(1, widthRatio, heightRatio)
-      )
-    )
-  }, [treeSize])
-
+  const camera = useTreeCamera(viewportRef, treeSize)
   const growingTopics = useMemo(
     () =>
       branches.filter(
@@ -187,64 +172,31 @@ export default function TreeCard() {
           {growingTopics} growing topics
         </span>
 
-        <div className="website-tree-zoom">
-          <button
-            type="button"
-            onClick={() =>
-              setZoom(current =>
-                Math.max(0.15, current / 1.2)
-              )
-            }
-            aria-label="Zoom out"
-          >
-            −
-          </button>
-
-          <span>
-            {Math.round(zoom * 100)}%
-          </span>
-
-          <button
-            type="button"
-            onClick={() =>
-              setZoom(current =>
-                Math.min(3, current * 1.2)
-              )
-            }
-            aria-label="Zoom in"
-          >
-            +
-          </button>
-
-          <button
-            type="button"
-            onClick={fitTree}
-          >
-            Fit
-          </button>
-        </div>
       </div>
+      <div className="website-tree-legend" aria-label="Leaf color scale">
+        <span><i style={{ background: '#a8c394' }} />Lower</span>
+        <span><i style={{ background: '#d8bf86' }} />Some</span>
+        <span><i style={{ background: '#cb9582' }} />Higher</span>
+        <span><i style={{ background: '#d8ded3' }} />Unrated</span>
+      </div>
+      <p className="website-tree-color-note">Colors compare warnings and negative-comment shares across your topics, including child topics. Gray means analysis is unavailable.</p>
 
       {/* Main layout: SVG tree + Chrome-style editor */}
       <div className="website-tree-layout">
-  <div
-    id="tree"
-    className="website-tree-viewport"
-  >
-    <TopicTree
-      data={treeData}
-      falling={fallingIds}
-      busy={busy}
-      zoom={zoom}
-      loading={loading}
-      onPrune={setPruned}
-      onSize={handleSize}
-    />
-  </div>
-
-  {/* <div className="website-tree-details">
-    <WebsiteTopicEditor />
-  </div> */}
+        <div className="website-tree-scene">
+          <div className="website-tree-zoom" role="group" aria-label="Tree zoom controls">
+            <button type="button" onClick={camera.zoomOut} disabled={camera.zoom <= camera.limits.min + 1e-8 || !growingTopics}
+              aria-label="Zoom out" title="Zoom out"><ZoomOut size={14} aria-hidden="true" /></button>
+            <button type="button" onClick={camera.zoomIn} disabled={camera.zoom >= camera.limits.max - 1e-8 || !growingTopics}
+              aria-label="Zoom in" title="Zoom in"><ZoomIn size={14} aria-hidden="true" /></button>
+            <button type="button" onClick={camera.fit} disabled={!growingTopics}>Fit tree</button>
+          </div>
+          <div id="tree" ref={viewportRef} className="website-tree-viewport" tabIndex={0}
+            aria-label="Topic tree. Drag to pan. Use the mouse wheel or zoom buttons to zoom.">
+            <TopicTree data={treeData} falling={fallingIds} busy={busy} zoom={camera.zoom} loading={loading}
+              onPrune={setPruned} onSize={handleSize} onPan={camera.panTo} />
+          </div>
+        </div>
       </div>
 
       {/* Empty tree state */}
