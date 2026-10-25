@@ -40,7 +40,7 @@ async function recordCaptureError(error) {
 
 async function handleToolbarInvocation(tab) {
   if (!supportedCaptureTab(tab)) {
-    await recordCaptureError(new Error("Chrome pages, extension summary pages, and other sites cannot be captured. Open a YouTube/Instagram video and click the Prune toolbar icon there."));
+    await recordCaptureError(new Error("Open a YouTube/Instagram video and click the Prune toolbar icon there."));
     return;
   }
   const origin = tab.url.match(/^https:\/\/[^/]+/)[0];

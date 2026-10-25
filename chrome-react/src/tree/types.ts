@@ -15,6 +15,10 @@ export interface TopicVideo {
   title?: string
   url?: string
   platform?: string
+  analysis?: {
+    assessment?: { content_signals?: { id: string }[]; signal_polarities?: Record<string, string> } | null
+    sentiment?: { counts: { positive: number; neutral: number; negative: number } } | null
+  }
 }
 
 export interface TreeData {

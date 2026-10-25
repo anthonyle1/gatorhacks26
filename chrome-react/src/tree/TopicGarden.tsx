@@ -99,7 +99,11 @@ export class TopicGarden {
   private async cache() {
     if (typeof chrome !== 'undefined' && chrome.storage?.local) {
       await chrome.storage.local.set({ pruneTopicTree: { tree: this.data.tree, global_video_count: this.data.global_video_count,
-        tree_videos: this.data.tree_videos?.map(video => ({ video_id: video.video_id, title: video.title, platform: video.platform })) } }).catch(() => {})
+        tree_videos: this.data.tree_videos?.map(video => ({ video_id: video.video_id, title: video.title, platform: video.platform,
+          analysis: video.analysis ? {
+            assessment: video.analysis.assessment ? { content_signals: video.analysis.assessment.content_signals?.map(signal => ({ id: signal.id })), signal_polarities: video.analysis.assessment.signal_polarities } : null,
+            sentiment: video.analysis.sentiment ? { counts: video.analysis.sentiment.counts } : null,
+          } : undefined })) } }).catch(() => {})
     }
   }
 
@@ -115,7 +119,7 @@ export class TopicGarden {
     try {
       const result = await this.request()
       if (version !== this.version) return
-      const changed = JSON.stringify(result.tree) !== JSON.stringify(this.data.tree) || this.loading || this.error
+      const changed = JSON.stringify(result.tree) !== JSON.stringify(this.data.tree) || JSON.stringify(result.tree_videos) !== JSON.stringify(this.data.tree_videos) || this.loading || this.error
       this.data = result
       this.loading = false
       this.error = ''
@@ -194,7 +198,6 @@ export class TopicGarden {
     const health = document.getElementById('tree-health')!
     health.className = 'chip chip--sm chip--unrated'
     health.textContent = this.loading ? 'Loading…' : `${flatten(this.data.tree).filter(topic => !topic.reduce).length} topics`
-    document.getElementById('tree-zoom-level')!.textContent = `${Math.round(this.zoom * 100)}%`
     const limits = this.zoomLimits()
     this.renderedZoomRange = limits
     ;(document.getElementById('tree-zoom-out') as HTMLButtonElement).disabled = this.zoom <= limits.min + 1e-8
