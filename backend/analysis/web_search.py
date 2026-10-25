@@ -1,7 +1,7 @@
 """Bounded, optional Ollama web search; the model never chooses network actions."""
 
 import os
-from pathlib import Path
+from app.environment import ENV_FILE
 from typing import Literal
 from urllib.parse import urlsplit
 
@@ -28,7 +28,7 @@ class WebContext(BaseModel):
 
 
 def get_web_context(title: str, caption: str) -> WebContext:
-    load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+    load_dotenv(ENV_FILE)
     if os.getenv("OLLAMA_WEB_SEARCH_ENABLED", "false").lower() != "true":
         return WebContext()
     key = os.getenv("OLLAMA_API_KEY", "").strip()

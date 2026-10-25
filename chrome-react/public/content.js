@@ -10,6 +10,11 @@ let currentPlatform = null;
 let videoStartedAt = null;
 let currentVideoSeconds = 0;
 let currentMetadata = { title: "", caption: "" };
+let currentOccurrence = null;
+let occurrenceGeneration = 0;
+let previousMediaTime = null;
+let previousClockTime = null;
+let clockInterval = null;
 const unsentEvents = new Map();
 let lastCheck = Date.now();
 
@@ -80,13 +85,15 @@ async function trackScrolling() {
   lastCheck = now;
 
   const video = getCurrentVideo();
+  const media = getActiveInstagramVideo();
+  const playback = media && !media.paused && !media.ended && media.readyState >= 2;
 
   const videoId = video?.videoId ?? null;
   const platform = video?.platform ?? null;
 
   const changed =
     videoId !== currentVideoId ||
-    platform !== currentPlatform;
+    platform !== currentPlatform || (playback && !currentOccurrence);
 
   if (changed) {
     // Finish tracking previous video
@@ -99,8 +106,9 @@ async function trackScrolling() {
       );
     }
 
-    currentVideoId = videoId;
-    currentPlatform = platform;
+    currentVideoId = playback ? videoId : null;
+    currentPlatform = playback ? platform : null;
+    currentOccurrence = null;
     currentMetadata = readVideoMetadata();
 
     session.currentVideoId = videoId;
@@ -108,11 +116,12 @@ async function trackScrolling() {
 
     currentVideoSeconds = 0;
 
-    videoStartedAt = videoId
+    videoStartedAt = videoId && playback
       ? new Date().toISOString()
       : null;
 
-    if (videoId) {
+    if (videoId && playback) {
+      beginOccurrence(video, media);
       session.videoCount++;
 
       session.videoHistory.push({
@@ -162,6 +171,8 @@ function readVideoMetadata() {
 function sendVideoEvent(videoId, platform, startedAt, seconds) {
   const event = {
     event_id: crypto.randomUUID(), video_id: videoId, platform,
+    video_session_id: (platform === "youtube" ? "yt_" : "ig_") + videoId,
+    occurrence_id: currentOccurrence?.occurrence_id || null,
     ...currentMetadata,
     sequence_number: Math.max(1, session.videoHistory.length),
     started_at: startedAt, ended_at: new Date().toISOString(),
@@ -169,6 +180,53 @@ function sendVideoEvent(videoId, platform, startedAt, seconds) {
   };
   unsentEvents.set(event.event_id, event);
   return transmitVideoEvent(event);
+}
+
+function beginOccurrence(video, media) {
+  currentOccurrence = {
+    occurrence_id: crypto.randomUUID(), video_session_id: (video.platform === "youtube" ? "yt_" : "ig_") + video.videoId,
+    platform: video.platform, source_id: video.videoId, generation: ++occurrenceGeneration,
+    started_at: new Date().toISOString(), duration: Number.isFinite(media.duration) && media.duration > 0 ? media.duration : null,
+    plan_version: 1,
+  };
+  previousMediaTime = media.currentTime;
+  previousClockTime = Date.now();
+  chrome.runtime.sendMessage({ type: "PLAYBACK_EVENT", occurrence: currentOccurrence }, () => { void chrome.runtime.lastError; });
+}
+function mediaClock() {
+  const detected = getCurrentVideo();
+  const media = getActiveInstagramVideo();
+  if (!currentOccurrence || !media || detected?.videoId !== currentVideoId || detected.platform !== currentPlatform) return;
+  // Backward seeks and loops begin distinct capture occurrences, preserving overlap.
+  const traversed = media.currentTime - previousMediaTime;
+  const expected = media.paused ? 0 : (Date.now() - previousClockTime) / 1000 * media.playbackRate;
+  if (previousMediaTime !== null && (traversed < -.2 || traversed - expected > .4 ||
+      (Number.isFinite(media.duration) && currentOccurrence.duration !== media.duration))) beginOccurrence(detected, media);
+  previousMediaTime = media.currentTime;
+  previousClockTime = Date.now();
+  const captureReason = media.paused || media.ended ? "paused" : media.readyState < 3 ? "buffering" :
+    !mediaIdentityMatches(media, detected) ? "unverified_video" : "playing";
+  chrome.runtime.sendMessage({ type: "MEDIA_CLOCK", occurrence_id: currentOccurrence.occurrence_id,
+    media_time: media.currentTime, rate: media.playbackRate,
+    playing: captureReason === "playing", capture_reason: captureReason,
+  }, () => { void chrome.runtime.lastError; });
+}
+
+function mediaIdentityMatches(media, detected) {
+  if (document.querySelector('.ad-showing')) return false;
+  const renderer = media.closest?.('ytd-reel-video-renderer');
+  const rendererId = renderer?.getAttribute('video-id');
+  if (rendererId) return rendererId === detected.videoId;
+  let container = media.parentElement;
+  for (let depth = 0; container && depth < 6; depth++, container = container.parentElement) {
+    const ids = new Set([...container.querySelectorAll('a[href]')].map(link => {
+      const match = link.getAttribute('href')?.match(detected.platform === 'youtube' ? /\/shorts\/([^/?#]+)/ : /\/reels?\/([^/?#]+)/);
+      return match?.[1];
+    }).filter(Boolean));
+    if (ids.size) return ids.size === 1 && ids.has(detected.videoId);
+  }
+  // Unknown DOM ownership is missing audio, never a guessed attribution.
+  return false;
 }
 
 function transmitVideoEvent(event) {
@@ -547,15 +605,17 @@ async function processInstagramReel() {
 
 async function startTracking(reset = false) {
   const state = await chrome.storage.local.get("trackingPaused");
-  if (state.trackingPaused) return;
+  if (state.trackingPaused !== false) return;
   clearInterval(trackingInterval);
   clearInterval(commentInterval);
+  clearInterval(clockInterval);
   if (reset) {
     session = { durationSeconds: 0, videoCount: 0, currentVideoId: null, currentPlatform: null, videoHistory: [] };
     currentVideoId = null; currentPlatform = null; videoStartedAt = null; currentVideoSeconds = 0;
   }
   lastCheck = Date.now();
   trackingInterval = setInterval(trackScrolling, 1000);
+  clockInterval = setInterval(mediaClock, 250);
   commentInterval = setInterval(processInstagramReel, 1000);
   trackScrolling();
   processInstagramReel();
@@ -565,6 +625,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "FLUSH_SESSION") {
     clearInterval(trackingInterval);
     clearInterval(commentInterval);
+    clearInterval(clockInterval);
     const previous = currentVideoId;
     const platform = currentPlatform;
     const started = videoStartedAt;
@@ -599,4 +660,5 @@ window.addEventListener("pagehide", () => {
 
   clearInterval(trackingInterval);
   clearInterval(commentInterval);
+  clearInterval(clockInterval);
 });

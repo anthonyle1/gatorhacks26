@@ -57,6 +57,26 @@ class LocalReviewTests(unittest.TestCase):
         self.assertEqual(response.status_code, 422)
         self.assertIsNone(self.jobs.get(self.session_id))
 
+    def test_reset_endpoint_keeps_video_analyses_and_clears_saved_tree(self):
+        self.model_patches()
+        self.jobs.enqueue(self.session_id, {"events": [event()], "instagram": []})
+        asyncio.run(process_local_session(self.session_id, self.jobs))
+        with patch("app.routes.local_sessions.LocalSessions", return_value=self.jobs):
+            response = self.client.delete("/local-sessions/taxonomy")
+        self.assertEqual(response.status_code, 200)
+        review = self.jobs.view(self.session_id)
+        self.assertEqual(review["tree"], [])
+        self.assertEqual(review["assignments"], {})
+        self.assertEqual(len(review["videos"]), 1)
+        self.assertIn("assessment", review["videos"][0]["analysis"])
+
+    def test_reset_is_rejected_while_a_job_could_repopulate_tree(self):
+        self.jobs.enqueue(self.session_id, {"events": [event()], "instagram": []})
+        with patch("app.routes.local_sessions.LocalSessions", return_value=self.jobs):
+            self.assertEqual(self.client.delete("/local-sessions/taxonomy").status_code, 409)
+            self.jobs.claim(self.session_id)
+            self.assertEqual(self.client.delete("/local-sessions/taxonomy").status_code, 409)
+
     def test_aggregation_preserves_platform_identity_and_repeat_view_duration(self):
         videos = aggregate({"events": [event(), event(event_id="event2"), event(platform="youtube", event_id="event3")], "instagram": []})
         self.assertEqual(len(videos), 2)
@@ -114,11 +134,29 @@ class LocalReviewTests(unittest.TestCase):
         self.jobs.update(self.session_id, token)
         self.assertEqual(self.jobs.get(self.session_id)["status"], "complete")
 
+    def test_new_pending_session_retains_previous_tree_and_video_links(self):
+        self.model_patches()
+        self.jobs.enqueue(self.session_id, {"events": [event()], "instagram": []})
+        asyncio.run(process_local_session(self.session_id, self.jobs))
+        next_id = str(uuid4())
+        self.jobs.enqueue(next_id, {"events": [event(source="clip2")], "instagram": []})
+        pending = LocalSessions(TopicStore(self.path)).view(next_id)
+        self.assertEqual(pending["status"], "pending")
+        self.assertEqual(pending["tree"][0]["video_ids"], ["instagram:clip1"])
+        self.assertEqual(pending["tree_videos"][0]["source_id"], "clip1")
+        self.assertEqual(pending["videos"], [])
+        asyncio.run(process_local_session(next_id, self.jobs))
+        complete = self.jobs.view(next_id)
+        self.assertEqual(complete["global_video_count"], 2)
+        self.assertEqual(len(complete["tree"]), 1)
+        self.assertEqual(complete["tree"][0]["video_count"], 2)
+        self.assertEqual(len(complete["videos"]), 1)
+
 
     def test_one_video_exception_preserves_all_video_classifications(self):
         self.model_patches()
         self.jobs.enqueue(self.session_id, {"events": [event(), event(source="clip2", event_id="event2")], "instagram": []})
-        def analyze(video, previous=None):
+        def analyze(video, previous=None, **kwargs):
             if video["source_id"] == "clip1":
                 raise RuntimeError("Private provider details")
             video["analysis"] = {"status": "complete", "sentiment": None, "comments": [], "errors": []}

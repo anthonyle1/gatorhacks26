@@ -2,7 +2,7 @@
  * Prune side panel.
  *
  * LIVE data:
- *   - "Now playing" and "Today so far" come from `scrollingSession`, which content.js saves to
+ *   - Session controls use the background session commands. "Today so far" uses `scrollingSession`, saved to
  *     chrome.storage.local every second, plus GET {API_BASE}/hostility/{video_id} for each video.
  *
  * SAMPLE data (from the design mockups, replace when the backend can supply it):
@@ -70,7 +70,9 @@
   const state = {
     session: null,
     pruned: {},
-    now: { id: null, platform: null, status: 'idle', level: null, summary: '' },
+    treeReset: false,
+    trackingPaused: true, localSessionId: null, finishPending: false, lastCompletedLocalSessionId: null,
+    sessionBusy: false, sessionReady: false,
     day: { rated: 0, calm: 0, some: 0, heavy: 0, score: null },
     month: new Date(today.getFullYear(), today.getMonth(), 1),
   };
@@ -139,57 +141,51 @@
   }
 
   // ---------------------------------------------------------------------------
-  // Now playing
+  // Session controls
   // ---------------------------------------------------------------------------
-  function platformName(platform) {
-    return platform === 'instagram' ? 'Instagram Reel' : 'YouTube Short';
-  }
+  const SESSION_KEYS = ['trackingPaused', 'localSessionId', 'finishPending', 'lastCompletedLocalSessionId'];
 
-  function renderNowPlaying() {
-    const { id, platform, status, level, summary, unreachable } = state.now;
-    const title = $('#now-title');
-    const badge = $('#now-badge');
-    const note = $('#now-note');
-    badge.replaceChildren();
-
-    if (!id) {
-      title.textContent = 'Nothing playing right now';
-      note.textContent = 'Open a YouTube Short or Instagram Reel and Prune will rate it.';
-      return;
-    }
-
-    title.textContent = `${platformName(platform)} · ${id}`;
-
-    if (status === 'loading') {
-      note.textContent = 'Checking the comments...';
-      return;
-    }
-
-    badge.appendChild(chip(level));
-    if (unreachable) {
-      note.textContent = "Can't reach the Prune server. Is the backend running on localhost:8000?";
-    } else {
-      note.textContent = level === 'not_rated' ? LEVELS.not_rated.note : summary || LEVELS[level].note;
-    }
-  }
-
-  async function updateNowPlaying(force) {
+  function renderSession() {
+    const recording = state.trackingPaused === false;
+    const unfinished = recording || state.finishPending || !!state.localSessionId;
     const session = state.session || {};
-    const id = session.currentVideoId || null;
-    const platform = session.currentPlatform || null;
+    const seconds = Math.floor(session.durationSeconds || 0);
+    $('#session-stats').textContent = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')} \u00b7 ${session.videoCount || 0} videos`;
+    $('#session-status').textContent = state.sessionBusy ? 'Working...' : recording ? 'Recording' : unfinished ? 'Finish pending' : 'Ready to start';
+    const button = $('#session-toggle');
+    button.textContent = state.sessionBusy ? 'Working...' : unfinished ? 'Finish session' : 'Start tracking';
+    button.disabled = !state.sessionReady || state.sessionBusy;
+    $('#session-note').textContent = recording ? 'Tracking Shorts and Reels. Finish to update your saved topic tree.' : unfinished ? 'Finish the saved session before starting another.' : 'Start a session to track YouTube Shorts and Instagram Reels.';
+    $('#session-review').hidden = !state.lastCompletedLocalSessionId;
+  }
 
-    if (id !== state.now.id || platform !== state.now.platform) {
-      state.now = { id, platform, status: id ? 'loading' : 'idle', level: null, summary: '', unreachable: false };
-      renderNowPlaying();
-    } else if (!force) {
-      return;
+  async function syncSessionControls() {
+    const stored = await chrome.storage.local.get(['scrollingSession', ...SESSION_KEYS]);
+    state.session = stored.scrollingSession || null;
+    for (const key of SESSION_KEYS) state[key] = stored[key];
+    state.sessionReady = true;
+    renderSession();
+  }
+
+  async function toggleSession() {
+    if (state.sessionBusy || !state.sessionReady) return;
+    const finish = state.trackingPaused === false || state.finishPending || !!state.localSessionId;
+    state.sessionBusy = true;
+    const error = $('#session-error');
+    error.hidden = true;
+    renderSession();
+    try {
+      const response = await chrome.runtime.sendMessage({ type: finish ? 'FINISH_SESSION' : 'START_SESSION' });
+      if (!response?.success) throw new Error(response?.error || 'Could not update session tracking.');
+    } catch (cause) {
+      error.textContent = cause.message || 'Could not update session tracking.';
+      error.hidden = false;
+    } finally {
+      try { await syncSessionControls(); }
+      catch { error.textContent = 'Could not read session status. Reopen the panel to retry.'; error.hidden = false; }
+      state.sessionBusy = false;
+      renderSession();
     }
-    if (!id) return;
-
-    const result = await fetchHostility(id);
-    if (state.now.id !== id) return; // user scrolled to another Short meanwhile
-    state.now = { id, platform, status: 'done', level: result.level, summary: result.summary, unreachable: result.unreachable };
-    renderNowPlaying();
   }
 
   // ---------------------------------------------------------------------------
@@ -287,6 +283,13 @@
   }
 
   function renderTree() {
+    if (state.treeReset) {
+      $('#tree').replaceChildren(el('p', 'note', 'Your tree is empty. Finish a new session to grow it again.'));
+      $('#branches').replaceChildren();
+      $('#tree-health').textContent = 'Empty';
+      $('#tree-health').className = 'chip chip--sm chip--unrated';
+      return;
+    }
     $('#tree').innerHTML = treeSvg(state.pruned);
 
     const count = BRANCHES.filter((b) => state.pruned[b.id]).length;
@@ -394,10 +397,8 @@
     const previous = state.session || {};
     state.session = session || null;
     const next = state.session || {};
+    renderSession();
     // content.js rewrites the session every second; only react to real changes.
-    if (previous.currentVideoId !== next.currentVideoId || previous.currentPlatform !== next.currentPlatform) {
-      updateNowPlaying(false);
-    }
     if (previous.videoCount !== next.videoCount || previous.currentVideoId !== next.currentVideoId) {
       renderToday();
       updateToday();
@@ -407,6 +408,46 @@
   async function init() {
     setLinks();
     renderCalendar();
+    $('#session-toggle').addEventListener('click', toggleSession);
+    $('#audio-enabled').addEventListener('change', async event => {
+      await chrome.storage.local.set({ audioCaptureEnabled: event.target.checked });
+    });
+    let audioRecording = false;
+    let audioValue = {}, audioBackend = {};
+    function renderAudio(value = audioValue, backend = audioBackend) {
+      audioValue = value || {}; audioBackend = backend || {}; value = audioValue;
+      audioRecording = !!value.recording;
+      const display = describeAudioStatus(audioValue, audioBackend, $('#audio-enabled').checked);
+      $('#audio-toggle').textContent = audioRecording ? 'Stop audio capture' : 'Capture selected tab audio';
+      $('#audio-enabled').disabled = audioRecording;
+      $('#audio-state').textContent = display.label;
+      $('#audio-state').dataset.tone = display.tone;
+      $('#audio-status').textContent = display.detail;
+      $('#audio-model').textContent = display.model;
+      $('#audio-progress').textContent = display.counts;
+      $('#audio-transcript').textContent = display.transcript;
+    }
+    $('#audio-toggle').addEventListener('click', async () => {
+      const response = await chrome.runtime.sendMessage({ type: audioRecording ? 'CAPTURE_STOP' : 'CAPTURE_START' });
+      if (!response?.success) $('#audio-status').textContent = response?.error || 'Audio capture unavailable';
+    });
+    $('#tree-reset').addEventListener('click', async () => {
+      if (!window.confirm('Reset the entire saved tree? This removes all categories, video memberships, and See less preferences across sessions. Individual video analyses are kept.')) return;
+      const button = $('#tree-reset');
+      const status = $('#tree-reset-status');
+      button.disabled = true;
+      status.hidden = false;
+      status.textContent = 'Resetting...';
+      try {
+        const response = await chrome.runtime.sendMessage({ type: 'RESET_TOPIC_TREE' });
+        if (!response?.success) throw new Error(response?.error || 'Could not reset the tree.');
+        state.pruned = {};
+        state.treeReset = true;
+        renderTree();
+        status.textContent = 'Tree reset. New sessions will build a fresh tree.';
+      } catch (error) { status.textContent = error.message || 'Could not reset the tree.'; }
+      finally { button.disabled = false; }
+    });
 
     $('#branches').addEventListener('click', (event) => {
       const button = event.target.closest('button[data-branch]');
@@ -422,32 +463,51 @@
     });
 
     if (hasStorage) {
-      const stored = await chrome.storage.local.get(['scrollingSession', PRUNED_KEY]);
+      const stored = await chrome.storage.local.get(['scrollingSession', PRUNED_KEY, 'pruneTreeReset', 'audioCaptureEnabled', 'audioCaptureStatus', 'audioBackendStatus', ...SESSION_KEYS]);
+      $('#audio-enabled').checked = stored.audioCaptureEnabled !== false;
+      renderAudio(stored.audioCaptureStatus, stored.audioBackendStatus);
+      state.treeReset = !!stored.pruneTreeReset;
       state.pruned = stored[PRUNED_KEY] || {};
       chrome.storage.onChanged.addListener((changes, area) => {
         if (area !== 'local') return;
+        if (changes.audioCaptureEnabled) { $('#audio-enabled').checked = changes.audioCaptureEnabled.newValue !== false; renderAudio(); }
+        if (changes.audioCaptureStatus) renderAudio(changes.audioCaptureStatus.newValue);
+        if (changes.audioBackendStatus) renderAudio(audioValue, changes.audioBackendStatus.newValue);
+        if (changes.pruneTreeReset) { state.treeReset = !!changes.pruneTreeReset.newValue; renderTree(); }
+        if (changes.lastSessionReview?.newValue?.global_video_count > 0) { state.treeReset = false; renderTree(); }
+        for (const key of SESSION_KEYS) { if (changes[key]) state[key] = changes[key].newValue; }
         if (changes.scrollingSession) onSessionChanged(changes.scrollingSession.newValue);
+        renderSession();
         if (changes[PRUNED_KEY]) {
           state.pruned = changes[PRUNED_KEY].newValue || {};
           renderTree();
         }
       });
       state.session = stored.scrollingSession || null;
+      for (const key of SESSION_KEYS) state[key] = stored[key];
+      state.sessionReady = true;
     }
 
     renderTree();
-    renderNowPlaying();
+    renderSession();
     renderToday();
-    updateNowPlaying(true);
     updateToday();
+    async function refreshAudio() {
+      try { await chrome.runtime.sendMessage({ type: 'AUDIO_DIAGNOSTICS' }); } catch { /* Backend availability is shown separately. */ }
+      renderAudio();
+    }
+    void refreshAudio();
+    setInterval(() => { void refreshAudio(); }, 3000);
 
     // Unrated Shorts can become rated once the backend finishes analysing comments.
     setInterval(() => {
-      const { status, level } = state.now;
-      if (status === 'done' && level === 'not_rated') updateNowPlaying(true);
       updateToday();
     }, RECHECK_MS);
   }
 
-  init();
+  init().catch(error => {
+    $('#session-status').textContent = 'Unavailable';
+    $('#session-error').textContent = error.message || 'Could not load session tracking.';
+    $('#session-error').hidden = false;
+  });
 })();

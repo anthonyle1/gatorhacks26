@@ -6,6 +6,7 @@ import sqlite3
 import httpx
 
 from dotenv import load_dotenv
+from app.environment import ENV_FILE
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pymongo.errors import PyMongoError
@@ -20,15 +21,16 @@ from analysis.routes import router as analysis_router
 from app.services.session_analysis import recover_session_jobs
 from app.routes.local_sessions import router as local_sessions_router
 from app.services.local_sessions import recover_local_sessions
+from app.services.audio_ingestion import recover_audio
 from app.routes.hostility import router as hostility_router
 
 # Load environment variables
-load_dotenv()
+load_dotenv(ENV_FILE)
 
 # Initialize FastAPI
 @asynccontextmanager
 async def lifespan(application):
-    workers = [asyncio.create_task(recover_local_sessions())]
+    workers = [asyncio.create_task(recover_local_sessions()), asyncio.create_task(recover_audio())]
     if os.getenv("MONGODB_SESSION_JOBS_ENABLED", "false").lower() == "true":
         workers.append(asyncio.create_task(recover_session_jobs()))
     try:

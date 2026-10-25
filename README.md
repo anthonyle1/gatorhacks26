@@ -51,6 +51,9 @@ After making changes to the extension code:
 3. Click the **Reload** icon.
 4. Refresh your YouTube Shorts tab to apply the changes.
 
+# Experimental analysis pipeline
+
+See [audio and hosted assessment setup](backend/analysis/AUDIO_PIPELINE.md) for Redis caching, local ASR, UF NaviGator configuration, Chrome audio capture, evidence cutoffs, and benchmark commands. Audio is enabled by default and falls back to metadata/comments if transcription fails. Set `NAVIGATOR_TOOLKIT_API_KEY` in the repository-root `.env` to use the default hosted Gemma model.
 ## How we measure hostility
 
 Prune rates YouTube Shorts by **person-targeted hostility** in their comment
