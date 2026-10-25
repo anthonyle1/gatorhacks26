@@ -27,10 +27,10 @@
   // SAMPLE DATA
   // ---------------------------------------------------------------------------
   // October 2026, days 1 to 24. 1 = calm, 2 = some, 3 = heavy.
-  const SAMPLE_DAY_LEVELS = {};
-  [1, 1, 2, 1, 1, 3, 2, 1, 1, 1, 2, 3, 3, 1, 1, 2, 1, 1, 1, 2, 2, 3, 1, 2].forEach((lv, i) => {
-    SAMPLE_DAY_LEVELS[`2026-10-${String(i + 1).padStart(2, '0')}`] = lv;
-  });
+  // const SAMPLE_DAY_LEVELS = {};
+  // [1, 1, 2, 1, 1, 3, 2, 1, 1, 1, 2, 3, 3, 1, 1, 2, 1, 1, 1, 2, 2, 3, 1, 2].forEach((lv, i) => {
+  //   SAMPLE_DAY_LEVELS[`2026-10-${String(i + 1).padStart(2, '0')}`] = lv;
+  // });
 
   // ---------------------------------------------------------------------------
   // State
@@ -205,50 +205,158 @@
   let topicGarden;
 
   // ---------------------------------------------------------------------------
-  // Calendar
+  // Calendar — daily insights from the backend
   // ---------------------------------------------------------------------------
   const pad = (n) => String(n).padStart(2, '0');
   const dateKey = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
 
+  // Map of YYYY-MM-DD -> daily summary
+  let monthlyInsights = new Map();
+
+  // Prevent an older fetch from overwriting a newer month's data.
+  let calendarRequestId = 0;
+  let calendarLoading = false;
+  let calendarError = false;
+
+  async function loadCalendarInsights() {
+    const requestId = ++calendarRequestId;
+
+    const year = state.month.getFullYear();
+    const monthIndex = state.month.getMonth();
+
+    const month = `${year}-${pad(monthIndex + 1)}`;
+
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    // Clear stale data before loading another month.
+    monthlyInsights = new Map();
+    calendarLoading = true;
+    calendarError = false;
+    renderCalendar();
+
+    try {
+      const params = new URLSearchParams({month, timezone});
+
+      const response = await fetch(`${API_BASE}/local-sessions/daily?${params.toString()}`);
+
+      if (!response.ok) {throw new Error(`Calendar request failed: ${response.status}`);}
+
+      const data = await response.json();
+
+      // User may have navigated to another month while loading.
+      if (requestId !== calendarRequestId) return;
+
+      monthlyInsights = new Map((data.days || []).map(day => [day.date, day]));
+
+      calendarError = false;
+    } catch (error) {
+      if (requestId !== calendarRequestId) return;
+
+      monthlyInsights = new Map();
+      calendarError = true;
+
+      console.warn("Could not load daily insights:", error);
+    } finally {
+      if (requestId === calendarRequestId) {
+        calendarLoading = false;
+        renderCalendar();
+      }
+    }
+  }
+
   function renderCalendar() {
     const year = state.month.getFullYear();
     const month = state.month.getMonth();
-    $('#cal-heading').textContent = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(state.month);
+
+    $('#cal-heading').textContent = new Intl.DateTimeFormat(
+      'en-US', {month: 'long', year: 'numeric',}).format(state.month);
 
     const grid = $('#cal-grid');
     grid.replaceChildren();
 
     const firstWeekday = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    for (let i = 0; i < firstWeekday; i++) grid.appendChild(el('span', 'cal__cell cal__cell--blank'));
+
+    for (let i = 0; i < firstWeekday; i++) {
+      grid.appendChild(el('span', 'cal__cell cal__cell--blank'));}
 
     const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
     const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(state.month);
 
     for (let d = 1; d <= daysInMonth; d++) {
       const date = new Date(year, month, d);
+
       const isFuture = date > todayStart;
       const isToday = date.getTime() === todayStart.getTime();
-      const level = SAMPLE_DAY_LEVELS[dateKey(year, month, d)];
-      const levelClass = level === 1 ? 'calm' : level === 2 ? 'some' : level === 3 ? 'heavy' : null;
+
+      const key = dateKey(year, month, d);
+      const activity = monthlyInsights.get(key);
 
       let cell;
-      if (!isFuture && levelClass) {
+
+      if (!isFuture && activity && activity.videos_watched > 0) {
+        const hasWarning = activity.negative_count > 0;
+        const hasUncertainty = activity.uncertain_count > 0;
+        const hasUnrated = activity.not_assessed_count > 0;
+
+        // Existing CSS already supports calm/some/heavy day colors.
+        // Here they represent assessment status, not a daily
+        // hostility score.
+        const levelClass = hasWarning ? 'heavy' : hasUncertainty || hasUnrated ? 'some' : 'calm';
+
         cell = el('a', `cal__cell cal__cell--${levelClass}`, String(d));
-        cell.href = `${WEBSITE_URL}/calendar`;
+
+        // Open the actual selected date in the dashboard.
+        cell.href = `${WEBSITE_URL}/calendar?date=${key}`;
         cell.target = '_blank';
         cell.rel = 'noopener';
-        cell.setAttribute('aria-label', `${monthName} ${d}: see details`);
+
+        const warningDescription = hasWarning ? `, ${activity.negative_count} potential content warnings` : '';
+
+        const unknownDescription = hasUncertainty || hasUnrated ? ', some assessments incomplete or uncertain' : '';
+
+        cell.setAttribute(
+          'aria-label',
+          `${monthName} ${d}: ${activity.videos_watched} video encounters${warningDescription}${unknownDescription}. View details.`
+        );
+
+        cell.title =
+          `${activity.videos_watched} videos watched` +
+          (hasWarning
+            ? ` · ${activity.negative_count} potential warnings`
+            : '') +
+          (hasUncertainty || hasUnrated
+            ? ' · Some assessments uncertain or unavailable'
+            : '');
       } else {
-        cell = el('span', `cal__cell ${isFuture ? 'cal__cell--future' : 'cal__cell--none'}`, String(d));
-        cell.setAttribute('aria-label', `${monthName} ${d}${isFuture ? ' (upcoming)' : ' (no data)'}`);
+        cell = el(
+          'span',
+          `cal__cell ${
+            isFuture
+              ? 'cal__cell--future'
+              : 'cal__cell--none'
+          }`,
+          String(d)
+        );
+
+        let description = 'no recorded completed-session activity';
+
+        if (isFuture) {description = 'upcoming';
+        } else if (calendarLoading) {description = 'loading';
+        } else if (calendarError) {description = 'activity unavailable';}
+
+        cell.setAttribute('aria-label', `${monthName} ${d} (${description})`);
       }
-      if (isToday) cell.classList.add('cal__cell--today');
+
+      if (isToday) {cell.classList.add('cal__cell--today');}
+
       grid.appendChild(cell);
     }
 
-    const current = today.getFullYear() * 12 + today.getMonth();
-    $('#cal-next').disabled = year * 12 + month >= current;
+    const currentMonth = today.getFullYear() * 12 + today.getMonth();
+
+    $('#cal-next').disabled = year * 12 + month >= currentMonth;
   }
 
   // ---------------------------------------------------------------------------
@@ -274,6 +382,7 @@
   async function init() {
     setLinks();
     renderCalendar();
+    void loadCalendarInsights();
     topicGarden = new window.TopicGarden(API_BASE);
     const showView = settings => {
       $('#garden-view').hidden = settings;
@@ -351,14 +460,17 @@
       finally { button.disabled = false; }
     });
 
+    
     $('#cal-prev').addEventListener('click', () => {
       state.month = new Date(state.month.getFullYear(), state.month.getMonth() - 1, 1);
-      renderCalendar();
+      void loadCalendarInsights();
     });
+
     $('#cal-next').addEventListener('click', () => {
       state.month = new Date(state.month.getFullYear(), state.month.getMonth() + 1, 1);
-      renderCalendar();
+      void loadCalendarInsights();
     });
+
 
     if (hasStorage) {
       const stored = await chrome.storage.local.get(['scrollingSession', 'pruneTopicTree', 'lastSessionReview', 'audioCaptureEnabled', 'audioCaptureStatus', 'audioBackendStatus', 'minimumWatchSeconds', 'lastMinimumWatchSeconds', ...SESSION_KEYS]);
