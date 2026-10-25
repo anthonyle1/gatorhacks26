@@ -2,13 +2,13 @@
 
 **Your social media feed is a tree. Prune the branches of the categories that tear people down.**
 
-Prune is a Chrome extension and website for YouTube Shorts and Instagram Reels. It watches what you scroll, uses Gemma 4 to sort those videos into a tree of topics, and colors each branch by how negative its comments and content are relative to each other. You decide which branches to cut back, and Prune reminds you when a video from a pruned topic appears on your feed.
+Prune is a Chrome extension and website for YouTube Shorts. It watches what you scroll, uses Gemma 4 to sort those videos into a tree of topics, and colors each branch by how negative its comments and content are relative to each other. You decide which branches to cut back, and Prune reminds you when a video from a pruned topic appears on your feed.
 
 Built in 48 hours at Gator Hack V (UF AI Days 2026) by a team from three UF departments: Computer Science, Computer Engineering, and Psychology.
 
 ## What it does
 
-- **Tracks your session.** Records each Short or Reel you watch: title, caption, comments, watch time, and (optionally) the video's speech.
+- **Tracks your session.** Records each Short you watch: title, caption, comments, watch time, and (optionally) the video's speech.
 - **Grows a topic tree.** When you finish a session, Gemma 4 sorts every video into topics such as Music > K-pop. The tree keeps growing across sessions.
 - **Colors branches by negativity.** Each leaf mixes the share of negative comments with Gemma's warning signs (for example outrage bait or public shaming). Colors are relative to your own tree, and clicking a topic shows the counts behind its color.
 - **Scores personal attacks in comments.** The "Today so far" meter rates Shorts as calm, some, or heavy by how many comments attack a real person, using a method validated against human labels (see below).
@@ -17,7 +17,7 @@ Built in 48 hours at Gator Hack V (UF AI Days 2026) by a team from three UF depa
 
 ## How it works
 
-1. **Chrome extension** (`chrome-react/`): content scripts read the YouTube or Instagram page, optional tab-audio capture records speech, and the side panel shows the session, tree, meter, and calendar.
+1. **Chrome extension** (`chrome-react/`): content scripts read the YouTube Shorts page, optional tab-audio capture records speech, and the side panel shows the session, tree, meter, and calendar.
 2. **Backend** (`backend/`): a FastAPI server on your machine saves sessions in a local SQLite database and fetches YouTube comments.
 3. **AI models**, each with one job:
    - `cardiffnlp/twitter-roberta-base-sentiment-latest` labels every comment as positive, neutral, or negative.
@@ -36,8 +36,8 @@ Python, FastAPI, SQLite, React, TypeScript, Vite, Chrome Extensions (Manifest V3
 | Name | Major | Built |
 | --- | --- | --- |
 | Anthony Le | Computer Science | AI pipeline: sentiment, Gemma topic tree and video assessment, audio transcription, tree visualization, pruned-topic reminders |
-| Ivette Saldana Hernandez | Computer Science | Backend, database, session tracking, Instagram comment storage, calendar insights, website design |
-| Zhiting Li | Computer Engineering | Chrome extension, YouTube and Instagram integration, first website |
+| Ivette Saldana Hernandez | Computer Science | Backend, database, session tracking, calendar insights, website design |
+| Zhiting Li | Computer Engineering | Chrome extension, YouTube integration, first website |
 | Helena | Psychology | Hostility definition and prompt, data collection, blind human validation, video scores, wireframes |
 
 ## Getting started
@@ -86,7 +86,7 @@ To rebuild after code changes: `npm --prefix chrome-react ci`, then `npm --prefi
 **5. Try it.**
 
 1. Open a YouTube Short and click the **Prune** icon in Chrome's toolbar. The side panel opens. (Clicking the toolbar icon on the video tab is also what allows audio capture.)
-2. Press **Start session** and watch a few Shorts or Reels.
+2. Press **Start session** and watch a few Shorts.
 3. Press **Finish & review**. After a minute or two, your feed tree grows.
 4. Click a topic to see why it has its color, and prune it if you want less of it.
 
@@ -129,9 +129,10 @@ labels, and limits: `research/validation/`.
 
 ## Limitations
 
-- **Pruning reminds; it doesn't remove.** A pruned topic triggers a reminder on screen; YouTube and Instagram still show those videos.
+- **Pruning reminds; it doesn't remove.** A pruned topic triggers a reminder on screen; YouTube still shows those videos.
 - **Comment scores cover analyzed videos only.** The personal-attack meter uses scores for 408 Shorts computed ahead of time. Scoring new videos live would need a GPU server.
 - **Small validation set.** One human labeler and 14 hostile examples, so the true agreement could plausibly sit anywhere from about 0.4 to 0.75. Gemma over-flags borderline comments, so rates lean high.
+- **YouTube Shorts only.** We started Instagram Reels support during the hackathon but cut it from this version.
 - **English works best.** Speech-to-text is English only, and the prompts were tuned on English comments.
 - **Tree colors are relative.** Red means "highest in your tree", not a diagnosis of harm.
 
