@@ -17,6 +17,12 @@
   box-sizing: border-box;
 }
 
+* { scrollbar-color: #648957 #edf3e7; scrollbar-width: thin; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #edf3e7; border-radius: 8px; }
+::-webkit-scrollbar-thumb { background: #648957; border: 2px solid #edf3e7; border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: #436a3d; }
+
 body {
   margin: 0;
   background: var(--bg);
@@ -286,6 +292,11 @@ button {
   background: #ffffff;
   color: var(--ink);
 }
+.tree-actions { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 8px; }
+.tree-actions .link-card { min-width: 0; padding: 8px 10px; font-size: 12px; }
+.tree-actions .link-card svg { flex-shrink: 0; width: 15px; height: 15px; }
+.btn--danger { color: #a12d32; background: #fff0ef; border: 1px solid #dc9c9a; font-size: 12px; }
+.btn--danger:hover { color: #842127; background: #fce0de; border-color: #bf6967; }
 .link-card {
   min-height: 38px;
   border-radius: 12px;

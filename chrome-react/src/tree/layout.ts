@@ -21,6 +21,7 @@ export interface TreeLayout {
   roots: Limb[]
   limbs: Limb[]
   trunk: string
+  ground: { left: number; right: number; heightScale: number }
   bounds: { x: number; y: number; width: number; height: number }
 }
 
@@ -76,7 +77,7 @@ export function growTree(topics: Topic[], measure: (text: string, fontSize: numb
   }
   topics.forEach(topic => prepare(topic, 0))
   const limbs: Limb[] = []
-  const trunkHeight = 150 + Math.min(80, Math.sqrt([...weights.values()].reduce((sum, value) => sum + value, 0)) * 12)
+  const trunkHeight = 130 + Math.min(65, Math.sqrt([...weights.values()].reduce((sum, value) => sum + value, 0)) * 10)
   const trunkEnd = { x: 8, y: -trunkHeight }
   const trunk = `M-17 12 C-8 -32 -13 ${-trunkHeight * .62} 3 ${-trunkHeight} L13 ${-trunkHeight} C5 ${-trunkHeight * .6} 14 -30 23 12 Z`
   const trunkPoint = (t: number): Point => ({ x: 8 * t + Math.sin(t * Math.PI) * -5, y: -trunkHeight * t })
@@ -84,15 +85,15 @@ export function growTree(topics: Topic[], measure: (text: string, fontSize: numb
     const size = sizes.get(topic.id)!
     const center = (low + high) / 2
     const angle = center + (seeded(topic.id, 'angle') - .5) * Math.min(.18, (high - low) * .25)
-    const baseLength = (depth ? 55 : 95) + size.height * .55 + size.width * .25 + Math.sqrt(weights.get(topic.id)!) * 12
+    const baseLength = (depth ? 28 : 65) + size.height * .45 + size.width * .16 + Math.sqrt(weights.get(topic.id)!) * 8
     let length = baseLength * (.95 + seeded(topic.id, 'length') * .15)
     let end = along(start, angle, length)
     const overlaps = (p: Point) => limbs.some(other =>
-      Math.abs(p.x - other.end.x) < (size.width + other.width) * .56 + 10 &&
-      Math.abs(p.y - other.end.y) < (size.height + other.height) * .55 + 10)
+      Math.abs(p.x - other.end.x) < (size.width + other.width) * .51 + 5 &&
+      Math.abs(p.y - other.end.y) < (size.height + other.height) * .51 + 5)
     // Sectors preserve sibling order; extend the actual branch to resolve crowded foliage.
     for (let attempt = 0; overlaps(end) && attempt < 120; attempt++) {
-      length += 18
+      length += 8
       end = along(start, angle, length)
     }
     const control1 = along(start, parentId ? parentAngle : -Math.PI / 2, length * .34)
@@ -119,8 +120,12 @@ export function growTree(topics: Topic[], measure: (text: string, fontSize: numb
     cursor += sector
     return root
   })
-  const minX = Math.min(-35, ...limbs.map(limb => limb.end.x - limb.width * .65)) - 25
-  const maxX = Math.max(35, ...limbs.map(limb => limb.end.x + limb.width * .65)) + 25
+  const groundLeft = Math.min(-155, ...limbs.map(limb => limb.end.x - limb.width * .65)) - 12
+  const groundRight = Math.max(155, ...limbs.map(limb => limb.end.x + limb.width * .65)) + 12
+  const heightScale = Math.max(1, Math.min(2, (groundRight - groundLeft) / 460))
+  const minX = groundLeft - 25
+  const maxX = groundRight + 25
   const minY = Math.min(trunkEnd.y - 20, ...limbs.map(limb => limb.end.y - limb.height * .65)) - 25
-  return { roots, limbs, trunk, bounds: { x: minX, y: minY, width: maxX - minX, height: 40 - minY } }
+  return { roots, limbs, trunk, ground: { left: groundLeft, right: groundRight, heightScale },
+    bounds: { x: minX, y: minY, width: maxX - minX, height: 90 * heightScale - minY } }
 }
