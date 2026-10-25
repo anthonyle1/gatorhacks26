@@ -106,7 +106,7 @@ export function TopicTree({ data, falling, zoom, loading, onSize }: Props) {
         style={{ transformOrigin: `${end.x}px ${end.y}px` }}>
         {limb.children.map(child => branch(child, carried || dropping))}
       </g>
-      <g className="topic-leaf living-foliage" onClick={() => { if (!suppressClick.current) setSelected(topic.id); suppressClick.current = false }} role="button" aria-label={`Select ${topic.name}`} tabIndex={0} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setSelected(topic.id) } }} transform={`translate(${end.x} ${end.y})`} data-depth={limb.depth}
+      <g className="topic-leaf living-foliage" onClick={() => { if (!suppressClick.current) { setSelected(topic.id); window.dispatchEvent(new CustomEvent('prune:inspect-topic', { detail: topic.id })) }; suppressClick.current = false }} role="button" aria-label={`Select ${topic.name}`} tabIndex={0} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setSelected(topic.id); window.dispatchEvent(new CustomEvent('prune:inspect-topic', { detail: topic.id })) } }} transform={`translate(${end.x} ${end.y})`} data-depth={limb.depth}
         style={{ transform: `translate(${end.x}px, ${end.y}px)` }}
 >
         <path

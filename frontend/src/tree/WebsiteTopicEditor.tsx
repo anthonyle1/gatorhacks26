@@ -30,7 +30,7 @@ function videoUrl(video: VideoRecord): string | null {
   return null
 }
 
-export default function WebsiteTopicEditor() {
+export default function WebsiteTopicEditor({ inspectedId }: { inspectedId: string }) {
   const { taxonomy, cuts, pruned, selectedId, setSelected, setPruned, editCategory, moveVideo, busy } = usePrune()
   const [expanded, setExpanded] = useState<Record<string, boolean>>({})
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null)
@@ -39,7 +39,18 @@ export default function WebsiteTopicEditor() {
   const dragging = useRef<Dragged>(null)
   const [over, setOver] = useState<string | null>(null)
 
-  const roots = taxonomy?.tree ?? []
+  const allRoots = taxonomy?.tree ?? []
+  // Show only the inspected category (and its descendants).
+  function findTopic(nodes: Topic[], id: string): Topic | undefined {
+    for (const node of nodes) {
+      if (node.id === id) return node
+      const child = findTopic(node.children ?? [], id)
+      if (child) return child
+    }
+    return undefined
+  }
+  const inspectedTopic = inspectedId ? findTopic(allRoots, inspectedId) : undefined
+  const roots = inspectedTopic ? [inspectedTopic] : []
   const topics = useMemo(() => flatten(taxonomy?.tree ?? []), [taxonomy])
   const parentIds = useMemo(() => {
     const result = new Map<string, string | null>()
@@ -160,12 +171,12 @@ export default function WebsiteTopicEditor() {
   const url = video ? videoUrl(video) : null
   return <aside className="website-topic-editor" aria-label="Topic editor">
     <div className="website-topic-editor__heading"><h3>Explore &amp; manage topics</h3>
-      <p>Drag branches to organize your topic tree, move videos between categories, and prune topics you want to see less often.</p></div>
+      <p>Inspect and manage this topic and its child categories.</p></div>
     {actionError && <p role="alert" className="error">{actionError}</p>}
     <div className={`website-topic-editor__organizer${dragged ? ' is-dragging' : ''}`}>
       <div className={`website-topic-root-drop${over === 'root' ? ' is-over' : ''}`} onDragOver={event => accept(event, 'root', null)} onDragLeave={() => setOver(null)} onDrop={event => drop(event, null)}>↰ Drop a branch here to make it top level</div>
       <ul className="website-topic-editor__categories">{roots.map((node, i) => branch(node, roots, i))}</ul>
-      {!roots.length && <p>No topics available yet. Finish and review a scrolling session to create your topic tree.</p>}
+      {!roots.length && <p>This topic is no longer available.</p>}
     </div>
     {selectedVideo && <section className="website-topic-editor__details">
       <div className="website-topic-editor__details-heading"><h4>{video?.title || selectedVideo}</h4><button type="button" onClick={() => setSelectedVideo(null)} aria-label="Close video details">×</button></div>
