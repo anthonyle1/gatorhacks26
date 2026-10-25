@@ -13,17 +13,23 @@ export default function TreeCard() {
   const { branches, pruned, selectedId, setSelected, loading, error } = usePrune()
 
   return (
-    <section className="card card--lg tree-card" aria-labelledby="tree-heading">
-      <div className="tree-card__head">
-        <h2 id="tree-heading" className="h2">Full tree</h2>
-        <ul className="legend">
-          {LEGEND.map((l) => (
-            <li key={l.label}>
-              <span className="legend__dot" style={{ background: l.color }} />
-              {l.label}
-            </li>
-          ))}
-        </ul>
+    <section
+      className="card card--lg tree-card feed-tree-card"
+      aria-labelledby="tree-heading"
+    >
+      <div className="feed-tree-card__heading">
+        <div>
+          <span className="botanical-eyebrow">YOUR LITTLE ECOSYSTEM</span>
+          <h2 id="tree-heading">The story of your feed</h2>
+          <p>
+            Every branch represents a topic. Select one to
+            explore its details.
+          </p>
+        </div>
+
+        <span className="feed-tree-card__flourish" aria-hidden="true">
+          ❧
+        </span>
       </div>
 
       {loading && <p role="status">Loading your topic tree…</p>}
