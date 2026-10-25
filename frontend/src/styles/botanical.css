@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&family=DM+Serif+Display:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&display=swap');
 
 /* ==========================================
 
@@ -29,11 +29,9 @@
   --botanical-shadow: 0 14px 28px -18px rgba(53, 65, 43, .30),
 
                        0 5px 16px -10px rgba(53, 65, 43, .16);
-
-  --botanical-serif: 'DM Serif Display', Georgia, serif;
-
   --botanical-sans: 'Balsamiq Sans', sans-serif;
-
+  --font-heading-accent: 'Homemade Apple', cursive;
+  --font-page-title: 'DM Serif Display', Georgia, serif;
 }
 
 :root[data-prune-theme="olive"] {
@@ -80,6 +78,11 @@ body {
 
   background: #dce7c9;
 
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
 }
 
 /* Application shell */
@@ -149,9 +152,7 @@ body {
   text-decoration: none;
 
   color: var(--botanical-accent);
-
-  font-family: var(--botanical-serif);
-
+  font-family: var(--font-heading);
   font-size: 29px;
 
   line-height: 1;
@@ -423,9 +424,7 @@ body {
   max-width: 740px;
 
   color: var(--botanical-ink);
-
-  font-family: var(--botanical-serif);
-
+  font-family: var(--font-page-title);
   font-size: clamp(40px, 5vw, 69px);
 
   font-weight: 400;
@@ -436,16 +435,26 @@ body {
 
 }
 
+.botanical-hero__leaf {
+  display: inline-block;
+  width: .7em;
+  height: .7em;
+  margin-right: .18em;
+  vertical-align: -.05em;
+  color: var(--botanical-olive);
+  stroke-width: 1.5;
+}
+
 .botanical-hero__title span {
 
   display: block;
 
   color: var(--botanical-olive);
-
-  font-style: italic;
-
-  letter-spacing: -.015em;
-
+  font-family: var(--font-heading-accent);
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.6;
+  letter-spacing: 0;
 }
 
 .botanical-hero__description {
@@ -601,13 +610,9 @@ body {
   margin: 0;
 
   color: var(--botanical-ink);
-
-  font-family: var(--botanical-serif);
-
+  font-family: var(--font-heading);
   font-size: clamp(29px, 3vw, 40px);
-
-  font-weight: 400;
-
+  font-weight: 700;
 }
 
 .botanical-section-title p {
@@ -667,13 +672,9 @@ body {
 }
 
 .botanical-garden__content .stat__value {
-
-  font-family: var(--botanical-serif);
-
+  font-family: var(--font-heading);
   font-size: 22px;
-
-  font-weight: 400;
-
+  font-weight: 700;
 }
 
 .botanical-garden__content .h2,
@@ -681,11 +682,8 @@ body {
 .botanical-garden__content .h3 {
 
   color: var(--botanical-ink);
-
-  font-family: var(--botanical-serif);
-
-  font-weight: 400;
-
+  font-family: var(--font-heading);
+  font-weight: 700;
 }
 
 .botanical-garden__content .branch-tile,
@@ -735,9 +733,7 @@ body {
   margin: 0 0 14px;
 
   color: var(--botanical-ink);
-
-  font-family: var(--botanical-serif);
-
+  font-family: var(--font-page-title);
   font-weight: 400;
 
   font-size: clamp(42px, 5vw, 62px);
@@ -749,9 +745,11 @@ body {
 .botanical-page-heading h1 em {
 
   color: var(--botanical-olive);
-
+  font-family: var(--font-heading-accent);
   font-weight: 400;
-
+  font-style: normal;
+  line-height: 1.6;
+  letter-spacing: 0;
 }
 
 .botanical-page-heading > p {
@@ -791,13 +789,9 @@ body {
   margin: 0 0 10px;
 
   color: var(--botanical-ink);
-
-  font-family: var(--botanical-serif);
-
+  font-family: var(--font-heading);
   font-size: 27px;
-
-  font-weight: 400;
-
+  font-weight: 700;
 }
 
 .botanical-panel > p {
@@ -863,13 +857,9 @@ body {
   margin: 0 0 4px;
 
   color: var(--botanical-ink);
-
-  font-family: var(--botanical-serif);
-
+  font-family: var(--font-heading);
   font-size: 21px;
-
-  font-weight: 400;
-
+  font-weight: 700;
 }
 
 .botanical-setting-row p {
@@ -1295,9 +1285,7 @@ body {
 .journal-heading h1 {
 
   margin: 0 0 15px;
-
-  font-family: var(--botanical-serif);
-
+  font-family: var(--font-page-title);
   color: var(--botanical-ink);
 
   font-size: clamp(40px, 5vw, 62px);
@@ -1315,9 +1303,11 @@ body {
 .insights-section__heading h2 em {
 
   color: var(--botanical-olive);
-
+  font-family: var(--font-heading-accent);
   font-weight: 400;
-
+  font-style: normal;
+  line-height: 1.6;
+  letter-spacing: 0;
 }
 
 .journal-heading p {
@@ -1369,15 +1359,11 @@ body {
 }
 
 .journal-month-title h2 {
-
-  font-family: var(--botanical-serif);
-
+  font-family: var(--font-heading);
   color: var(--botanical-ink);
 
   font-size: 29px;
-
-  font-weight: 400;
-
+  font-weight: 700;
   margin: 0 0 6px;
 
 }
@@ -1539,13 +1525,9 @@ body {
 .garden-start-card h2 {
 
   margin: 0 0 12px;
-
-  font-family: var(--botanical-serif);
-
+  font-family: var(--font-heading);
   font-size: 28px;
-
-  font-weight: 400;
-
+  font-weight: 700;
   color: var(--botanical-ink);
 
 }
@@ -1603,13 +1585,9 @@ body {
 .journal-summary h3,
 
 .journal-day-details > h3 {
-
-  font-family: var(--botanical-serif);
-
+  font-family: var(--font-heading);
   font-size: 21px;
-
-  font-weight: 400;
-
+  font-weight: 700;
   color: var(--botanical-ink);
 
   margin: 6px 0;
@@ -1781,11 +1759,8 @@ body {
 .insights-section__heading h2 {
 
   margin: 0 0 10px;
-
-  font-family: var(--botanical-serif);
-
-  font-weight: 400;
-
+  font-family: var(--font-heading);
+  font-weight: 700;
   font-size: clamp(28px, 3vw, 36px);
 
   color: var(--botanical-ink);
@@ -1857,9 +1832,7 @@ body {
   background: #edd9d1;
 
   color: var(--botanical-ink);
-
-  font-family: var(--botanical-serif);
-
+  font-family: var(--font-heading);
   font-size: 22px;
 
 }
@@ -1883,13 +1856,9 @@ body {
 .insights-step h3,
 
 .insights-info h3 {
-
-  font-family: var(--botanical-serif);
-
+  font-family: var(--font-heading);
   font-size: 22px;
-
-  font-weight: 400;
-
+  font-weight: 700;
   color: var(--botanical-ink);
 
   margin: 22px 0 10px;
@@ -1987,11 +1956,8 @@ body {
 .insights-cta h2 {
 
   margin: 8px 0;
-
-  font-family: var(--botanical-serif);
-
-  font-weight: 400;
-
+  font-family: var(--font-heading);
+  font-weight: 700;
   color: var(--botanical-ink);
 
   font-size: 32px;
@@ -2273,9 +2239,7 @@ body {
 .botanical-garden__content .stat__value {
 
   color: var(--botanical-accent);
-
-  font-family: var(--botanical-serif);
-
+  font-family: var(--font-heading);
   font-size: 27px;
 
   line-height: 1.2;
@@ -2345,11 +2309,8 @@ body {
   margin: 0 0 10px;
 
   color: var(--botanical-ink);
-
-  font-family: var(--botanical-serif);
-
-  font-weight: 400;
-
+  font-family: var(--font-heading);
+  font-weight: 700;
   font-size: clamp(25px, 3vw, 33px);
 
   line-height: 1.2;
@@ -2493,9 +2454,7 @@ body {
   right: 18px;
 
   bottom: 14px;
-
-  font-family: var(--botanical-serif);
-
+  font-family: var(--font-heading);
   font-style: italic;
 
   font-size: 13px;
@@ -2643,13 +2602,9 @@ body {
 .feed-tree-card__category-heading h3 {
 
   margin: 0;
-
-  font-family: var(--botanical-serif);
-
+  font-family: var(--font-heading);
   font-size: 23px;
-
-  font-weight: 400;
-
+  font-weight: 700;
   color: var(--botanical-ink);
 
 }
@@ -2855,13 +2810,9 @@ body {
 .botanical-garden__content .station__title h2 {
 
   color: var(--botanical-ink);
-
-  font-family: var(--botanical-serif);
-
+  font-family: var(--font-heading);
   font-size: 27px;
-
-  font-weight: 400;
-
+  font-weight: 700;
 }
 
 .botanical-garden__content .station__title svg {
@@ -2997,9 +2948,7 @@ body {
 .botanical-garden__content .inspector__head h3 {
 
   color: var(--botanical-ink);
-
-  font-family: var(--botanical-serif);
-
+  font-family: var(--font-heading);
   font-size: 25px;
 
 }
@@ -3479,9 +3428,7 @@ body {
 .daily-insights__stats {
 
   display: grid;
-
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
 
 }
@@ -3507,11 +3454,8 @@ body {
 .daily-insights__stat strong {
 
   color: var(--botanical-ink);
-
-  font-family: var(--botanical-serif);
-
-  font-weight: 400;
-
+  font-family: var(--font-heading);
+  font-weight: 700;
   font-size: 28px;
 
 }

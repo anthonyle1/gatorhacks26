@@ -5,6 +5,12 @@ export type AssessmentStatus =
   | 'unavailable'
 
 export interface DailyVideo {
+  event_id: string
+  session_id: string
+  warning_count: number | null
+  positive_insight_count: number | null
+  comment_counts: { positive: number; neutral: number; negative: number } | null
+  analysis_status: string
   date: string
   video_id: string
   platform: string
@@ -21,6 +27,7 @@ export interface DailyVideo {
       id: string
       evidence: string
     }[]
+    signal_polarities: Record<string, string>
   } | null
 }
 
@@ -41,6 +48,9 @@ export interface DailySummary {
     watch_seconds: number
     assessed_videos: number
     negative_count: number
+    warning_count: number
+    positive_insight_count: number
+    comment_counts: { positive: number; neutral: number; negative: number }
     uncertain_count: number
     not_assessed_count: number
     warning_rate: number | null
@@ -57,6 +67,8 @@ export interface MonthlySummary {
     date: string
     videos_watched: number
     negative_count: number
+    warning_count: number
+    positive_insight_count: number
     uncertain_count: number
     not_assessed_count: number
   }[]

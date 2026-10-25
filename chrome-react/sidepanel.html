@@ -74,14 +74,17 @@
           <span class="eyebrow" id="today-heading">Today so far</span>
           <span class="note-sm" id="today-count"></span>
         </div>
-        <div class="meter" id="meter" role="img" aria-label="How hostile your Shorts have been today">
+        <p class="note-sm">Past 24 hours · across sessions</p>
+        <div class="meter" id="meter" role="img" aria-label="Share of warnings among assessed warnings and positive insights in the past 24 hours">
           <div class="meter__seg meter__seg--calm"></div>
           <div class="meter__seg meter__seg--some"></div>
           <div class="meter__seg meter__seg--heavy"></div>
           <div class="meter__marker" id="meter-marker" hidden></div>
         </div>
-        <div class="meter__labels"><span>Calm</span><span>Some</span><span>Heavy</span></div>
+        <div class="meter__labels"><span>More positive insights</span><span>Mixed</span><span>More warnings</span></div>
         <span class="today__summary" id="today-summary"></span>
+        <p class="note-sm" id="today-comments"></p>
+        <details class="today-videos"><summary>Recent videos · latest 20</summary><ul id="today-video-list"></ul></details>
       </section>
 
       <!-- Feed tree -->
@@ -149,17 +152,6 @@
         <span class="note">Tap a day to see your tree on that day.</span>
       </section>
 
-      <div class="foot">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B6B62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 16v-4" />
-          <path d="M12 8h.01" />
-        </svg>
-        <span>
-          Hostility means comments that demean or attack a real person. Scores are estimated by AI from each video's
-          comments. <a id="measure-link" href="#" target="_blank" rel="noopener">How we measure this</a>
-        </span>
-      </div>
       </div>
       <section class="card settings-view" id="settings-view" role="region" aria-labelledby="collection-settings-heading" hidden>
         <button class="settings-back" id="settings-back" type="button">
@@ -186,20 +178,46 @@
         <p class="fine">Changes apply immediately to open video tabs. This does not change which videos are collected for your session.</p>
         <span class="note-sm" id="detection-delay-saved" role="status"></span>
         <p class="session__error" id="detection-delay-error" role="alert" hidden></p>
+        <label class="session__audio-option" for="auto-skip-topics">
+          <span><strong>Automatically skip pruned topics</strong><small>Move to the next video when a pruned topic is detected. An alert names the topic that was skipped.</small></span>
+          <input id="auto-skip-topics" type="checkbox" role="switch" aria-describedby="auto-skip-error" disabled />
+        </label>
+        <p class="session__error" id="auto-skip-error" role="alert" hidden></p>
       </section>
       <section class="card detection-topics" aria-labelledby="detection-topics-heading" aria-busy="true">
         <div class="card__row">
-          <h2 class="h2" id="detection-topics-heading">Topics checked</h2>
+          <h2 class="h2" id="detection-topics-heading">Compost List</h2>
           <span class="chip chip--sm" id="detection-topics-count">0</span>
         </div>
+        <p class="note-sm">Your pruned topics, gathered here. Unprune a branch to let it grow back.</p>
+        <div class="detection-compost" id="detection-compost" role="img" aria-label="Loading compost pile"></div>
+        <p class="note-sm" id="detection-topics-feedback" role="status" hidden></p>
         <p class="note-sm" id="detection-topics-status" role="status">Loading pruned topics…</p>
         <ul class="detection-topics__list" id="detection-topics-list" aria-label="Pruned topics used for detection"></ul>
+        <div class="compost-footer">
+          <button id="compost-clear" class="compost-clear" type="button" aria-describedby="compost-clear-note" disabled><span id="compost-clear-icon" aria-hidden="true"></span>Clear list</button>
+        </div>
       </section>
+
+            <div class="foot">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B6B62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 16v-4" />
+          <path d="M12 8h.01" />
+        </svg>
+        <span>
+          Hostility means comments that demean or attack a real person. Scores are estimated by AI from each video's
+          comments. <a id="measure-link" href="#" target="_blank" rel="noopener">How we measure this</a>
+        </span>
+      </div>
+
     </main>
 
     <script src="/collection-policy.js"></script>
     <script src="/detection-core.js"></script>
     <script src="/audio-status.js"></script>
+    <script src="/daily-activity.js"></script>
+    <script src="/compost.js"></script>
     <script type="module" src="/src/tree/entry.tsx"></script>
   </body>
 </html>

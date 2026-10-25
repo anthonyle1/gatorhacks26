@@ -170,9 +170,9 @@ function readVideoMetadata() {
   };
 }
 
-function sendVideoEvent(videoId, platform, startedAt, seconds) {
-  const event = {
-    event_id: crypto.randomUUID(), video_id: videoId, platform,
+function buildVideoEvent(videoId, platform, startedAt, seconds) {
+  return {
+    event_id: currentVisitId || crypto.randomUUID(), video_id: videoId, platform,
     video_session_id: (platform === "youtube" ? "yt_" : "ig_") + videoId,
     occurrence_id: currentOccurrence?.occurrence_id || null,
     collection_visit_id: currentVisitId,
@@ -181,6 +181,10 @@ function sendVideoEvent(videoId, platform, startedAt, seconds) {
     started_at: startedAt, ended_at: new Date().toISOString(),
     dwell_seconds: Number(seconds.toFixed(2)), interest_match: null
   };
+}
+
+function sendVideoEvent(videoId, platform, startedAt, seconds) {
+  const event = buildVideoEvent(videoId, platform, startedAt, seconds);
   unsentEvents.set(event.event_id, event);
   return transmitVideoEvent(event);
 }
@@ -202,6 +206,7 @@ function qualifyCurrentVideo() {
     currentQualified = true;
     session.videoCount++;
     session.videoHistory.push({ videoId: currentVideoId, platform: currentPlatform, timestamp: videoStartedAt });
+    chrome.runtime.sendMessage({ type: 'ACTIVITY_EVENT', event: buildVideoEvent(currentVideoId, currentPlatform, videoStartedAt, currentVideoSeconds) }, () => { void chrome.runtime.lastError; });
     if (minimumWatchSeconds > 0) session.durationSeconds += currentVideoSeconds;
   }
   if (minimumWatchSeconds > 0 && !qualificationSent) {
