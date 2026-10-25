@@ -1,0 +1,3362 @@
+[
+  {
+    "video_id": "demo_short_0001",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about ai tools: I tested an AI study assistant.",
+    "content_signals": [
+      {
+        "id": "educational",
+        "evidence": "Comparing AI flashcards with my normal study routine. #AI #studytips"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0002",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about programming: Python tips for beginners.",
+    "content_signals": [
+      {
+        "id": "skill_building",
+        "evidence": "Three ways to debug a Python loop. #python #coding"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0003",
+    "synthetic": true,
+    "negative_for_user": "uncertain",
+    "reason": "The supplied metadata alone does not establish whether this content is negative for a viewer.",
+    "context_summary": "A short video about ai tools: Can AI really write your whole app?.",
+    "content_signals": [
+      {
+        "id": "informative",
+        "evidence": "Trying an AI coding assistant on a small project. #coding #AI"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0004",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about programming: My first Raspberry Pi project.",
+    "content_signals": [
+      {
+        "id": "educational",
+        "evidence": "Building a blinking LED circuit from scratch. #raspberrypi"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0005",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about ai tools: This AI trick will make you rich overnight.",
+    "content_signals": [
+      {
+        "id": "manipulative_urgency",
+        "evidence": "You must buy my secret AI prompt pack today! #AI #money"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0006",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about programming: Python tips for beginners.",
+    "content_signals": [
+      {
+        "id": "skill_building",
+        "evidence": "Three ways to debug a Python loop. #python #coding"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0007",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about ai tools: I tested an AI study assistant.",
+    "content_signals": [
+      {
+        "id": "educational",
+        "evidence": "Comparing AI flashcards with my normal study routine. #AI #studytips"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0008",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about programming: My first Raspberry Pi project.",
+    "content_signals": [
+      {
+        "id": "educational",
+        "evidence": "Building a blinking LED circuit from scratch. #raspberrypi"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0009",
+    "synthetic": true,
+    "negative_for_user": "uncertain",
+    "reason": "The supplied metadata alone does not establish whether this content is negative for a viewer.",
+    "context_summary": "A short video about ai tools: Can AI really write your whole app?.",
+    "content_signals": [
+      {
+        "id": "informative",
+        "evidence": "Trying an AI coding assistant on a small project. #coding #AI"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0010",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about programming: Python tips for beginners.",
+    "content_signals": [
+      {
+        "id": "skill_building",
+        "evidence": "Three ways to debug a Python loop. #python #coding"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0011",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about ai tools: This AI trick will make you rich overnight.",
+    "content_signals": [
+      {
+        "id": "manipulative_urgency",
+        "evidence": "You must buy my secret AI prompt pack today! #AI #money"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0012",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about programming: My first Raspberry Pi project.",
+    "content_signals": [
+      {
+        "id": "educational",
+        "evidence": "Building a blinking LED circuit from scratch. #raspberrypi"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0013",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about ai tools: I tested an AI study assistant.",
+    "content_signals": [
+      {
+        "id": "educational",
+        "evidence": "Comparing AI flashcards with my normal study routine. #AI #studytips"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0014",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about programming: Python tips for beginners.",
+    "content_signals": [
+      {
+        "id": "skill_building",
+        "evidence": "Three ways to debug a Python loop. #python #coding"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0015",
+    "synthetic": true,
+    "negative_for_user": "uncertain",
+    "reason": "The supplied metadata alone does not establish whether this content is negative for a viewer.",
+    "context_summary": "A short video about ai tools: Can AI really write your whole app?.",
+    "content_signals": [
+      {
+        "id": "informative",
+        "evidence": "Trying an AI coding assistant on a small project. #coding #AI"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0016",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about programming: My first Raspberry Pi project.",
+    "content_signals": [
+      {
+        "id": "educational",
+        "evidence": "Building a blinking LED circuit from scratch. #raspberrypi"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0017",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about ai tools: This AI trick will make you rich overnight.",
+    "content_signals": [
+      {
+        "id": "manipulative_urgency",
+        "evidence": "You must buy my secret AI prompt pack today! #AI #money"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0018",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about programming: Python tips for beginners.",
+    "content_signals": [
+      {
+        "id": "skill_building",
+        "evidence": "Three ways to debug a Python loop. #python #coding"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0019",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about ai tools: I tested an AI study assistant.",
+    "content_signals": [
+      {
+        "id": "educational",
+        "evidence": "Comparing AI flashcards with my normal study routine. #AI #studytips"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0020",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about programming: My first Raspberry Pi project.",
+    "content_signals": [
+      {
+        "id": "educational",
+        "evidence": "Building a blinking LED circuit from scratch. #raspberrypi"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0021",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about minecraft: My cozy Minecraft starter house.",
+    "content_signals": [
+      {
+        "id": "creative_expression",
+        "evidence": "A simple build tutorial for a survival world. #minecraft"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0022",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about valorant: Best crosshair practice routine.",
+    "content_signals": [
+      {
+        "id": "skill_building",
+        "evidence": "Warm-up drills before a ranked match. #valorant"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0023",
+    "synthetic": true,
+    "negative_for_user": "uncertain",
+    "reason": "The supplied metadata alone does not establish whether this content is negative for a viewer.",
+    "context_summary": "A short video about minecraft: I lost everything in hardcore mode.",
+    "content_signals": [
+      {
+        "id": "informative",
+        "evidence": "One mistake ended my longest survival run. #minecraft"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0024",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about valorant: Ranked teammates are all terrible.",
+    "content_signals": [
+      {
+        "id": "hostile_arguments",
+        "evidence": "Ranting about teammates after a bad match. #valorant"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0025",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about minecraft: My cozy Minecraft starter house.",
+    "content_signals": [
+      {
+        "id": "creative_expression",
+        "evidence": "A simple build tutorial for a survival world. #minecraft"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0026",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about valorant: Best crosshair practice routine.",
+    "content_signals": [
+      {
+        "id": "skill_building",
+        "evidence": "Warm-up drills before a ranked match. #valorant"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0027",
+    "synthetic": true,
+    "negative_for_user": "uncertain",
+    "reason": "The supplied metadata alone does not establish whether this content is negative for a viewer.",
+    "context_summary": "A short video about minecraft: I lost everything in hardcore mode.",
+    "content_signals": [
+      {
+        "id": "informative",
+        "evidence": "One mistake ended my longest survival run. #minecraft"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0028",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about valorant: Ranked teammates are all terrible.",
+    "content_signals": [
+      {
+        "id": "hostile_arguments",
+        "evidence": "Ranting about teammates after a bad match. #valorant"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0029",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about minecraft: My cozy Minecraft starter house.",
+    "content_signals": [
+      {
+        "id": "creative_expression",
+        "evidence": "A simple build tutorial for a survival world. #minecraft"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0030",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about valorant: Best crosshair practice routine.",
+    "content_signals": [
+      {
+        "id": "skill_building",
+        "evidence": "Warm-up drills before a ranked match. #valorant"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0031",
+    "synthetic": true,
+    "negative_for_user": "uncertain",
+    "reason": "The supplied metadata alone does not establish whether this content is negative for a viewer.",
+    "context_summary": "A short video about minecraft: I lost everything in hardcore mode.",
+    "content_signals": [
+      {
+        "id": "informative",
+        "evidence": "One mistake ended my longest survival run. #minecraft"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0032",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about valorant: Ranked teammates are all terrible.",
+    "content_signals": [
+      {
+        "id": "hostile_arguments",
+        "evidence": "Ranting about teammates after a bad match. #valorant"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0033",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about minecraft: My cozy Minecraft starter house.",
+    "content_signals": [
+      {
+        "id": "creative_expression",
+        "evidence": "A simple build tutorial for a survival world. #minecraft"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0034",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about valorant: Best crosshair practice routine.",
+    "content_signals": [
+      {
+        "id": "skill_building",
+        "evidence": "Warm-up drills before a ranked match. #valorant"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0035",
+    "synthetic": true,
+    "negative_for_user": "uncertain",
+    "reason": "The supplied metadata alone does not establish whether this content is negative for a viewer.",
+    "context_summary": "A short video about minecraft: I lost everything in hardcore mode.",
+    "content_signals": [
+      {
+        "id": "informative",
+        "evidence": "One mistake ended my longest survival run. #minecraft"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0036",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about valorant: Ranked teammates are all terrible.",
+    "content_signals": [
+      {
+        "id": "hostile_arguments",
+        "evidence": "Ranting about teammates after a bad match. #valorant"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0037",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about minecraft: My cozy Minecraft starter house.",
+    "content_signals": [
+      {
+        "id": "creative_expression",
+        "evidence": "A simple build tutorial for a survival world. #minecraft"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0038",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about valorant: Best crosshair practice routine.",
+    "content_signals": [
+      {
+        "id": "skill_building",
+        "evidence": "Warm-up drills before a ranked match. #valorant"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0039",
+    "synthetic": true,
+    "negative_for_user": "uncertain",
+    "reason": "The supplied metadata alone does not establish whether this content is negative for a viewer.",
+    "context_summary": "A short video about minecraft: I lost everything in hardcore mode.",
+    "content_signals": [
+      {
+        "id": "informative",
+        "evidence": "One mistake ended my longest survival run. #minecraft"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": null
+  },
+  {
+    "video_id": "demo_short_0040",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about valorant: Ranked teammates are all terrible.",
+    "content_signals": [
+      {
+        "id": "hostile_arguments",
+        "evidence": "Ranting about teammates after a bad match. #valorant"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0041",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about college life: Realistic college morning routine.",
+    "content_signals": [
+      {
+        "id": "healthy_habits",
+        "evidence": "A slow morning before an 8 AM class. #college"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0042",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about beauty: Easy everyday makeup look.",
+    "content_signals": [
+      {
+        "id": "practical_advice",
+        "evidence": "A simple five-minute makeup tutorial. #beauty"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0043",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about college life: Everyone else has their life together.",
+    "content_signals": [
+      {
+        "id": "social_comparison",
+        "evidence": "Comparing my grades and internship offers with classmates. #college"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0044",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about beauty: Fix your face with these products.",
+    "content_signals": [
+      {
+        "id": "unrealistic_beauty_standards",
+        "evidence": "You need all of these products to look acceptable. #beauty"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0045",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about college life: Realistic college morning routine.",
+    "content_signals": [
+      {
+        "id": "healthy_habits",
+        "evidence": "A slow morning before an 8 AM class. #college"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0046",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about beauty: Easy everyday makeup look.",
+    "content_signals": [
+      {
+        "id": "practical_advice",
+        "evidence": "A simple five-minute makeup tutorial. #beauty"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0047",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about college life: Everyone else has their life together.",
+    "content_signals": [
+      {
+        "id": "social_comparison",
+        "evidence": "Comparing my grades and internship offers with classmates. #college"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0048",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about beauty: Fix your face with these products.",
+    "content_signals": [
+      {
+        "id": "unrealistic_beauty_standards",
+        "evidence": "You need all of these products to look acceptable. #beauty"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0049",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about college life: Realistic college morning routine.",
+    "content_signals": [
+      {
+        "id": "healthy_habits",
+        "evidence": "A slow morning before an 8 AM class. #college"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0050",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about beauty: Easy everyday makeup look.",
+    "content_signals": [
+      {
+        "id": "practical_advice",
+        "evidence": "A simple five-minute makeup tutorial. #beauty"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0051",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about college life: Everyone else has their life together.",
+    "content_signals": [
+      {
+        "id": "social_comparison",
+        "evidence": "Comparing my grades and internship offers with classmates. #college"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0052",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about beauty: Fix your face with these products.",
+    "content_signals": [
+      {
+        "id": "unrealistic_beauty_standards",
+        "evidence": "You need all of these products to look acceptable. #beauty"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0053",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about college life: Realistic college morning routine.",
+    "content_signals": [
+      {
+        "id": "healthy_habits",
+        "evidence": "A slow morning before an 8 AM class. #college"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0054",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about beauty: Easy everyday makeup look.",
+    "content_signals": [
+      {
+        "id": "practical_advice",
+        "evidence": "A simple five-minute makeup tutorial. #beauty"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0055",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about college life: Everyone else has their life together.",
+    "content_signals": [
+      {
+        "id": "social_comparison",
+        "evidence": "Comparing my grades and internship offers with classmates. #college"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0056",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about beauty: Fix your face with these products.",
+    "content_signals": [
+      {
+        "id": "unrealistic_beauty_standards",
+        "evidence": "You need all of these products to look acceptable. #beauty"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0057",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about college life: Realistic college morning routine.",
+    "content_signals": [
+      {
+        "id": "healthy_habits",
+        "evidence": "A slow morning before an 8 AM class. #college"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0058",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about beauty: Easy everyday makeup look.",
+    "content_signals": [
+      {
+        "id": "practical_advice",
+        "evidence": "A simple five-minute makeup tutorial. #beauty"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0059",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about college life: Everyone else has their life together.",
+    "content_signals": [
+      {
+        "id": "social_comparison",
+        "evidence": "Comparing my grades and internship offers with classmates. #college"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0060",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about beauty: Fix your face with these products.",
+    "content_signals": [
+      {
+        "id": "unrealistic_beauty_standards",
+        "evidence": "You need all of these products to look acceptable. #beauty"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0061",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about workouts: Ten minute beginner workout.",
+    "content_signals": [
+      {
+        "id": "healthy_habits",
+        "evidence": "Low-impact exercises with breaks and modifications. #fitness"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0062",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about nutrition: Quick high-protein lunch idea.",
+    "content_signals": [
+      {
+        "id": "practical_advice",
+        "evidence": "Simple lunch prep with affordable ingredients. #mealprep"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0063",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about workouts: No excuses: train through pain.",
+    "content_signals": [
+      {
+        "id": "shame_based_motivation",
+        "evidence": "If you skip today you are lazy and weak. #gym"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0064",
+    "synthetic": true,
+    "negative_for_user": "uncertain",
+    "reason": "The supplied metadata alone does not establish whether this content is negative for a viewer.",
+    "context_summary": "A short video about nutrition: What I eat in a day.",
+    "content_signals": [
+      {
+        "id": "informative",
+        "evidence": "Sharing one person’s meals, not a universal plan. #nutrition"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0065",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about workouts: Ten minute beginner workout.",
+    "content_signals": [
+      {
+        "id": "healthy_habits",
+        "evidence": "Low-impact exercises with breaks and modifications. #fitness"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0066",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about nutrition: Quick high-protein lunch idea.",
+    "content_signals": [
+      {
+        "id": "practical_advice",
+        "evidence": "Simple lunch prep with affordable ingredients. #mealprep"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0067",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about workouts: No excuses: train through pain.",
+    "content_signals": [
+      {
+        "id": "shame_based_motivation",
+        "evidence": "If you skip today you are lazy and weak. #gym"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0068",
+    "synthetic": true,
+    "negative_for_user": "uncertain",
+    "reason": "The supplied metadata alone does not establish whether this content is negative for a viewer.",
+    "context_summary": "A short video about nutrition: What I eat in a day.",
+    "content_signals": [
+      {
+        "id": "informative",
+        "evidence": "Sharing one person’s meals, not a universal plan. #nutrition"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0069",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about workouts: Ten minute beginner workout.",
+    "content_signals": [
+      {
+        "id": "healthy_habits",
+        "evidence": "Low-impact exercises with breaks and modifications. #fitness"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0070",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about nutrition: Quick high-protein lunch idea.",
+    "content_signals": [
+      {
+        "id": "practical_advice",
+        "evidence": "Simple lunch prep with affordable ingredients. #mealprep"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0071",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about workouts: No excuses: train through pain.",
+    "content_signals": [
+      {
+        "id": "shame_based_motivation",
+        "evidence": "If you skip today you are lazy and weak. #gym"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0072",
+    "synthetic": true,
+    "negative_for_user": "uncertain",
+    "reason": "The supplied metadata alone does not establish whether this content is negative for a viewer.",
+    "context_summary": "A short video about nutrition: What I eat in a day.",
+    "content_signals": [
+      {
+        "id": "informative",
+        "evidence": "Sharing one person’s meals, not a universal plan. #nutrition"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0073",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about workouts: Ten minute beginner workout.",
+    "content_signals": [
+      {
+        "id": "healthy_habits",
+        "evidence": "Low-impact exercises with breaks and modifications. #fitness"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0074",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about nutrition: Quick high-protein lunch idea.",
+    "content_signals": [
+      {
+        "id": "practical_advice",
+        "evidence": "Simple lunch prep with affordable ingredients. #mealprep"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0075",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about workouts: No excuses: train through pain.",
+    "content_signals": [
+      {
+        "id": "shame_based_motivation",
+        "evidence": "If you skip today you are lazy and weak. #gym"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0076",
+    "synthetic": true,
+    "negative_for_user": "uncertain",
+    "reason": "The supplied metadata alone does not establish whether this content is negative for a viewer.",
+    "context_summary": "A short video about nutrition: What I eat in a day.",
+    "content_signals": [
+      {
+        "id": "informative",
+        "evidence": "Sharing one person’s meals, not a universal plan. #nutrition"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0077",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about workouts: Ten minute beginner workout.",
+    "content_signals": [
+      {
+        "id": "healthy_habits",
+        "evidence": "Low-impact exercises with breaks and modifications. #fitness"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0078",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about nutrition: Quick high-protein lunch idea.",
+    "content_signals": [
+      {
+        "id": "practical_advice",
+        "evidence": "Simple lunch prep with affordable ingredients. #mealprep"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0079",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about workouts: No excuses: train through pain.",
+    "content_signals": [
+      {
+        "id": "shame_based_motivation",
+        "evidence": "If you skip today you are lazy and weak. #gym"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0080",
+    "synthetic": true,
+    "negative_for_user": "uncertain",
+    "reason": "The supplied metadata alone does not establish whether this content is negative for a viewer.",
+    "context_summary": "A short video about nutrition: What I eat in a day.",
+    "content_signals": [
+      {
+        "id": "informative",
+        "evidence": "Sharing one person’s meals, not a universal plan. #nutrition"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0081",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about budgeting: Budgeting as a college student.",
+    "content_signals": [
+      {
+        "id": "practical_advice",
+        "evidence": "How I track rent, groceries, and savings. #budget"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0082",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about wealth culture: If you are 20 and not rich you failed.",
+    "content_signals": [
+      {
+        "id": "unrealistic_wealth_expectations",
+        "evidence": "Everyone your age is making six figures except you. #success"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0083",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about budgeting: Saving five dollars a day.",
+    "content_signals": [
+      {
+        "id": "educational",
+        "evidence": "Small saving habits that worked for me. #saving"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0084",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about wealth culture: Double your money in one week.",
+    "content_signals": [
+      {
+        "id": "scam_promotion",
+        "evidence": "Guaranteed returns if you send money now. #investing"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0085",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about budgeting: Budgeting as a college student.",
+    "content_signals": [
+      {
+        "id": "practical_advice",
+        "evidence": "How I track rent, groceries, and savings. #budget"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0086",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about wealth culture: If you are 20 and not rich you failed.",
+    "content_signals": [
+      {
+        "id": "unrealistic_wealth_expectations",
+        "evidence": "Everyone your age is making six figures except you. #success"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0087",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about budgeting: Saving five dollars a day.",
+    "content_signals": [
+      {
+        "id": "educational",
+        "evidence": "Small saving habits that worked for me. #saving"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0088",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about wealth culture: Double your money in one week.",
+    "content_signals": [
+      {
+        "id": "scam_promotion",
+        "evidence": "Guaranteed returns if you send money now. #investing"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0089",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about budgeting: Budgeting as a college student.",
+    "content_signals": [
+      {
+        "id": "practical_advice",
+        "evidence": "How I track rent, groceries, and savings. #budget"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0090",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about wealth culture: If you are 20 and not rich you failed.",
+    "content_signals": [
+      {
+        "id": "unrealistic_wealth_expectations",
+        "evidence": "Everyone your age is making six figures except you. #success"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0091",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about budgeting: Saving five dollars a day.",
+    "content_signals": [
+      {
+        "id": "educational",
+        "evidence": "Small saving habits that worked for me. #saving"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0092",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about wealth culture: Double your money in one week.",
+    "content_signals": [
+      {
+        "id": "scam_promotion",
+        "evidence": "Guaranteed returns if you send money now. #investing"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0093",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about budgeting: Budgeting as a college student.",
+    "content_signals": [
+      {
+        "id": "practical_advice",
+        "evidence": "How I track rent, groceries, and savings. #budget"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0094",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about wealth culture: If you are 20 and not rich you failed.",
+    "content_signals": [
+      {
+        "id": "unrealistic_wealth_expectations",
+        "evidence": "Everyone your age is making six figures except you. #success"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0095",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about budgeting: Saving five dollars a day.",
+    "content_signals": [
+      {
+        "id": "educational",
+        "evidence": "Small saving habits that worked for me. #saving"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0096",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about wealth culture: Double your money in one week.",
+    "content_signals": [
+      {
+        "id": "scam_promotion",
+        "evidence": "Guaranteed returns if you send money now. #investing"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0097",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about budgeting: Budgeting as a college student.",
+    "content_signals": [
+      {
+        "id": "practical_advice",
+        "evidence": "How I track rent, groceries, and savings. #budget"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0098",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about wealth culture: If you are 20 and not rich you failed.",
+    "content_signals": [
+      {
+        "id": "unrealistic_wealth_expectations",
+        "evidence": "Everyone your age is making six figures except you. #success"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0099",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about budgeting: Saving five dollars a day.",
+    "content_signals": [
+      {
+        "id": "educational",
+        "evidence": "Small saving habits that worked for me. #saving"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0100",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about wealth culture: Double your money in one week.",
+    "content_signals": [
+      {
+        "id": "scam_promotion",
+        "evidence": "Guaranteed returns if you send money now. #investing"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0101",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about music: Learning a dance in 30 seconds.",
+    "content_signals": [
+      {
+        "id": "creative_expression",
+        "evidence": "Trying a trending dance for fun. #dance"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0102",
+    "synthetic": true,
+    "negative_for_user": "uncertain",
+    "reason": "The supplied metadata alone does not establish whether this content is negative for a viewer.",
+    "context_summary": "A short video about internet drama: Creator argument explained.",
+    "content_signals": [
+      {
+        "id": "informative",
+        "evidence": "A neutral recap of an online disagreement. #internet"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0103",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about music: My favorite guitar riff.",
+    "content_signals": [
+      {
+        "id": "creative_expression",
+        "evidence": "Practicing a short riff after class. #music"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0104",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about internet drama: You need to hate this creator.",
+    "content_signals": [
+      {
+        "id": "harassment",
+        "evidence": "Watch this clip and flood their comments. #drama"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0105",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about music: Learning a dance in 30 seconds.",
+    "content_signals": [
+      {
+        "id": "creative_expression",
+        "evidence": "Trying a trending dance for fun. #dance"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0106",
+    "synthetic": true,
+    "negative_for_user": "uncertain",
+    "reason": "The supplied metadata alone does not establish whether this content is negative for a viewer.",
+    "context_summary": "A short video about internet drama: Creator argument explained.",
+    "content_signals": [
+      {
+        "id": "informative",
+        "evidence": "A neutral recap of an online disagreement. #internet"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0107",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about music: My favorite guitar riff.",
+    "content_signals": [
+      {
+        "id": "creative_expression",
+        "evidence": "Practicing a short riff after class. #music"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0108",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about internet drama: You need to hate this creator.",
+    "content_signals": [
+      {
+        "id": "harassment",
+        "evidence": "Watch this clip and flood their comments. #drama"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0109",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about music: Learning a dance in 30 seconds.",
+    "content_signals": [
+      {
+        "id": "creative_expression",
+        "evidence": "Trying a trending dance for fun. #dance"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0110",
+    "synthetic": true,
+    "negative_for_user": "uncertain",
+    "reason": "The supplied metadata alone does not establish whether this content is negative for a viewer.",
+    "context_summary": "A short video about internet drama: Creator argument explained.",
+    "content_signals": [
+      {
+        "id": "informative",
+        "evidence": "A neutral recap of an online disagreement. #internet"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0111",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about music: My favorite guitar riff.",
+    "content_signals": [
+      {
+        "id": "creative_expression",
+        "evidence": "Practicing a short riff after class. #music"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0112",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about internet drama: You need to hate this creator.",
+    "content_signals": [
+      {
+        "id": "harassment",
+        "evidence": "Watch this clip and flood their comments. #drama"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0113",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about music: Learning a dance in 30 seconds.",
+    "content_signals": [
+      {
+        "id": "creative_expression",
+        "evidence": "Trying a trending dance for fun. #dance"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0114",
+    "synthetic": true,
+    "negative_for_user": "uncertain",
+    "reason": "The supplied metadata alone does not establish whether this content is negative for a viewer.",
+    "context_summary": "A short video about internet drama: Creator argument explained.",
+    "content_signals": [
+      {
+        "id": "informative",
+        "evidence": "A neutral recap of an online disagreement. #internet"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0115",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about music: My favorite guitar riff.",
+    "content_signals": [
+      {
+        "id": "creative_expression",
+        "evidence": "Practicing a short riff after class. #music"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0116",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about internet drama: You need to hate this creator.",
+    "content_signals": [
+      {
+        "id": "harassment",
+        "evidence": "Watch this clip and flood their comments. #drama"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  },
+  {
+    "video_id": "demo_short_0117",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about music: Learning a dance in 30 seconds.",
+    "content_signals": [
+      {
+        "id": "creative_expression",
+        "evidence": "Trying a trending dance for fun. #dance"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0118",
+    "synthetic": true,
+    "negative_for_user": "uncertain",
+    "reason": "The supplied metadata alone does not establish whether this content is negative for a viewer.",
+    "context_summary": "A short video about internet drama: Creator argument explained.",
+    "content_signals": [
+      {
+        "id": "informative",
+        "evidence": "A neutral recap of an online disagreement. #internet"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0119",
+    "synthetic": true,
+    "negative_for_user": "no",
+    "reason": "The supplied caption contains a potentially beneficial content signal.",
+    "context_summary": "A short video about music: My favorite guitar riff.",
+    "content_signals": [
+      {
+        "id": "creative_expression",
+        "evidence": "Practicing a short riff after class. #music"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": 1.0
+  },
+  {
+    "video_id": "demo_short_0120",
+    "synthetic": true,
+    "negative_for_user": "yes",
+    "reason": "The supplied caption includes a potentially negative content signal.",
+    "context_summary": "A short video about internet drama: You need to hate this creator.",
+    "content_signals": [
+      {
+        "id": "harassment",
+        "evidence": "Watch this clip and flood their comments. #drama"
+      }
+    ],
+    "evidence_references": [
+      {
+        "id": "caption"
+      }
+    ],
+    "provider": "synthetic_demo",
+    "model": null,
+    "fallback_used": false,
+    "fallback_reason": null,
+    "evidence_summary": {
+      "comment_excerpts": 3,
+      "transcript_excerpts": 0,
+      "transcript_characters": 0
+    },
+    "sentiment_balance": -1.0
+  }
+]

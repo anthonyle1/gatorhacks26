@@ -1960,3 +1960,90 @@ body {
 .prune-reduce-motion .storybook-tree__foliage {
   animation: none !important;
 }
+
+
+/* ==========================================
+   CHROME EXTENSION TREE — WEBSITE INTEGRATION
+   ========================================== */
+
+.website-tree-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 18px 0 12px;
+  color: var(--botanical-accent);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.website-tree-zoom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.website-tree-zoom button {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid var(--botanical-border);
+  border-radius: 10px;
+  background: var(--botanical-cream);
+  color: var(--botanical-accent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.website-tree-zoom button:hover {
+  background: var(--botanical-accent-soft);
+}
+
+.website-tree-zoom span {
+  min-width: 48px;
+  text-align: center;
+}
+
+.website-tree-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  min-width: 0;
+}
+
+.website-tree-viewport {
+  width: 100%;
+  height: 560px;
+  max-height: 68vh;
+  overflow: auto;
+  border: 1px solid var(--botanical-border);
+  border-radius: 18px;
+  background: linear-gradient(
+    180deg,
+    #f5f8ee 0%,
+    #eaf0e2 100%
+  );
+}
+
+.website-tree-details {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+#topic-inspector,
+#branches {
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .website-tree-viewport {
+    height: 420px;
+  }
+
+  .website-tree-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

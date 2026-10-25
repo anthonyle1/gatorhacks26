@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Healthy Doomscrolling</title>
+  <style>
+    body {
+      width: 320px;
+      padding: 12px;
+      background: #f5f6fa;
+      font-family: Arial, sans-serif;
+    }
+
+    h2 {
+      color: #684378;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 14px;
+      margin-bottom: 12px;
+    }
+
+    .value {
+      color: #684378;
+      font-size: 28px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Healthy Doomscrolling</h2>
+  <p>Your scrolling activity</p>
+
+  <div class="card">
+    <p>Time spent scrolling</p>
+    <div class="value" id="duration">0.0 min</div>
+  </div>
+
+  <div class="card">
+    <p>Videos watched</p>
+    <div class="value" id="videoCount">0</div>
+  </div>
+
+  <div class="card">
+    <p>Current platform</p>
+    <div class="value" id="platform">None</div>
+  </div>
+
+  <div class="card">
+    <p>Current video ID</p>
+    <div id="videoId">None</div>
+  </div>
+
+</body>
+<script src="popup.js"></script>
+</html>
