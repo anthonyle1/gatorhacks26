@@ -1,6 +1,7 @@
 import { createRoot, type Root } from 'react-dom/client'
 import { TopicTree } from './TopicTree'
 import { flatten, type TreeData } from './types'
+import { boundPan, zoomRange } from './camera'
 
 /** Owns API/cache/pruning state. Geometry and exploration remain in the React view. */
 export class TopicGarden {
@@ -15,7 +16,8 @@ export class TopicGarden {
   private root: Root
   private apiBase: string
   private initialFit = false
-  private pictureSize: { width: number; height: number } | null = null
+  private pictureSize: { width: number; height: number; groundTop: number } | null = null
+  private renderedZoomRange = { min: 1, max: 3 }
 
   constructor(apiBase: string) {
     this.apiBase = apiBase
@@ -30,25 +32,59 @@ export class TopicGarden {
       const delta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? viewport.clientHeight : 1)
       this.setZoom(this.zoom * Math.exp(-delta * .002), event.clientX - bounds.left, event.clientY - bounds.top)
     }, { passive: false })
+    viewport.addEventListener('scroll', () => this.keepInBounds(), { passive: true })
+    new ResizeObserver(() => this.constrainView()).observe(viewport)
     this.render()
   }
 
   private fit() {
     if (!this.pictureSize) return
-    const viewport = document.getElementById('tree')!
-    this.setZoom(Math.min(1, viewport.clientWidth / this.pictureSize.width, viewport.clientHeight / this.pictureSize.height))
-    requestAnimationFrame(() => { viewport.scrollLeft = 0; viewport.scrollTop = 0 })
+    this.setZoom(this.zoomLimits().min)
+    requestAnimationFrame(() => this.panTo(0, 0))
   }
 
   private setZoom(value: number, anchorX?: number, anchorY?: number) {
     const viewport = document.getElementById('tree')!
     const previous = this.zoom
-    this.zoom = Math.max(.15, Math.min(3, value))
+    const limits = this.zoomLimits()
+    this.zoom = Math.max(limits.min, Math.min(limits.max, value))
+    if (Math.abs(this.zoom - previous) < 1e-8) return
     const x = anchorX ?? viewport.clientWidth / 2, y = anchorY ?? viewport.clientHeight / 2
     const left = (viewport.scrollLeft + x) / previous * this.zoom - x
     const top = (viewport.scrollTop + y) / previous * this.zoom - y
     this.render()
-    requestAnimationFrame(() => { viewport.scrollLeft = left; viewport.scrollTop = top })
+    requestAnimationFrame(() => this.panTo(left, top))
+  }
+
+  private zoomLimits() {
+    if (!this.pictureSize) return { min: 1, max: 3 }
+    const viewport = document.getElementById('tree')!
+    return zoomRange(viewport.clientWidth, viewport.clientHeight, this.pictureSize.width, this.pictureSize.height)
+  }
+
+  private constrainView() {
+    if (!this.pictureSize) return
+    const limits = this.zoomLimits()
+    const bounded = Math.max(limits.min, Math.min(limits.max, this.zoom))
+    if (Math.abs(bounded - this.zoom) > 1e-8) this.setZoom(bounded)
+    else if (limits.min !== this.renderedZoomRange.min || limits.max !== this.renderedZoomRange.max) this.render()
+    this.keepInBounds()
+  }
+
+  private panTo = (left: number, top: number, behavior: ScrollBehavior = 'instant') => {
+    if (!this.pictureSize) return
+    const viewport = document.getElementById('tree')!
+    const position = boundPan(left, top, viewport.clientWidth, viewport.clientHeight,
+      this.pictureSize.width * this.zoom, this.pictureSize.height * this.zoom, this.pictureSize.groundTop * this.zoom)
+    viewport.scrollTo({ ...position, behavior })
+  }
+
+  private keepInBounds() {
+    if (!this.pictureSize) return
+    const viewport = document.getElementById('tree')!
+    const position = boundPan(viewport.scrollLeft, viewport.scrollTop, viewport.clientWidth, viewport.clientHeight,
+      this.pictureSize.width * this.zoom, this.pictureSize.height * this.zoom, this.pictureSize.groundTop * this.zoom)
+    if (Math.abs(viewport.scrollLeft - position.left) > 1 || Math.abs(viewport.scrollTop - position.top) > 1) this.panTo(position.left, position.top)
   }
 
   private async request(body?: { category_id: string; reduce: boolean }): Promise<TreeData> {
@@ -134,9 +170,21 @@ export class TopicGarden {
     void this.cache()
   }
 
-  private onSize = (width: number, height: number) => {
-    this.pictureSize = { width, height }
+  private onSize = (width: number, height: number, groundTop: number) => {
+    this.pictureSize = { width, height, groundTop }
+    requestAnimationFrame(() => this.constrainView())
     if (!this.initialFit) { this.initialFit = true; requestAnimationFrame(() => this.fit()) }
+  }
+
+  private focusTopic = (x: number, y: number, width: number, height: number) => {
+    const viewport = document.getElementById('tree')!
+    const limits = this.zoomLimits()
+    this.zoom = Math.max(limits.min, Math.min(limits.max, Math.max(this.zoom,
+      Math.min(2.4, viewport.clientWidth * .68 / width, viewport.clientHeight * .55 / height))))
+    this.render()
+    requestAnimationFrame(() => this.panTo(x * this.zoom - viewport.clientWidth / 2,
+      y * this.zoom - viewport.clientHeight * .43,
+      matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'))
   }
 
   private render() {
@@ -147,9 +195,11 @@ export class TopicGarden {
     health.className = 'chip chip--sm chip--unrated'
     health.textContent = this.loading ? 'Loading…' : `${flatten(this.data.tree).filter(topic => !topic.reduce).length} topics`
     document.getElementById('tree-zoom-level')!.textContent = `${Math.round(this.zoom * 100)}%`
-    ;(document.getElementById('tree-zoom-out') as HTMLButtonElement).disabled = this.zoom <= .15
-    ;(document.getElementById('tree-zoom-in') as HTMLButtonElement).disabled = this.zoom >= 3
+    const limits = this.zoomLimits()
+    this.renderedZoomRange = limits
+    ;(document.getElementById('tree-zoom-out') as HTMLButtonElement).disabled = this.zoom <= limits.min + 1e-8
+    ;(document.getElementById('tree-zoom-in') as HTMLButtonElement).disabled = this.zoom >= limits.max - 1e-8
     this.root.render(<TopicTree data={this.data} falling={new Set(this.falling)} busy={this.busy} zoom={this.zoom}
-      loading={this.loading} onPrune={(id, value) => { void this.prune(id, value) }} onSize={this.onSize} />)
+      loading={this.loading} onPrune={(id, value) => { void this.prune(id, value) }} onSize={this.onSize} onFocusTopic={this.focusTopic} onPan={this.panTo} />)
   }
 }

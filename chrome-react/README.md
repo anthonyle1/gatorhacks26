@@ -18,10 +18,13 @@ The side panel draws its tree from `GET /local-sessions/taxonomy`. Its React/Typ
 renderer grows curved, tapered branches recursively from the real hierarchy. Subtree sizes
 allocate angular growth sectors; seeded variation and collision checks keep geometry stable
 and foliage apart. Each child starts at its actual parent branch endpoint. Topic names and
-video counts come from saved reviews. Use the topic list below the tree to inspect videos,
-focus a branch, or expand/collapse children. The drawing has no click-selection or hover highlights.
-Prune previews the affected descendants and unique video count, asks for confirmation, saves
-the existing preference, and animates the whole subtree falling away. **Undo prune** restores it.
+video counts come from saved reviews. Click a bush to zoom and center on it; hovering reveals
+a pruning action beside it that disappears when the pointer leaves. The topic list also opens
+details, focuses branches, and expands/collapses children. Details use a compact bottom card
+with a collapsible video list, and close on outside focus, Escape, window blur, or the close button.
+The compact topic list scrolls independently and uses Lucide video icons for counts. Hovering
+or focusing **Prune** shows scissors. Pruning immediately saves the existing preference and
+animates the whole subtree falling away; **Undo** restores it without a confirmation dialog.
 The tree refreshes every three seconds and caches its last successful response for offline display.
 Leaf shapes contain the complete topic name and video count. Child leaves are smaller than their
 parents. Use **+**, **−**, or the mouse wheel over the tree to zoom (15–300%); **Fit tree** fits
