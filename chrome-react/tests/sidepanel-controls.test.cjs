@@ -21,7 +21,11 @@ async function panel() {
   let storageListener;
   let confirmed = true;
   const context = vm.createContext({
-    window: { confirm() { return confirmed; } },
+    window: { confirm() { return confirmed; }, TopicGarden: class {
+      start() {}
+      refresh() {}
+      clear() { node('#tree-health').textContent = 'Empty'; }
+    } },
     document: { querySelector: node, createElement: element, createTextNode: element },
     setInterval() {},
     chrome: {
@@ -47,18 +51,19 @@ async function panel() {
 test('side panel starts and finishes tracking, shows live counters, and offers the saved review', async () => {
   const ui = await panel();
   const button = ui.node('#session-toggle');
-  assert.equal(button.textContent, 'Start tracking');
+  assert.equal(ui.node('#session-toggle-label').textContent, 'Start session');
   assert.equal(button.disabled, false);
   assert.equal(ui.node('#audio-enabled').checked, true);
   await button.listeners.click();
   assert.equal(ui.messages[0], 'START_SESSION');
-  assert.equal(button.textContent, 'Finish session');
+  assert.equal(ui.node('#session-toggle-label').textContent, 'Finish & review');
   assert.equal(ui.node('#session-status').textContent, 'Recording');
   ui.update({ scrollingSession: { durationSeconds: 65, videoCount: 3 } });
-  assert.equal(ui.node('#session-stats').textContent, '1:05 \u00b7 3 videos');
+  assert.equal(ui.node('#session-time').textContent, '1:05');
+  assert.equal(ui.node('#session-count').textContent, '3');
   await button.listeners.click();
   assert.equal(ui.messages[1], 'FINISH_SESSION');
-  assert.equal(button.textContent, 'Start tracking');
+  assert.equal(ui.node('#session-toggle-label').textContent, 'Start session');
   assert.equal(ui.node('#session-review').hidden, false);
 });
 
@@ -70,7 +75,7 @@ test('side panel shows a failed Finish and keeps the session available for retry
   await button.listeners.click();
   assert.equal(ui.node('#session-error').hidden, false);
   assert.equal(ui.node('#session-error').textContent, 'Backend unavailable');
-  assert.equal(button.textContent, 'Finish session');
+  assert.equal(ui.node('#session-toggle-label').textContent, 'Finish & review');
   assert.equal(button.disabled, false);
 });
 

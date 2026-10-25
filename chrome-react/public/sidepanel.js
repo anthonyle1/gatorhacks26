@@ -109,12 +109,15 @@
     const unfinished = recording || state.finishPending || !!state.localSessionId;
     const session = state.session || {};
     const seconds = Math.floor(session.durationSeconds || 0);
-    $('#session-stats').textContent = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')} \u00b7 ${session.videoCount || 0} videos`;
-    $('#session-status').textContent = state.sessionBusy ? 'Working...' : recording ? 'Recording' : unfinished ? 'Finish pending' : 'Ready to start';
+    $('#session-time').textContent = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+    $('#session-count').textContent = String(session.videoCount || 0);
+    $('.session-card').dataset.state = state.sessionBusy ? 'busy' : recording ? 'recording' : unfinished ? 'paused' : 'idle';
+    $('#session-status').textContent = state.sessionBusy ? 'Working...' : recording ? 'Recording' : unfinished ? 'Paused' : 'Ready';
     const button = $('#session-toggle');
-    button.textContent = state.sessionBusy ? 'Working...' : unfinished ? 'Finish session' : 'Start tracking';
+    $('#session-toggle-label').textContent = state.sessionBusy ? 'Please wait...' : unfinished ? 'Finish & review' : 'Start session';
+    button.setAttribute('aria-busy', String(state.sessionBusy));
     button.disabled = !state.sessionReady || state.sessionBusy;
-    $('#session-note').textContent = recording ? 'Tracking Shorts and Reels. Finish to update your saved topic tree.' : unfinished ? 'Finish the saved session before starting another.' : 'Start a session to track YouTube Shorts and Instagram Reels.';
+    $('#session-note').textContent = recording ? 'Scroll as usual. Finish when you are ready to see what grew in your tree.' : unfinished ? 'Your session is saved. Finish it to see your review, then start fresh.' : 'Start a session, then scroll as usual. Finish to grow your topic tree.';
     $('#session-review').hidden = !state.lastCompletedLocalSessionId;
   }
 
@@ -283,9 +286,9 @@
       audioValue = value || {}; audioBackend = backend || {}; value = audioValue;
       audioRecording = !!value.recording;
       const display = describeAudioStatus(audioValue, audioBackend, $('#audio-enabled').checked);
-      $('#audio-toggle').textContent = audioRecording ? 'Stop audio capture' : 'Capture selected tab audio';
+      $('#audio-toggle').textContent = audioRecording ? 'Disconnect audio' : 'Connect video audio';
       $('#audio-enabled').disabled = audioRecording;
-      $('#audio-state').textContent = display.label;
+      $('#audio-state').textContent = display.label.charAt(0) + display.label.slice(1).toLowerCase();
       $('#audio-state').dataset.tone = display.tone;
       $('#audio-status').textContent = display.detail;
       $('#audio-model').textContent = display.model;

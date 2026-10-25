@@ -35,26 +35,39 @@
       </header>
 
       <!-- Session controls -->
-      <section class="card session-card" aria-labelledby="session-heading">
-        <div class="card__row">
-          <span class="eyebrow" id="session-heading">Session tracking</span>
-          <span class="note-sm" id="session-status" role="status">Loading...</span>
+      <section class="card session-card" aria-labelledby="session-heading" data-state="idle">
+        <div class="session__heading">
+          <div><span class="session__eyebrow">A little more mindful</span><h2 id="session-heading">Your session</h2></div>
+          <span id="session-status" class="session__badge" role="status">Loading...</span>
         </div>
-        <div class="card__row">
-          <span class="session__stats" id="session-stats">0:00 &middot; 0 videos</span>
-          <button class="btn btn--dark" id="session-toggle" type="button" disabled>Start tracking</button>
+        <div class="session__overview" id="session-stats" aria-label="Session statistics">
+          <div class="session__metric"><span>Time scrolling</span><strong id="session-time">0:00</strong></div>
+          <div class="session__metric"><span>Videos watched</span><strong id="session-count">0</strong></div>
         </div>
-        <div class="audio-monitor" aria-label="Audio and transcription status">
-          <div class="card__row"><label><input id="audio-enabled" type="checkbox" checked>Include video audio</label><strong id="audio-state" data-tone="inactive">NOT RECORDING</strong></div>
-          <p id="audio-status" role="status">Select a video tab and click the Prune toolbar icon to authorize audio.</p>
-          <p class="note-sm" id="audio-model">Checking local Whisper installation...</p>
-          <p class="note-sm" id="audio-progress">No audio uploaded.</p>
-          <p class="note-sm" id="audio-transcript">No transcript available for the prompt.</p>
-          <button class="btn btn--outline" id="audio-toggle" type="button">Capture selected tab audio</button>
+        <button class="btn btn--dark session__start" id="session-toggle" type="button" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path class="session__play" d="M8 5v14l11-7z"/><rect class="session__stop" x="6" y="6" width="12" height="12" rx="2"/></svg>
+          <span id="session-toggle-label">Start session</span>
+        </button>
+        <p class="session__hint" id="session-note">Start a session, then scroll as usual. Finish to grow your topic tree.</p>
+        <div class="audio-monitor" aria-label="Audio options">
+          <div class="session__audio-head">
+            <label class="session__audio-option" for="audio-enabled">
+              <span><strong>Include video audio</strong><small>Understand the speech in your videos.</small></span>
+              <input id="audio-enabled" type="checkbox" role="switch" checked />
+            </label>
+          </div>
+          <div class="session__audio-status"><strong id="audio-state" data-tone="inactive">Not recording</strong></div>
+          <p id="audio-status" role="status">Open a video tab and click Prune in Chrome's toolbar to connect audio.</p>
+          <details class="session__audio-details">
+            <summary>Audio details &amp; controls</summary>
+            <p class="note-sm" id="audio-model">Checking speech recognition...</p>
+            <p class="note-sm" id="audio-progress">No audio uploaded.</p>
+            <p class="note-sm" id="audio-transcript">No transcript available yet.</p>
+            <button class="btn btn--outline" id="audio-toggle" type="button">Connect video audio</button>
+          </details>
         </div>
-        <span class="note" id="session-note">Start a session to track YouTube Shorts and Instagram Reels.</span>
         <p class="session__error" id="session-error" role="alert" hidden></p>
-        <a class="session__review" id="session-review" href="popup.html?view=summary" target="_blank" rel="noopener" hidden>Review latest session</a>
+        <a class="session__review" id="session-review" href="popup.html?view=summary" target="_blank" rel="noopener" hidden>View your latest review <span aria-hidden="true">?</span></a>
       </section>
 
       <!-- Today so far -->
