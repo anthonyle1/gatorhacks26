@@ -24,7 +24,7 @@ def unique_object(pairs):
     return result
 
 
-def generate_validated(data, system, schema, validate, *, client=None, max_tokens=4096, max_chars=60000, context_length=8192):
+def generate_validated(data, system, schema, validate, *, client=None, max_tokens=4096, max_chars=60000, context_length=8192, provider=None):
     """Only validated data leaves this function. No model tools are enabled."""
     prompt = json.dumps(data, ensure_ascii=True)
 
@@ -33,6 +33,12 @@ def generate_validated(data, system, schema, validate, *, client=None, max_token
             raise ValueError("Response size limit")
         return validate(json.loads(raw, object_pairs_hook=unique_object))
 
+    if client is None and provider == "navigator":
+        from .navigator_client import NavigatorClient
+        client = NavigatorClient(stage="topics")
+    elif client is None and provider == "gemma":
+        from .gemma_client import GemmaClient
+        client = GemmaClient()
     local = client or OllamaClient()
     try:
         for attempt in range(2):
@@ -41,7 +47,8 @@ def generate_validated(data, system, schema, validate, *, client=None, max_token
             try:
                 result = parse(response["response"])
                 model = getattr(local, "model", None)
-                return result, {"provider": "ollama", "model": model if isinstance(model, str) else None,
+                provider = getattr(local, "provider", "ollama")
+                return result, {"provider": provider if isinstance(provider, str) else "ollama", "model": model if isinstance(model, str) else None,
                                 "fallback_used": False, "fallback_reason": None}
             except (ValidationError, ValueError, KeyError, TypeError) as exc:
                 codes = [error["type"] for error in exc.errors(include_input=False, include_context=False)] if isinstance(exc, ValidationError) else [type(exc).__name__]
@@ -49,8 +56,10 @@ def generate_validated(data, system, schema, validate, *, client=None, max_token
                 if attempt == 0:
                     system += "\nRegenerate the complete object using the original evidence. Respect schema limits, unique IDs, valid references, and coverage rules. Do not invent evidence."
                 else:
-                    raise OllamaError("Ollama returned invalid output after one regeneration.") from None
+                    raise OllamaError("The configured model returned invalid output after one regeneration.") from None
     except OllamaError as local_error:
+        if getattr(local, "provider", None) in {"gemma", "navigator"}:
+            raise
         try:
             gemini = GeminiClient()
             if not gemini.enabled:

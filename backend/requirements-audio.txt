@@ -1,0 +1,5 @@
+# Local audio pipeline, included by requirements.txt; may also be installed separately.
+faster-whisper>=1.1,<2
+av>=14,<17
+numpy>=1.26,<3
+redis>=5,<7

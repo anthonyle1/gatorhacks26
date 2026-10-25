@@ -1,21 +1,24 @@
 """Session classification shared by local and MongoDB session transports."""
 
 from datetime import datetime, timezone
-import hashlib
-import json
 
 from .ollama_client import OllamaError
 from .session_classification import classify_batch, pack_videos
 from .topic_store import TopicStore
+from .versions import versions, fingerprint as evidence_fingerprint
+from .session_classification import SESSION_PROMPT, SessionDiscovery
 
 
 def classify_session_data(session_id, user_id, videos, *, store=None, client=None):
     """Batch once after finish; cache successful batches for explicit retries."""
     store = store or TopicStore()
-    eligible = [video for video in videos if (video.get("title", "").strip() or video.get("caption", "").strip())]
+    eligible = []
+    for video in videos:
+        if video.get("title", "").strip() or video.get("caption", "").strip() or video.get("transcripts"):
+            eligible.append({**video, "caption": video.get("caption") or " ".join(row["text"] for row in video.get("transcripts", []))[:500]})
     assignments, provenance, errors = {}, [], []
     for batch in pack_videos(eligible):
-        fingerprint = hashlib.sha256(json.dumps(batch, sort_keys=True).encode()).hexdigest()
+        fingerprint = evidence_fingerprint([versions("topics"), SESSION_PROMPT, SessionDiscovery.model_json_schema(), batch])
         cached = store.cached_batch(session_id, user_id, fingerprint)
         if cached is None:
             catalog = store.candidates(user_id, " ".join(video["title"] + " " + video["caption"] for video in batch))
@@ -41,7 +44,7 @@ def classify_session_data(session_id, user_id, videos, *, store=None, client=Non
     result = {"session_id": session_id, "status": status, "classification_scope": "completed_session",
               "assignments": assignments, "unclassified_video_ids": [],
               "fallback_video_ids": sorted(missing),
-              "videos": [{key: video.get(key) for key in ("video_id", "source_id", "platform", "title", "caption", "metadata_status", "analysis", "dwell_seconds", "watch_count")} for video in videos],
+              "videos": [{key: video.get(key) for key in ("video_id", "video_session_id", "source_id", "platform", "title", "caption", "metadata_status", "analysis", "dwell_seconds", "watch_count", "coverage", "transcripts", "missing_evidence", "excluded_evidence", "evidence_version")} for video in videos],
               "batches": provenance, "errors": errors, "fallback_used": any(source["fallback_used"] for source in provenance),
               "completed_at": datetime.now(timezone.utc).isoformat()}
     store.save_session(session_id, user_id, result)

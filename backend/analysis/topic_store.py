@@ -94,13 +94,23 @@ class TopicStore:
                     values.append(item[1])
             for row in rows:
                 row["aliases"] = aliases.get(row["id"], [])
-        rows.sort(key=lambda row: len(words & set(re.findall(r"\w+", row["name"].casefold() + " " + row["description"].casefold()))), reverse=True)
+        rows.sort(key=lambda row: len(words & set(re.findall(r"\w+", " ".join(
+            [row["name"], row["description"], *row["aliases"]]).casefold()))), reverse=True)
+        by_id = {row["id"]: row for row in rows}
         result, size = [], 0
-        for row in rows[:limit]:
-            cost = len(json.dumps(row, ensure_ascii=True))
-            if size + cost > 5000:
-                break
-            result.append(row)
+        included = set()
+        for row in rows:
+            # Supply the existing path along with a match so the model can reuse
+            # a branch without inventing a duplicate parent or flattening it.
+            path, current = [], row
+            while current and current["id"] not in included:
+                path.append(current)
+                current = by_id.get(current["parent_id"])
+            cost = sum(len(json.dumps(item, ensure_ascii=True)) for item in path)
+            if len(result) + len(path) > limit or size + cost > 5000:
+                continue
+            result.extend(reversed(path))
+            included.update(item["id"] for item in path)
             size += cost
         return result
 
@@ -117,9 +127,9 @@ class TopicStore:
                 if normalized(proposal.name) == "generalother":
                     category = self._category(connection, user_id, self._fallback_category(connection, user_id))
                     parent_id = category["parent_id"]
-                # An omitted ancestor in a bounded batch must not silently detach
-                # an existing branch or change inherited preferences.
-                if category and parent_id is None:
+                # Discovery adds memberships and new branches; only manual edits
+                # move existing branches or change inherited preferences.
+                if category:
                     parent_id = category["parent_id"]
                 if category is None:
                     matches = connection.execute("SELECT id FROM categories WHERE user_id = ? AND parent_id IS ? AND merged_into IS NULL", (user_id, parent_id)).fetchall()
@@ -175,6 +185,22 @@ class TopicStore:
         with self.connection() as connection:
             return connection.execute("SELECT 1 FROM session_topics WHERE session_id=? AND user_id=?", (session_id, user_id)).fetchone() is not None
 
+    def reset_tree(self, user_id, *, connection=None):
+        """Clear category history while retaining individual session analyses."""
+        if connection is None:
+            with self.connection() as connection:
+                connection.execute("BEGIN IMMEDIATE")
+                return self.reset_tree(user_id, connection=connection)
+        connection.execute("DELETE FROM category_aliases WHERE category_id IN (SELECT id FROM categories WHERE user_id=?)", (user_id,))
+        connection.execute("DELETE FROM topic_preferences WHERE user_id=?", (user_id,))
+        connection.execute("DELETE FROM session_topic_batches WHERE user_id=?", (user_id,))
+        for row in connection.execute("SELECT session_id,result FROM session_topics WHERE user_id=?", (user_id,)).fetchall():
+            result = json.loads(row["result"])
+            result.update(assignments={}, fallback_video_ids=[], unclassified_video_ids=[], tree_reset=True)
+            connection.execute("UPDATE session_topics SET result=? WHERE session_id=? AND user_id=?",
+                               (json.dumps(result), row["session_id"], user_id))
+        connection.execute("DELETE FROM categories WHERE user_id=?", (user_id,))
+
     def cached_batch(self, session_id, user_id, fingerprint):
         with self.connection() as connection:
             row = connection.execute("SELECT result FROM session_topic_batches WHERE session_id=? AND user_id=? AND fingerprint=?", (session_id, user_id, fingerprint)).fetchone()
@@ -221,13 +247,29 @@ class TopicStore:
         with self.connection() as connection:
             row = connection.execute("SELECT result FROM session_topics WHERE session_id=? AND user_id=?", (session_id, user_id)).fetchone()
             if row is None:
+                owner = connection.execute("SELECT user_id FROM session_topics WHERE session_id=?", (session_id,)).fetchone()
+                if owner:
+                    return None
+            history = [json.loads(item[0]) for item in connection.execute(
+                "SELECT result FROM session_topics WHERE user_id=? ORDER BY rowid", (user_id,))]
+            if row is None and not history:
                 return None
-            result = json.loads(row[0])
+            result = json.loads(row[0]) if row else {"session_id": session_id, "status": "pending",
+                "assignments": {}, "videos": [], "errors": [], "fallback_used": False}
+            # The latest completed classification of a repeated video replaces
+            # its old membership. Read historical reviews too, without migration.
+            history.sort(key=lambda item: item.get("completed_at", ""))
+            global_assignments, global_videos = {}, {}
+            for review in history:
+                global_assignments.update(review.get("assignments", {}))
+                global_videos.update({video["video_id"]: video for video in review.get("videos", [])})
             preferences = {self._category(connection, user_id, item[0])["id"] for item in connection.execute(
                 "SELECT category_id FROM topic_preferences WHERE user_id=?", (user_id,))}
-            nodes = {}
+            nodes = {item["id"]: {"id": item["id"], "name": item["name"],
+                "description": item["description"], "parent_id": item["parent_id"], "video_ids": set(), "children": []}
+                for item in connection.execute("SELECT * FROM categories WHERE user_id=? AND merged_into IS NULL", (user_id,))}
             assignments = {}
-            for video_id, category_ids in result.get("assignments", {}).items():
+            for video_id, category_ids in global_assignments.items():
                 assignments[video_id] = set()
                 for category_id in category_ids:
                     category = self._category(connection, user_id, category_id)
@@ -259,7 +301,12 @@ class TopicStore:
             for root in roots:
                 inherited(root)
             result["tree"] = sorted(roots, key=lambda node: node["name"].casefold())
-            result["assignments"] = {video_id: sorted(ids) for video_id, ids in assignments.items()}
+            result["tree_scope"] = "global"
+            result["tree_assignments"] = {video_id: sorted(ids) for video_id, ids in assignments.items()}
+            result["tree_videos"] = [video for video_id, video in global_videos.items() if video_id in assignments]
+            result["global_video_count"] = len(assignments)
+            result["assignments"] = {video_id: sorted({self._category(connection, user_id, category_id)["id"]
+                for category_id in category_ids}) for video_id, category_ids in result.get("assignments", {}).items()}
             result["selected_category_ids"] = sorted(preferences)
             result["reduce_video_ids"] = sorted({video_id for node in nodes.values() if node["reduce"] for video_id in node["video_ids"]})
             return result

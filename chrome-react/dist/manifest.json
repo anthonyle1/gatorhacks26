@@ -1,12 +1,16 @@
 
 {
   "manifest_version": 3,
+  "minimum_chrome_version": "116",
   "name": "Healthy Doomscrolling",
   "version": "2.0",
   "description": "Track YouTube Shorts and Instagram Reels viewing activity.",
   "permissions": [
     "storage",
-    "activeTab"
+    "activeTab",
+    "sidePanel",
+    "tabCapture",
+    "offscreen"
   ],
   "host_permissions": [
     "https://www.youtube.com/*",
@@ -27,6 +31,9 @@
     }
   ],
   "action": {
-    "default_popup": "popup.html"
+    "default_title": "Open Prune"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
   }
 }

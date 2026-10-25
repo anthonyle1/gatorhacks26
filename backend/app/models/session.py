@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Literal
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class SessionCreate(BaseModel):
@@ -13,6 +13,8 @@ class VideoEvent(BaseModel):
     event_id: str = Field(min_length=1)
     video_id: str = Field(min_length=1)
     platform: Literal["youtube", "instagram"] = "youtube"
+    video_session_id: str | None = Field(default=None, max_length=123)
+    occurrence_id: str | None = Field(default=None, max_length=120)
     title: str = Field(default="", max_length=1000)
     caption: str = Field(default="", max_length=16000)
     sequence_number: int = Field(ge=1)
@@ -29,6 +31,13 @@ class VideoEvent(BaseModel):
         if value is not None and value.utcoffset() is None:
             raise ValueError("Datetime must include a timezone")
         return value
+
+    @model_validator(mode="after")
+    def video_identity(self):
+        expected = ("yt_" if self.platform == "youtube" else "ig_") + self.video_id
+        if self.video_session_id is not None and self.video_session_id != expected:
+            raise ValueError("Video session ID does not match source/platform")
+        return self
 
 
 class VideoEventBatch(BaseModel):

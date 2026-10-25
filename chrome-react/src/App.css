@@ -73,3 +73,8 @@ a { color: #644077; overflow-wrap: anywhere; }
 .video-result h3 { margin: 8px 0; font-size: 15px; }
 .video-meta, .analysis-note { color: #75617e; font-size: 12px; }
 .video-result details { margin-top: 10px; }
+.audio-monitor { margin-top: 14px; padding: 12px; border: 1px solid #d5dfd7; border-radius: 10px; background: #f3f8f4; font-size: 12px; line-height: 1.5; }
+.audio-state { display: block; margin-bottom: 10px; color: #5b6260; }
+.audio-state.recording { color: #21623c; }
+.audio-state.waiting { color: #806000; }
+.audio-state.error { color: #982c2c; }

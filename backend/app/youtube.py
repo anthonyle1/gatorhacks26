@@ -8,9 +8,10 @@ from starlette.concurrency import run_in_threadpool
 
 from datetime import datetime, timezone
 from dotenv import load_dotenv
+from app.environment import ENV_FILE
 from fastapi import APIRouter, HTTPException
 
-load_dotenv()
+load_dotenv(ENV_FILE)
 
 router = APIRouter(prefix="/youtube", tags=["YouTube"])
 

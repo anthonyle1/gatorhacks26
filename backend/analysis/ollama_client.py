@@ -5,7 +5,7 @@ From backend/: python -m analysis.ollama_client "Reply with OK"
 
 import argparse
 import os
-from pathlib import Path
+from app.environment import ENV_FILE
 
 import httpx
 from dotenv import load_dotenv
@@ -18,8 +18,8 @@ class OllamaError(RuntimeError):
 
 class OllamaClient:
     def __init__(self, base_url=None, model=None, timeout=None):
-        # Resolve the backend .env consistently, including for standalone use.
-        load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+        # Resolve the repository-root .env consistently, including standalone use.
+        load_dotenv(ENV_FILE)
         self.base_url = (base_url or os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")).rstrip("/")
         self.model = model or os.getenv("OLLAMA_MODEL", DEFAULT_MODEL)
         self.timeout = float(timeout if timeout is not None else os.getenv("OLLAMA_TIMEOUT", "300"))

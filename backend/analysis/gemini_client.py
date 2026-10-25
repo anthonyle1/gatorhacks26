@@ -1,7 +1,7 @@
 """Server-side Gemini fallback with no tool execution or client-side API key."""
 
 import os
-from pathlib import Path
+from app.environment import ENV_FILE
 import re
 
 import httpx
@@ -37,7 +37,7 @@ def _gemini_schema(schema):
 
 class GeminiClient:
     def __init__(self):
-        load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+        load_dotenv(ENV_FILE)
         self.enabled = os.getenv("GEMINI_FALLBACK_ENABLED", "true").lower() == "true"
         self.api_key = os.getenv("GEMINI_API_KEY", "").strip()
         self.model = os.getenv("GEMINI_MODEL", DEFAULT_GEMINI_MODEL)
@@ -56,7 +56,7 @@ class GeminiClient:
         if not self.enabled:
             raise GeminiError("Gemini fallback is disabled.")
         if not self.api_key:
-            raise GeminiError("Gemini fallback requires GEMINI_API_KEY in backend/.env.")
+            raise GeminiError("Gemini fallback requires GEMINI_API_KEY in the repository-root .env.")
         payload = {
             "systemInstruction": {"parts": [{"text": system}]},
             "contents": [{"role": "user", "parts": [{"text": prompt}]}],
