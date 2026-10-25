@@ -460,3 +460,33 @@ a.cal__cell:hover {
     transition: none;
   }
 }
+
+.prune-day-summary {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 15px;
+  border: 1px solid #d9e2d3;
+  background: #f4f6ee;
+  color: #254533;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.prune-day-summary strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.prune-day-summary p {
+  margin: 7px 0;
+}
+
+.prune-day-summary__topics {
+  margin: 8px 0 14px;
+  padding-left: 18px;
+}
+
+.prune-day-summary a {
+  color: #2f6544;
+  font-weight: 700;
+}
