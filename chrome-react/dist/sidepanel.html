@@ -11,9 +11,9 @@
       href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Inter:wght@400;500;600&display=swap"
     />
     <link rel="stylesheet" href="/sidepanel.css" />
-    <script type="module" crossorigin src="/assets/sidepanel-CEuZhb3L.js"></script>
-    <link rel="modulepreload" crossorigin href="/assets/jsx-runtime-BrntCUzc.js">
-    <link rel="stylesheet" crossorigin href="/assets/sidepanel-C3pGKRRx.css">
+    <script type="module" crossorigin src="/assets/sidepanel-DnqhdTmE.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/jsx-runtime-BIqctyxS.js">
+    <link rel="stylesheet" crossorigin href="/assets/sidepanel-DSZbfweA.css">
   </head>
   <body>
     <main class="panel">
@@ -26,35 +26,49 @@
           </svg>
           <span class="brand__name">Prune</span>
         </div>
-        <a class="icon-btn" id="settings-link" href="#" target="_blank" rel="noopener" aria-label="Settings">
+        <button class="icon-btn" id="settings-link" type="button" aria-controls="settings-view" aria-expanded="false" aria-label="Settings">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1F3A2E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="3" />
             <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
           </svg>
-        </a>
+        </button>
       </header>
 
+      <div class="panel-view" id="garden-view" role="region" aria-label="Garden">
       <!-- Session controls -->
-      <section class="card session-card" aria-labelledby="session-heading">
-        <div class="card__row">
-          <span class="eyebrow" id="session-heading">Session tracking</span>
-          <span class="note-sm" id="session-status" role="status">Loading...</span>
+      <section class="card session-card" aria-labelledby="session-heading" data-state="idle">
+        <div class="session__heading">
+          <div><span class="session__eyebrow">A little more mindful</span><h2 id="session-heading">Your session</h2></div>
+          <span id="session-status" class="session__badge" role="status">Loading...</span>
         </div>
-        <div class="card__row">
-          <span class="session__stats" id="session-stats">0:00 &middot; 0 videos</span>
-          <button class="btn btn--dark" id="session-toggle" type="button" disabled>Start tracking</button>
+        <div class="session__overview" id="session-stats" aria-label="Session statistics">
+          <div class="session__metric"><span>Time scrolling</span><strong id="session-time">0:00</strong></div>
+          <div class="session__metric"><span>Videos watched</span><strong id="session-count">0</strong></div>
         </div>
-        <div class="audio-monitor" aria-label="Audio and transcription status">
-          <div class="card__row"><label><input id="audio-enabled" type="checkbox" checked>Include video audio</label><strong id="audio-state" data-tone="inactive">NOT RECORDING</strong></div>
-          <p id="audio-status" role="status">Select a video tab and click the Prune toolbar icon to authorize audio.</p>
-          <p class="note-sm" id="audio-model">Checking local Whisper installation...</p>
-          <p class="note-sm" id="audio-progress">No audio uploaded.</p>
-          <p class="note-sm" id="audio-transcript">No transcript available for the prompt.</p>
-          <button class="btn btn--outline" id="audio-toggle" type="button">Capture selected tab audio</button>
+        <button class="btn btn--dark session__start" id="session-toggle" type="button" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path class="session__play" d="M8 5v14l11-7z"/><rect class="session__stop" x="6" y="6" width="12" height="12" rx="2"/></svg>
+          <span id="session-toggle-label">Start session</span>
+        </button>
+        <p class="session__hint" id="session-note">Start a session, then scroll as usual. Finish to grow your topic tree.</p>
+        <div class="audio-monitor" aria-label="Audio options">
+          <div class="session__audio-head">
+            <label class="session__audio-option" for="audio-enabled">
+              <span><strong>Include video audio</strong><small>Understand the speech in your videos.</small></span>
+              <input id="audio-enabled" type="checkbox" role="switch" checked />
+            </label>
+          </div>
+          <div class="session__audio-status"><strong id="audio-state" data-tone="inactive">Not recording</strong></div>
+          <p id="audio-status" role="status">Open a video tab and click Prune in Chrome's toolbar to connect audio.</p>
+          <details class="session__audio-details">
+            <summary>Audio details &amp; controls</summary>
+            <p class="note-sm" id="audio-model">Checking speech recognition...</p>
+            <p class="note-sm" id="audio-progress">No audio uploaded.</p>
+            <p class="note-sm" id="audio-transcript">No transcript available yet.</p>
+            <button class="btn btn--outline" id="audio-toggle" type="button">Connect video audio</button>
+          </details>
         </div>
-        <span class="note" id="session-note">Start a session to track YouTube Shorts and Instagram Reels.</span>
         <p class="session__error" id="session-error" role="alert" hidden></p>
-        <a class="session__review" id="session-review" href="popup.html?view=summary" target="_blank" rel="noopener" hidden>Review latest session</a>
+        <a class="session__review" id="session-review" href="popup.html?view=summary" target="_blank" rel="noopener" hidden>View your latest review <span aria-hidden="true">?</span></a>
       </section>
 
       <!-- Today so far -->
@@ -79,10 +93,10 @@
           <span class="h2" id="tree-heading">Your feed tree</span>
           <span class="chip chip--sm" id="tree-health"></span>
         </div>
-        <span class="note">
+        <!-- <span class="note">
           Your saved topics grow into branches, with child topics growing from their parents.
           Pruning drops a branch and all its children. Leaf color is unrated until hostility data is available.
-        </span>
+        </span> -->
         <div class="tree-zoom" role="group" aria-label="Tree zoom controls">
           <button class="btn btn--outline" id="tree-zoom-out" type="button" aria-label="Zoom out">−</button>
           <output id="tree-zoom-level" aria-live="polite">100%</output>
@@ -94,18 +108,18 @@
 
         <p class="note" id="topic-tree-status" role="status" hidden></p>
         <span class="eyebrow">Topics and child branches</span>
-        <div class="branches" id="branches"></div>
-        <button class="btn btn--outline" id="tree-reset" type="button">Reset entire tree</button>
-        <span class="note" id="tree-reset-status" role="status" hidden></span>
-
+        <div class="branches" id="branches" tabindex="0" role="region" aria-label="Scrollable topic list"></div>
+        <div class="tree-actions">
         <a class="link-card" id="full-tree-link" href="#" target="_blank" rel="noopener">
-          <span>See your full tree and prune in detail</span>
+          <span>See your full tree</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F3A2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M7 17 17 7" />
             <path d="M8 7h9v9" />
           </svg>
         </a>
-        <span class="fine">Each branch grows from its parent topic. Use the topic list below to inspect or prune branches. Drag to pan and use the wheel to zoom. Restore a pruned parent to bring its children back.</span>
+          <button class="btn btn--danger" id="tree-reset" type="button">Reset tree</button>
+        </div>
+        <span class="note" id="tree-reset-status" role="status" hidden></span>
       </section>
 
       <!-- Calendar -->
@@ -144,8 +158,28 @@
           comments. <a id="measure-link" href="#" target="_blank" rel="noopener">How we measure this</a>
         </span>
       </div>
+      </div>
+      <section class="card settings-view" id="settings-view" role="region" aria-labelledby="collection-settings-heading" hidden>
+        <button class="settings-back" id="settings-back" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7M5 12h14"/></svg>
+          Back to garden
+        </button>
+        <div><span class="session__eyebrow">Make room for what matters</span><h2 class="h2" id="collection-settings-heading">Collection settings</h2></div>
+        <label class="session__audio-option" for="skip-short-videos">
+          <span><strong>Skip quick scrolls</strong><small>Only collect videos you spend time watching.</small></span>
+          <input id="skip-short-videos" type="checkbox" role="switch" disabled />
+        </label>
+        <div class="watch-cutoff-heading"><label for="minimum-watch-seconds">Minimum watch time</label><output id="minimum-watch-value" for="minimum-watch-seconds">0 seconds</output></div>
+        <input id="minimum-watch-seconds" type="range" min="0" max="10" step="1" value="0" disabled />
+        <div class="watch-cutoff-scale" aria-hidden="true"><span>0 ? Collect all</span><span>10 seconds</span></div>
+        <p class="note" id="collection-setting-description">All played videos are collected.</p>
+        <p class="fine">Changes apply to new sessions. Skipped videos are excluded from your count, topics, and model input. Their audio is not uploaded for transcription. Eligible videos keep their opening audio.</p>
+        <p class="session__error" id="collection-settings-error" role="alert" hidden></p>
+        <span class="note-sm" id="collection-settings-saved" role="status"></span>
+      </section>
     </main>
 
+    <script src="/collection-policy.js"></script>
     <script src="/audio-status.js"></script>
   </body>
 </html>

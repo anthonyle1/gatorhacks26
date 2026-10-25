@@ -17,6 +17,12 @@
   box-sizing: border-box;
 }
 
+* { scrollbar-color: #648957 #edf3e7; scrollbar-width: thin; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #edf3e7; border-radius: 8px; }
+::-webkit-scrollbar-thumb { background: #648957; border: 2px solid #edf3e7; border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: #436a3d; }
+
 body {
   margin: 0;
   background: var(--bg);
@@ -86,6 +92,17 @@ button {
 }
 
 /* ---------- Cards and type ---------- */
+.panel-view { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.settings-back { display: inline-flex; align-items: center; align-self: flex-start; gap: 5px; padding: 4px 0; border: 0; background: transparent; color: #527344; font-size: 11px; cursor: pointer; }
+.settings-back:hover { color: #25482b; }
+.settings-view { gap: 16px; padding: 16px; }
+.settings-view h2 { margin: 3px 0 0; }
+.watch-cutoff-heading, .watch-cutoff-scale { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.watch-cutoff-heading { font-size: 12px; color: #35573c; }
+.watch-cutoff-heading output { font-variant-numeric: tabular-nums; font-weight: 600; }
+#minimum-watch-seconds { width: 100%; margin: 0; accent-color: #5b844d; cursor: pointer; }
+.watch-cutoff-scale { font-size: 10px; color: #74876b; }
+.settings-view p { margin: 0; }
 .card {
   background: var(--card);
   border: 1px solid var(--border);
@@ -143,6 +160,47 @@ button {
 .btn:disabled { opacity: .55; cursor: default; }
 
 /* ---------- Chips ---------- */
+.session-card { padding: 16px; gap: 12px; border-radius: 16px; }
+.session__heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.session__eyebrow { display: block; color: #6c8169; font-size: 10px; margin-bottom: 3px; }
+.session__heading h2 { margin: 0; font: 700 21px var(--font-heading); }
+.session__badge { display: inline-flex; align-items: center; gap: 5px; border-radius: 20px; background: #eef3e9; padding: 5px 8px; color: #55734a; font-size: 10px; font-weight: 600; white-space: nowrap; }
+.session__badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #8fa786; }
+.session-card[data-state='recording'] .session__badge { background: #e1efdc; color: #376734; }
+.session-card[data-state='recording'] .session__badge::before { background: #4c8b47; }
+.session-card:is([data-state='paused'], [data-state='busy']) .session__badge { background: #fbf0d7; color: #856621; }
+.session-card:is([data-state='paused'], [data-state='busy']) .session__badge::before { background: #b6984e; }
+.session__overview { display: grid; grid-template-columns: 1.2fr 1fr; background: #f3f6ef; border: 1px solid #e8ede3; border-radius: 12px; padding: 13px 14px; }
+.session__metric { display: flex; flex-direction: column; gap: 5px; }
+.session__metric + .session__metric { border-left: 1px solid #dce5d6; padding-left: 18px; }
+.session__metric > span { font-size: 10px; color: #6d7d65; }
+.session__metric strong { font-size: 28px; line-height: 1.1; font-weight: 600; letter-spacing: -.8px; font-variant-numeric: tabular-nums; }
+.session-card .session__start { justify-content: center; gap: 8px; min-height: 42px; border-radius: 10px; font-size: 13px; }
+.session__start:hover { background: #2b503b; }
+.session__stop { display: none; }
+.session-card:is([data-state='recording'], [data-state='paused']) .session__play { display: none; }
+.session-card:is([data-state='recording'], [data-state='paused']) .session__stop { display: block; }
+.session__hint { margin: -4px 3px 0; font-size: 11px; line-height: 1.45; text-align: center; color: #6a7964; }
+.session-card .audio-monitor { background: transparent; margin: 0; padding: 12px 0 0; border: 0; border-top: 1px solid #e3e9dc; border-radius: 0; }
+.session__audio-option { display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; }
+.session__audio-option strong { display: block; color: #35553c; font-size: 12px; font-weight: 600; }
+.session__audio-option small { display: block; margin-top: 3px; color: #788572; font-size: 10px; }
+.session__audio-option input { appearance: none; flex: 0 0 32px; width: 32px; height: 19px; margin: 0; border: 1px solid #bac9b0; border-radius: 20px; background: #e2e8dc; cursor: pointer; position: relative; }
+.session__audio-option input::before { content: ''; position: absolute; width: 13px; height: 13px; left: 2px; top: 2px; border-radius: 50%; background: #fff; transition: transform .15s; }
+.session__audio-option input:checked { background: #5b844d; border-color: #5b844d; }
+.session__audio-option input:checked::before { transform: translateX(13px); }
+.session__audio-option input:disabled { opacity: .55; cursor: default; }
+.session__audio-status { margin-top: 9px; }
+.session-card #audio-state { display: inline-flex; font-size: 10px; font-weight: 500; padding: 3px 6px; border-radius: 5px; }
+.session-card #audio-status { font-size: 11px; color: #6b7b64; line-height: 1.4; margin: 6px 0; }
+.session__audio-details { margin-top: 8px; }
+.session__audio-details summary { color: #617f54; cursor: pointer; font-size: 10px; }
+.session-card .session__audio-details p { font-size: 10px; }
+.session-card .session__audio-details .btn { min-height: 28px; font-size: 10px; border-radius: 6px; }
+.session-card .session__review { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid #e3e9dc; text-decoration: none; color: #41633c; font-size: 11px; }
+.session-card .session__error { padding: 8px 10px; background: #fff0ee; border-radius: 8px; line-height: 1.4; }
+@media (prefers-reduced-motion: reduce) { .session__audio-option input::before { transition: none; } }
+
 .chip {
   display: inline-flex;
   align-items: center;
@@ -286,6 +344,11 @@ button {
   background: #ffffff;
   color: var(--ink);
 }
+.tree-actions { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 8px; }
+.tree-actions .link-card { min-width: 0; padding: 8px 10px; font-size: 12px; }
+.tree-actions .link-card svg { flex-shrink: 0; width: 15px; height: 15px; }
+.btn--danger { color: #a12d32; background: #fff0ef; border: 1px solid #dc9c9a; font-size: 12px; }
+.btn--danger:hover { color: #842127; background: #fce0de; border-color: #bf6967; }
 .link-card {
   min-height: 38px;
   border-radius: 12px;

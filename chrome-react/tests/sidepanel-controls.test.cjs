@@ -20,9 +20,16 @@ async function panel() {
   let failure = null;
   let storageListener;
   let confirmed = true;
+  const windowEvents = {}, documentEvents = {};
+  let refreshes = 0;
   const context = vm.createContext({
-    window: { confirm() { return confirmed; } },
-    document: { querySelector: node, createElement: element, createTextNode: element },
+    window: { addEventListener(name, listener) { windowEvents[name] = listener; }, confirm() { return confirmed; }, TopicGarden: class {
+      start() {}
+      refresh() { refreshes++; }
+      clear() { node('#tree-health').textContent = 'Empty'; }
+    } },
+    document: { querySelector: node, createElement: element, createTextNode: element,
+      addEventListener(name, listener) { documentEvents[name] = listener; } },
     setInterval() {},
     chrome: {
       storage: { local: { async get() { return structuredClone(stored); } },
@@ -40,25 +47,27 @@ async function panel() {
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/audio-status.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/sidepanel.js'), 'utf8'), context);
   await new Promise(resolve => setImmediate(resolve));
-  return { node, stored, messages, confirm(value) { confirmed = value; }, fail(message) { failure = message; },
+  return { node, stored, messages, context, windowEvents, documentEvents, refreshCount() { return refreshes; },
+    confirm(value) { confirmed = value; }, fail(message) { failure = message; },
     update(values) { Object.assign(stored, values); storageListener(Object.fromEntries(Object.entries(values).map(([key, value]) => [key, { newValue: value }])), 'local'); } };
 }
 
 test('side panel starts and finishes tracking, shows live counters, and offers the saved review', async () => {
   const ui = await panel();
   const button = ui.node('#session-toggle');
-  assert.equal(button.textContent, 'Start tracking');
+  assert.equal(ui.node('#session-toggle-label').textContent, 'Start session');
   assert.equal(button.disabled, false);
   assert.equal(ui.node('#audio-enabled').checked, true);
   await button.listeners.click();
   assert.equal(ui.messages[0], 'START_SESSION');
-  assert.equal(button.textContent, 'Finish session');
+  assert.equal(ui.node('#session-toggle-label').textContent, 'Finish & review');
   assert.equal(ui.node('#session-status').textContent, 'Recording');
   ui.update({ scrollingSession: { durationSeconds: 65, videoCount: 3 } });
-  assert.equal(ui.node('#session-stats').textContent, '1:05 \u00b7 3 videos');
+  assert.equal(ui.node('#session-time').textContent, '1:05');
+  assert.equal(ui.node('#session-count').textContent, '3');
   await button.listeners.click();
   assert.equal(ui.messages[1], 'FINISH_SESSION');
-  assert.equal(button.textContent, 'Start tracking');
+  assert.equal(ui.node('#session-toggle-label').textContent, 'Start session');
   assert.equal(ui.node('#session-review').hidden, false);
 });
 
@@ -70,7 +79,7 @@ test('side panel shows a failed Finish and keeps the session available for retry
   await button.listeners.click();
   assert.equal(ui.node('#session-error').hidden, false);
   assert.equal(ui.node('#session-error').textContent, 'Backend unavailable');
-  assert.equal(button.textContent, 'Finish session');
+  assert.equal(ui.node('#session-toggle-label').textContent, 'Finish & review');
   assert.equal(button.disabled, false);
 });
 
@@ -84,4 +93,18 @@ test('reset requires confirmation and empties the tree after success', async () 
   assert.equal(ui.messages[0], 'RESET_TOPIC_TREE');
   assert.equal(ui.node('#tree-health').textContent, 'Empty');
   assert.equal(ui.node('#tree-reset').disabled, false);
+});
+
+test('showing or refocusing the extension refreshes topics immediately', async () => {
+  const ui = await panel();
+  ui.windowEvents.focus();
+  ui.windowEvents.pageshow();
+  ui.documentEvents.visibilitychange();
+  assert.equal(ui.refreshCount(),3);
+  ui.context.document.visibilityState = 'hidden';
+  ui.documentEvents.visibilitychange();
+  assert.equal(ui.refreshCount(),3);
+  ui.context.document.visibilityState = 'visible';
+  ui.documentEvents.visibilitychange();
+  assert.equal(ui.refreshCount(),4);
 });

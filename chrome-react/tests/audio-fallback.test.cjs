@@ -96,3 +96,37 @@ test('stop does not wait for blocked backend delivery', async () => {
   assert.equal(result.recording, false);
   assert.equal(setup.stopped(), 1);
 });
+
+test('pending collection audio is held locally then delivered unchanged once eligible', async () => {
+  const setup = await offscreen();
+  const row = setup.rows.get('segment'); row.collection_gate = true; row.occurrence.occurrence_id = 'occ';
+  const calls = [];
+  let decision = 'pending';
+  const originalMessage = setup.sandbox.chrome.runtime.sendMessage;
+  setup.sandbox.chrome.runtime.sendMessage = async message => message.type === 'AUDIO_COLLECTION_POLICY'
+    ? {success:true,data:{decision}} : originalMessage(message);
+  setup.sandbox.fetch = async (url,options) => { calls.push({url,options}); return {ok:true,json:async()=>({enabled:true})}; };
+  await setup.sandbox.deliver();
+  assert.equal(setup.rows.size,1);
+  assert.equal(setup.rows.get('segment').attempts,0);
+  assert.equal(calls.filter(call => call.options.method !== 'GET').length,0);
+  decision = 'approved';
+  await setup.sandbox.deliver();
+  assert.equal(setup.rows.size,0);
+  const upload = calls.find(call => call.options.method === 'PUT');
+  assert.equal(await upload.options.body.text(),'audio');
+  assert.ok(calls.findIndex(call => call.options.method === 'POST') < calls.findIndex(call => call.options.method === 'PUT'));
+});
+
+test('audio from skipped visits is discarded without uploading or transcription', async () => {
+  const setup = await offscreen();
+  setup.rows.get('segment').collection_gate = true;
+  const calls = [];
+  const originalMessage = setup.sandbox.chrome.runtime.sendMessage;
+  setup.sandbox.chrome.runtime.sendMessage = async message => message.type === 'AUDIO_COLLECTION_POLICY'
+    ? {success:true,data:{decision:'skipped'}} : originalMessage(message);
+  setup.sandbox.fetch = async (url,options) => { calls.push({url,options}); return {ok:true,json:async()=>({enabled:true})}; };
+  await setup.sandbox.deliver();
+  assert.equal(setup.rows.size,0);
+  assert.equal(calls.filter(call => call.options.method !== 'GET').length,0);
+});

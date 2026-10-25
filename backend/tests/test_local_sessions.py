@@ -92,6 +92,27 @@ class LocalReviewTests(unittest.TestCase):
         self.assertEqual(response.json()["tree"], [])
         self.assertEqual(response.json()["global_video_count"], 0)
 
+    def test_review_video_move_and_ordering_endpoints_persist(self):
+        self.jobs.enqueue(self.session_id, {"events": [event()], "instagram": []})
+        result = validate_discovery({"topics": [
+            {"key": key, "name": key.title(), "description": key, "parent_key": None,
+             "existing_category_id": None, "video_ids": [identity]}
+            for key, identity in [("cooking", "youtube:a"), ("tech", "youtube:b")]],
+            "unclassified_video_ids": []}, {"youtube:a", "youtube:b"}, set())
+        assignments = self.jobs.store.apply_discovery(LOCAL_USER, result)
+        self.jobs.store.save_session(self.session_id, LOCAL_USER, {"assignments": assignments, "fallback_used": False})
+        cooking, tech = assignments["youtube:a"][0], assignments["youtube:b"][0]
+        with patch("app.routes.local_sessions.LocalSessions", return_value=self.jobs):
+            base = f"/local-sessions/{self.session_id}/taxonomy"
+            response = self.client.patch(f"{base}/videos/youtube:a", json={"category_id": tech})
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json()["tree_assignments"]["youtube:a"], [tech])
+            ordered = self.client.patch(f"{base}/categories/{tech}", json={"move": True, "parent_id": None, "before_id": cooking})
+            self.assertEqual(ordered.status_code, 200)
+            self.assertEqual(ordered.json()["tree"][0]["id"], tech)
+            self.assertEqual(self.client.patch(f"{base}/videos/missing", json={"category_id": tech}).status_code, 422)
+            self.assertEqual(self.client.patch(f"{base}/categories/{tech}", json={"name": "New", "before_id": cooking}).status_code, 422)
+
     def test_duplicate_events_are_rejected_before_processing(self):
         with patch("app.routes.local_sessions.LocalSessions", return_value=self.jobs):
             response = self.client.post(f"/local-sessions/{self.session_id}/finish", json={"events": [event(), event()]})

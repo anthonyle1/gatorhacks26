@@ -1,4 +1,17 @@
 const API_BASE = "http://localhost:8000";
+if (typeof importScripts === 'function') importScripts('collection-policy.js');
+const collectionSeconds = value => globalThis.PruneCollection?.seconds(value) || 0;
+
+function setVisitDecision(state, visitId, occurrenceId, decision) {
+  const policy = state.audioCollectionPolicy || {};
+  for (const owner of Object.values(state.pendingOccurrences || {})) {
+    const entry = policy[owner.occurrence_id];
+    if ((visitId && entry?.visit_id === visitId) || owner.occurrence_id === occurrenceId) {
+      policy[owner.occurrence_id] = { ...entry, review_session_id: owner.review_session_id, decision, updated_at: Date.now() };
+    }
+  }
+  return policy;
+}
 
 // Handle the toolbar invocation ourselves so capture uses the tab Chrome granted.
 chrome.sidePanel
@@ -45,6 +58,10 @@ async function handleToolbarInvocation(tab) {
 chrome.action?.onClicked.addListener(tab => {
   // Opening must begin directly in the user gesture, before asynchronous storage work.
   const opening = chrome.sidePanel.open({ tabId: tab.id }).catch(error => console.error("Could not open side panel:", error));
+  void opening.then(async () => {
+    try { await chrome.runtime.sendMessage({ type: 'REFRESH_TOPIC_TREE' }); }
+    catch { /* New panels already fetch during initialization. */ }
+  });
   return Promise.all([opening, handleToolbarInvocation(tab)]).catch(error => console.error("Toolbar capture setup failed:", error));
 });
 
@@ -85,10 +102,18 @@ async function getOrCreateSession() {
 
 async function queueEvent(event) {
   if (!["youtube", "instagram"].includes(event.platform || "youtube")) throw new Error("Unsupported video platform");
-  const state = await chrome.storage.local.get("pendingEvents");
+  const state = await chrome.storage.local.get(["pendingEvents", "sessionMinimumWatchSeconds", "pendingOccurrences", "audioCollectionPolicy"]);
+  const minimum = collectionSeconds(state.sessionMinimumWatchSeconds);
+  const accepted = minimum === 0 || Number(event.dwell_seconds) >= minimum;
+  if (minimum > 0) {
+    await chrome.storage.local.set({ audioCollectionPolicy: setVisitDecision(state, event.collection_visit_id, event.occurrence_id, accepted ? 'approved' : 'skipped') });
+  }
+  if (!accepted) return { skipped: true, recorded: (state.pendingEvents || []).length };
+  const collectedEvent = { ...event };
+  delete collectedEvent.collection_visit_id;
   const events = state.pendingEvents || [];
   if (events.length >= 5000 && !events.some(item => item.event_id === event.event_id)) throw new Error("Session video limit reached. Finish this session.");
-  if (!events.some(item => item.event_id === event.event_id)) events.push(event);
+  if (!events.some(item => item.event_id === event.event_id)) events.push(collectedEvent);
   await getOrCreateSession();
   await chrome.storage.local.set({ pendingEvents: events });
   return { recorded: events.length };
@@ -167,14 +192,16 @@ async function finishSnapshot() {
   }
   const audioFlush = await flushAudioForFinish();
   syncQueue = syncQueue.catch(() => {}).then(async () => {
-    const state = await chrome.storage.local.get(["pendingEvents", "localReelEvidence", "localSessionSnapshot", "pendingOccurrences", "audioManifest"]);
+    const state = await chrome.storage.local.get(["pendingEvents", "localReelEvidence", "localSessionSnapshot", "pendingOccurrences", "audioManifest", "sessionMinimumWatchSeconds", "audioCollectionPolicy"]);
     const sessionId = await getOrCreateSession();
     let snapshot = state.localSessionSnapshot;
     if (!snapshot) {
-      const events = (state.pendingEvents || []).map(event => ({ ...event, platform: event.platform || "youtube" }));
+      const minimum = collectionSeconds(state.sessionMinimumWatchSeconds);
+      const events = (state.pendingEvents || []).filter(event => minimum === 0 || Number(event.dwell_seconds) >= minimum).map(event => ({ ...event, platform: event.platform || "youtube" }));
       const reels = new Set(events.filter(event => event.platform === "instagram").map(event => event.video_id));
       snapshot = { events, instagram: Object.values(state.localReelEvidence || {}).filter(item => reels.has(item.video_id)) };
-      const occurrences = Object.values(state.pendingOccurrences || {});
+      const occurrences = Object.values(state.pendingOccurrences || {}).filter(owner => minimum === 0 ||
+        (state.audioCollectionPolicy?.[owner.occurrence_id]?.decision === 'approved' && events.some(event => event.video_id === owner.source_id && event.platform === owner.platform)));
       if (occurrences.length) {
         snapshot.evidence_manifest = occurrences.map(occurrence => ({ occurrence_id: occurrence.occurrence_id,
           segment_ids: state.audioManifest?.[occurrence.occurrence_id] || [],
@@ -183,7 +210,8 @@ async function finishSnapshot() {
       // Keep the exact snapshot for an idempotent retry if the reply is lost.
       await chrome.storage.local.set({ localSessionSnapshot: snapshot });
     }
-    for (const occurrence of Object.values(state.pendingOccurrences || {})) {
+    const included = new Set((snapshot.evidence_manifest || []).map(item => item.occurrence_id));
+    for (const occurrence of Object.values(state.pendingOccurrences || {}).filter(owner => included.has(owner.occurrence_id))) {
       await apiRequest(`/local-sessions/${encodeURIComponent(sessionId)}/occurrences`, { method: "POST", body: JSON.stringify(occurrence) });
     }
     const result = await apiRequest(`/local-sessions/${encodeURIComponent(sessionId)}/finish`, { method: "POST", body: JSON.stringify(snapshot) });
@@ -208,6 +236,10 @@ async function sessionControl(message) {
     const state = await chrome.storage.local.get(["finishPending", "trackingPaused", "localSessionId"]);
     if (state.finishPending) throw new Error("Finish the recorded session before starting another.");
     if (state.trackingPaused === false && state.localSessionId) return { status: "active" };
+    const preferences = await chrome.storage.local.get(["minimumWatchSeconds", "audioCollectionPolicy"]);
+    const audioCollectionPolicy = Object.fromEntries(Object.entries(preferences.audioCollectionPolicy || {})
+      .filter(([, entry]) => entry.updated_at > Date.now() - 60 * 60 * 1000).slice(-10000));
+    await chrome.storage.local.set({ sessionMinimumWatchSeconds: collectionSeconds(preferences.minimumWatchSeconds), audioCollectionPolicy });
     await getOrCreateSession();
     await chrome.storage.local.set({ trackingPaused: false, scrollingSession: { durationSeconds: 0, videoCount: 0, currentVideoId: null, currentPlatform: null } });
     const tabs = await sessionTabs();
@@ -238,17 +270,18 @@ async function sessionControl(message) {
   if (message.type === "RETRY_SESSION_TAXONOMY") return apiRequest(`${base}/retry`, { method: "POST" });
   if (message.type === "TOPIC_PREFERENCE") return apiRequest(`${base}/preferences`, { method: "PATCH", body: JSON.stringify({ category_id: message.category_id, reduce: message.reduce }) });
   if (message.type === "EDIT_TOPIC_CATEGORY") return apiRequest(`${base}/categories/${encodeURIComponent(message.category_id)}`, { method: "PATCH", body: JSON.stringify(message.change) });
+  if (message.type === "MOVE_TOPIC_VIDEO") return apiRequest(`${base}/videos/${encodeURIComponent(message.video_id)}`, { method: "PATCH", body: JSON.stringify({ category_id: message.category_id }) });
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (!["AUDIO_DIAGNOSTICS", "RESET_TOPIC_TREE", "FINISH_SESSION", "START_SESSION", "SESSION_TAXONOMY", "RETRY_SESSION_TAXONOMY", "TOPIC_PREFERENCE", "EDIT_TOPIC_CATEGORY"].includes(message?.type)) return false;
+  if (!["AUDIO_DIAGNOSTICS", "RESET_TOPIC_TREE", "FINISH_SESSION", "START_SESSION", "SESSION_TAXONOMY", "RETRY_SESSION_TAXONOMY", "TOPIC_PREFERENCE", "EDIT_TOPIC_CATEGORY", "MOVE_TOPIC_VIDEO"].includes(message?.type)) return false;
   sessionControl(message).then(data => sendResponse({ success: true, data })).catch(error => sendResponse({ success: false, error: error.message }));
   return true;
 });
 
 // Playback registers ownership independently of URL detection and final review snapshots.
 async function playbackOccurrence(message, sender) {
-  const state = await chrome.storage.local.get(["pendingOccurrences", "trackingPaused", "finishPending", "audioCaptureStatus"]);
+  const state = await chrome.storage.local.get(["pendingOccurrences", "trackingPaused", "finishPending", "audioCaptureStatus", "sessionMinimumWatchSeconds", "audioCollectionPolicy"]);
   if (state.trackingPaused !== false || state.finishPending) return null;
   const session = await getOrCreateSession();
   const occurrence = { ...message.occurrence, review_session_id: session, tab_id: sender.tab?.id || 0,
@@ -256,13 +289,19 @@ async function playbackOccurrence(message, sender) {
   const pending = state.pendingOccurrences || {};
   if (Object.keys(pending).length >= 5000) throw new Error("Session occurrence limit reached");
   pending[occurrence.occurrence_id] = occurrence;
-  await chrome.storage.local.set({ pendingOccurrences: pending });
+  const minimum = collectionSeconds(state.sessionMinimumWatchSeconds);
+  const policy = state.audioCollectionPolicy || {};
+  const approvedVisit = message.visit_id && Object.values(policy).some(entry => entry.visit_id === message.visit_id && entry.review_session_id === session && entry.decision === 'approved');
+  policy[occurrence.occurrence_id] = { visit_id: message.visit_id, review_session_id: session, decision: minimum === 0 || approvedVisit ? 'approved' : 'pending', updated_at: Date.now() };
+  await chrome.storage.local.set({ pendingOccurrences: pending, audioCollectionPolicy: policy });
   // Registration retries must not hold the local event write queue while offline.
-  void apiRequest(`/local-sessions/${session}/occurrences`, { method: "POST", body: JSON.stringify(occurrence) }).catch(() => {});
+  if (policy[occurrence.occurrence_id].decision === 'approved') void apiRequest(`/local-sessions/${session}/occurrences`, { method: "POST", body: JSON.stringify(occurrence) }).catch(() => {});
   return occurrence;
 }
 async function audioExpected(message) {
-  const state = await chrome.storage.local.get(["audioManifest", "pendingOccurrences"]);
+  const state = await chrome.storage.local.get(["audioManifest", "pendingOccurrences", "audioCollectionPolicy"]);
+  const policy = state.audioCollectionPolicy?.[message.occurrence.occurrence_id];
+  if (policy?.review_session_id === message.occurrence.review_session_id && policy.decision === 'skipped') return { discard: true };
   const owner = state.pendingOccurrences?.[message.occurrence.occurrence_id];
   if (!owner || owner.review_session_id !== message.occurrence.review_session_id) throw new Error("Stale audio owner");
   const manifest = state.audioManifest || {};
@@ -271,6 +310,23 @@ async function audioExpected(message) {
   if (!ids.includes(message.segment_id)) ids.push(message.segment_id);
   manifest[owner.occurrence_id] = ids;
   await chrome.storage.local.set({ audioManifest: manifest });
+}
+
+async function qualifyVideoVisit(message, sender) {
+  const state = await chrome.storage.local.get(["pendingOccurrences", "audioCollectionPolicy", "sessionMinimumWatchSeconds", "localSessionId"]);
+  if (!Number.isFinite(Number(message.played_seconds)) || Number(message.played_seconds) < collectionSeconds(state.sessionMinimumWatchSeconds)) return;
+  const owners = Object.values(state.pendingOccurrences || {}).filter(owner => owner.review_session_id === state.localSessionId &&
+    owner.tab_id === (sender.tab?.id || 0) && state.audioCollectionPolicy?.[owner.occurrence_id]?.visit_id === message.visit_id);
+  for (const owner of owners) state.audioCollectionPolicy[owner.occurrence_id] = { ...state.audioCollectionPolicy[owner.occurrence_id], decision: 'approved', updated_at: Date.now() };
+  await chrome.storage.local.set({ audioCollectionPolicy: state.audioCollectionPolicy || {} });
+  for (const owner of owners) void apiRequest(`/local-sessions/${owner.review_session_id}/occurrences`, { method: 'POST', body: JSON.stringify(owner) }).catch(() => {});
+}
+
+async function audioCollectionDecision(message) {
+  const state = await chrome.storage.local.get('audioCollectionPolicy');
+  const entry = state.audioCollectionPolicy?.[message.occurrence?.occurrence_id];
+  if (entry && entry.review_session_id !== message.occurrence.review_session_id) return { decision: 'skipped' };
+  return { decision: entry?.decision || 'skipped' };
 }
 async function captureControl(message, invokedTab = null) {
   if (message.type === "CAPTURE_START") {
@@ -318,17 +374,18 @@ chrome.runtime.onMessage.addListener((message, sender, respond) => {
     })().catch(error => respond({ success: false, error: error.message }));
     return true;
   }
-  if (["PLAYBACK_EVENT", "AUDIO_EXPECTED"].includes(message.type)) {
-    syncQueue = syncQueue.catch(() => {}).then(() => message.type === "PLAYBACK_EVENT" ? playbackOccurrence(message, sender) : audioExpected(message));
+  if (["PLAYBACK_EVENT", "AUDIO_EXPECTED", "VIDEO_QUALIFIED", "AUDIO_COLLECTION_POLICY"].includes(message.type)) {
+    syncQueue = syncQueue.catch(() => {}).then(() => message.type === "PLAYBACK_EVENT" ? playbackOccurrence(message, sender) :
+      message.type === 'VIDEO_QUALIFIED' ? qualifyVideoVisit(message, sender) : message.type === 'AUDIO_COLLECTION_POLICY' ? audioCollectionDecision(message) : audioExpected(message));
     syncQueue.then(data => respond({ success: true, data })).catch(error => respond({ success: false, error: error.message }));
     return true;
   }
   if (message.type === "MEDIA_CLOCK") {
     (async () => {
-      const state = await chrome.storage.local.get(["pendingOccurrences", "audioCaptureStatus", "trackingPaused"]);
+      const state = await chrome.storage.local.get(["pendingOccurrences", "audioCaptureStatus", "trackingPaused", "sessionMinimumWatchSeconds"]);
       const occurrence = state.pendingOccurrences?.[message.occurrence_id];
       if (state.trackingPaused === false && occurrence && state.audioCaptureStatus?.recording && state.audioCaptureStatus.tabId === sender.tab?.id)
-        await chrome.runtime.sendMessage({ ...message, target: "offscreen", occurrence, tab_id: sender.tab.id });
+        await chrome.runtime.sendMessage({ ...message, target: "offscreen", occurrence, tab_id: sender.tab.id, minimum_watch_seconds: collectionSeconds(state.sessionMinimumWatchSeconds) });
       respond({ success: true });
     })().catch(() => respond({ success: false }));
     return true;

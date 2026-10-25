@@ -3,5 +3,8 @@
   "private": true,
   "scripts": {
     "dev": "node scripts/dev.mjs frontend"
+  },
+  "dependencies": {
+    "lucide-react": "^1.61.0"
   }
 }

@@ -48,3 +48,15 @@ test('moving a topic to another parent changes its physical branch connection', 
   assert.deepEqual(moved.start, after.limbs.find(limb => limb.topic.id === 'Food').end)
   assert.notDeepEqual(moved.start, before.limbs.find(limb => limb.topic.id === 'Music').start)
 })
+
+test('ground covers the whole canopy, including an asymmetric tree, without clipping', () => {
+  for (const topics of [taxonomy(), taxonomy().slice(0, 1), [topic('Small tree')]]) {
+    const { ground, bounds, limbs } = layout(topics)
+    for (const limb of limbs) {
+      assert.ok(ground.left <= limb.end.x - limb.width / 2)
+      assert.ok(ground.right >= limb.end.x + limb.width / 2)
+    }
+    assert.ok(bounds.x < ground.left && bounds.x + bounds.width > ground.right)
+    assert.ok(bounds.y + bounds.height >= 80 * ground.heightScale)
+  }
+})

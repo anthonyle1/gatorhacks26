@@ -1,6 +1,8 @@
-import { useMemo, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { createPortal } from 'react-dom'
-import { bushPath, growTree, seeded, type Limb } from './layout'
+import { ChevronDown, Scissors, Undo2, Video, X } from 'lucide-react'
+import { bushPath, growTree, type Limb } from './layout'
+import { Ground } from './Ground'
 import { flatten, type Topic, type TreeData } from './types'
 import './tree.css'
 
@@ -11,7 +13,28 @@ interface Props {
   zoom: number
   loading: boolean
   onPrune: (id: string, value: boolean) => void
-  onSize: (width: number, height: number) => void
+  onSize: (width: number, height: number, groundTop: number) => void
+  onFocusTopic: (x: number, y: number, width: number, height: number) => void
+  onPan: (left: number, top: number) => void
+}
+
+function PruneAction({ topic, busy, onPrune }: { topic: Topic; busy: boolean; onPrune: Props['onPrune'] }) {
+  return <button className={`topic-prune${topic.selected ? ' topic-prune--undo' : ''}`}
+    disabled={busy || topic.inherited}
+    aria-label={topic.inherited ? `${topic.name} included in parent prune` : `${topic.selected ? 'Restore' : 'Prune'} ${topic.name}`}
+    title={topic.inherited ? 'Restore the parent branch first' : topic.selected ? `Restore ${topic.name}` : `Prune ${topic.name} and its children`}
+    onClick={() => onPrune(topic.id, !topic.selected)}>
+    {topic.inherited ? 'Pruned' : topic.selected ? <><Undo2 size={13} aria-hidden="true" />Undo</> : <>
+      <span className="topic-prune__label">Prune</span>
+      <Scissors className="topic-prune__scissors" size={17} aria-hidden="true" />
+    </>}
+  </button>
+}
+
+function VideoCount({ count }: { count: number }) {
+  return <span className="topic-video-count" role="img" aria-label={`${count} ${count === 1 ? 'video' : 'videos'}`}>
+    <Video size={14} aria-hidden="true" /><span aria-hidden="true">{count}</span>
+  </span>
 }
 
 function tapered(limb: Limb): string {
@@ -31,10 +54,68 @@ function tapered(limb: Limb): string {
   return `M${left.join(' L')} L${right.join(' L')} Z`
 }
 
-export function TopicTree({ data, falling, busy, zoom, loading, onPrune, onSize }: Props) {
+export function TopicTree({ data, falling, busy, zoom, loading, onPrune, onSize, onFocusTopic, onPan }: Props) {
   const [selected, setSelected] = useState<string | null>(null)
-  const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
-  const [preview, setPreview] = useState<string | null>(null)
+  const [listCollapsed, setListCollapsed] = useState<Set<string>>(new Set())
+  const [hovered, setHovered] = useState<string | null>(null)
+  const [hoverPosition, setHoverPosition] = useState<{ left: number; top: number } | null>(null)
+  const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 })
+  useLayoutEffect(() => {
+    const viewport = document.getElementById('tree')!
+    const observer = new ResizeObserver(() => setViewportSize(previous => {
+      const next = { width: viewport.clientWidth, height: viewport.clientHeight }
+      return next.width === previous.width && next.height === previous.height ? previous : next
+    }))
+    observer.observe(viewport)
+    return () => observer.disconnect()
+  }, [])
+  const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const didDrag = useRef(false)
+  const showHover = (id: string) => {
+    if (hoverTimer.current) clearTimeout(hoverTimer.current)
+    if (hovered !== id) setHoverPosition(null)
+    setHovered(id)
+  }
+  const hideHover = () => {
+    if (hoverTimer.current) clearTimeout(hoverTimer.current)
+    hoverTimer.current = setTimeout(() => setHovered(null), 160)
+  }
+  useEffect(() => {
+    const dismiss = () => { setSelected(null); setHovered(null) }
+    const outside = (event: Event) => {
+      if (!(event.target instanceof Element) || !event.target.closest('.topic-leaf, #topic-inspector, .living-hover-action, #branches .living-topic-link')) dismiss()
+    }
+    const escape = (event: KeyboardEvent) => { if (event.key === 'Escape') dismiss() }
+    document.addEventListener('pointerdown', outside)
+    document.addEventListener('focusin', outside)
+    document.addEventListener('keydown', escape)
+    window.addEventListener('blur', dismiss)
+    return () => {
+      document.removeEventListener('pointerdown', outside)
+      document.removeEventListener('focusin', outside)
+      document.removeEventListener('keydown', escape)
+      window.removeEventListener('blur', dismiss)
+      if (hoverTimer.current) clearTimeout(hoverTimer.current)
+    }
+  }, [])
+  useLayoutEffect(() => {
+    if (!hovered) return
+    const position = () => {
+      const leaf = document.querySelector(`#tree [data-topic-id="${CSS.escape(hovered)}"] > .topic-leaf`)
+      const viewport = document.getElementById('tree')!.getBoundingClientRect()
+      if (!leaf) { setHovered(null); return }
+      const box = leaf.getBoundingClientRect()
+      if (box.bottom < viewport.top || box.top > viewport.bottom || box.right < viewport.left || box.left > viewport.right) {
+        setHovered(null); return
+      }
+      setHoverPosition({ left: Math.max(6, box.right + 78 < window.innerWidth ? box.right + 5 : box.left - 73),
+        top: Math.max(viewport.top + 4, Math.min(viewport.bottom - 34, box.top + box.height / 2 - 15)) })
+    }
+    const frame = requestAnimationFrame(position)
+    window.addEventListener('scroll', position, true)
+    window.addEventListener('resize', position)
+    return () => { cancelAnimationFrame(frame); window.removeEventListener('scroll', position, true); window.removeEventListener('resize', position) }
+  }, [hovered, zoom, data.tree])
   const all = useMemo(() => flatten(data.tree), [data.tree])
   const byId = useMemo(() => new Map(all.map(topic => [topic.id, topic])), [all])
   const signature = [...falling].join(',')
@@ -51,10 +132,12 @@ export function TopicTree({ data, falling, busy, zoom, loading, onPrune, onSize 
   }, [data.tree, signature]) // eslint-disable-line react-hooks/exhaustive-deps
   const { bounds } = layout
   const width = Math.max(340, bounds.width), height = Math.max(440, bounds.height)
+  const groundTop = 18 * layout.ground.heightScale - bounds.y
   const drag = useRef<{ x: number; y: number; left: number; top: number; moved: boolean } | null>(null)
   function pointerDown(event: PointerEvent<SVGSVGElement>) {
     if (event.button !== 0 && event.button !== 1) return
     const viewport = document.getElementById('tree')!
+    didDrag.current = false
     drag.current = { x: event.clientX, y: event.clientY, left: viewport.scrollLeft, top: viewport.scrollTop, moved: false }
   }
   function pointerMove(event: PointerEvent<SVGSVGElement>) {
@@ -62,24 +145,18 @@ export function TopicTree({ data, falling, busy, zoom, loading, onPrune, onSize 
     const dx = event.clientX - drag.current.x, dy = event.clientY - drag.current.y
     if (Math.hypot(dx, dy) < 4 && !drag.current.moved) return
     drag.current.moved = true
+    didDrag.current = true
+    setHovered(null)
     event.currentTarget.setPointerCapture(event.pointerId)
-    const viewport = document.getElementById('tree')!
-    viewport.scrollLeft = drag.current.left - dx
-    viewport.scrollTop = drag.current.top - dy
+    onPan(drag.current.left - dx, drag.current.top - dy)
   }
-  const changeCollapse = (id: string) => setCollapsed(previous => {
-    const next = new Set(previous)
-    if (next.has(id)) next.delete(id); else next.add(id)
-    return next
-  })
   const viewLimbs = new Map(layout.limbs.map(limb => [limb.topic.id, limb]))
   const focusBranch = (id: string) => {
     const limb = viewLimbs.get(id)
     if (!limb) return
-    const viewport = document.getElementById('tree')!
-    viewport.scrollTo({ left: (limb.end.x - bounds.x) * zoom - viewport.clientWidth / 2,
-      top: (limb.end.y - bounds.y) * zoom - viewport.clientHeight / 2, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })
+    onFocusTopic(limb.end.x - bounds.x, limb.end.y - bounds.y, limb.width, limb.height)
   }
+  const inspectTopic = (id: string) => { setSelected(id); focusBranch(id) }
   function branch(limb: Limb, carried = false) {
     const { topic, end, start } = limb
     const dropping = falling.has(topic.id) && !carried
@@ -89,68 +166,92 @@ export function TopicTree({ data, falling, busy, zoom, loading, onPrune, onSize 
       style={{ transformOrigin: `${start.x}px ${start.y}px`, '--fall-turn': end.x < start.x ? '-26deg' : '26deg', '--grow-delay': `${limb.depth * .09}s` } as CSSProperties}>
       <path className="living-wood" d={tapered(limb)} style={{ d: `path("${tapered(limb)}")` } as CSSProperties} fill={limb.depth > 1 ? '#967454' : '#79583e'} />
       <path className="living-branch-growth" d={limb.path} style={{ d: `path("${limb.path}")` } as CSSProperties} pathLength={1} fill="none" stroke="#79583e" strokeWidth={limb.thickness * .6} strokeLinecap="round" />
-      <g className={`living-children${collapsed.has(topic.id) ? ' living-children--collapsed' : ''}`}
-        aria-hidden={collapsed.has(topic.id)} style={{ transformOrigin: `${end.x}px ${end.y}px` }}>
+      <g className="living-children">
         {limb.children.map(child => branch(child, carried || dropping))}
       </g>
       <g className="topic-leaf living-foliage" transform={`translate(${end.x} ${end.y})`} data-depth={limb.depth}
         style={{ transform: `translate(${end.x}px, ${end.y}px)` }}
->
+        role="button" tabIndex={carried || dropping ? -1 : 0} aria-label={`Focus ${topic.name}`}
+        onMouseEnter={() => { if (!carried && !dropping) showHover(topic.id) }} onMouseLeave={hideHover}
+        onFocus={() => showHover(topic.id)} onBlur={hideHover}
+        onClick={() => { if (!didDrag.current && !carried && !dropping) inspectTopic(topic.id) }}
+        onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); inspectTopic(topic.id) } }}>
         <path className="topic-leaf__shape" d={outline} fill="#b7d39b" stroke="#779b65" strokeWidth={1} />
-        <g transform={`translate(${-limb.width * .35} ${-limb.height * .24})`} pointerEvents="none">
-          <ellipse className="living-sway" rx={limb.fontSize * .5} ry={limb.fontSize * .2} fill="#86a764" style={{ animationDelay: `${-seeded(topic.id, 'sway') * 9}s` }} />
-        </g>
         <title>{topic.name}: {topic.video_count} videos.</title>
         <text x="0" y={-(limb.lines.length + 1) * limb.fontSize * 1.3 / 2 + limb.fontSize}
           textAnchor="middle" className="topic-tree__label" fontSize={limb.fontSize}>
           {limb.lines.map((line, index) => <tspan key={index} x="0" dy={index ? limb.fontSize * 1.3 : 0}>{line}</tspan>)}
-          <tspan x="0" dy={limb.fontSize * 1.3} className="topic-tree__count" fontSize={limb.fontSize * .9}>{topic.video_count} {topic.video_count === 1 ? 'video' : 'videos'}{collapsed.has(topic.id) ? ' · +' : ''}</tspan>
+          <tspan x="0" dy={limb.fontSize * 1.3} className="topic-tree__count" fontSize={limb.fontSize * .9}>{topic.video_count} {topic.video_count === 1 ? 'video' : 'videos'}</tspan>
         </text>
       </g>
     </g>
   }
   const selectedTopic = selected ? byId.get(selected) : null
-  const previewTopic = preview ? byId.get(preview) : null
+  const hoveredTopic = hovered ? byId.get(hovered) : null
   const videoMap = new Map((data.tree_videos || []).map(video => [video.video_id, video]))
   const inspector = document.getElementById('topic-inspector')!
   const list = document.getElementById('branches')!
+  const topicRow = (topic: Topic) => <li className="topic-list__item" key={topic.id}>
+    <div className={`branch topic-list__row${topic.reduce ? ' topic-list__row--pruned' : ''}`} data-topic-id={topic.id}>
+      <div className="branch__info topic-list__name">
+        {topic.children.length > 0 ? <button className="topic-list__toggle"
+          aria-expanded={!listCollapsed.has(topic.id)} aria-controls={`topic-children-${encodeURIComponent(topic.id)}`}
+          aria-label={`${listCollapsed.has(topic.id) ? 'Expand' : 'Collapse'} ${topic.name} subtree`}
+          onClick={() => setListCollapsed(previous => {
+            const next = new Set(previous)
+            if (next.has(topic.id)) next.delete(topic.id); else next.add(topic.id)
+            return next
+          })}>
+          <ChevronDown size={14} aria-hidden="true" />
+        </button> : <span className="topic-list__toggle-spacer" aria-hidden="true" />}
+        <button className="living-topic-link" onClick={() => inspectTopic(topic.id)}>{topic.name}</button>
+      </div>
+      <VideoCount count={topic.video_count} />
+      <PruneAction topic={topic} busy={busy} onPrune={onPrune} />
+    </div>
+    {topic.children.length > 0 && <ul className="topic-list__children" id={`topic-children-${encodeURIComponent(topic.id)}`}
+      hidden={listCollapsed.has(topic.id)} aria-label={`Children of ${topic.name}`}>{topic.children.map(topicRow)}</ul>}
+  </li>
   return <>
-    {layout.limbs.length ? <svg className="living-tree" ref={element => { if (element) onSize(width, height) }}
+    {layout.limbs.length ? <div className="living-scene" style={{ width: Math.max(width * zoom, viewportSize.width), height: Math.max(height * zoom, viewportSize.height) }}>
+      <div className="living-ground-fill" aria-hidden="true" style={{ top: (20 * layout.ground.heightScale - bounds.y) * zoom }} />
+      <svg className="living-tree" ref={element => { if (element) onSize(width, height, groundTop) }}
       viewBox={`${bounds.x} ${bounds.y} ${width} ${height}`} style={{ width: width * zoom, height: height * zoom }}
       role="group" aria-label="Living topic tree. Branches grow recursively from their parent topics. Drag to pan."
       onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={() => { drag.current = null }} onPointerCancel={() => { drag.current = null }}>
+      <Ground {...layout.ground} canvasLeft={bounds.x} canvasRight={bounds.x + width} bottom={bounds.y + height + 1} />
       <path className="living-trunk" d={layout.trunk} fill="#79583e" />
       {layout.roots.map(root => branch(root))}
-    </svg> : <p className="note">{loading ? 'Growing your saved topic tree…' : all.length ? 'Your branches are pruned. Restore a topic below to grow it back.' : 'No topics yet. Finish and review a session to grow your tree.'}</p>}
+    </svg></div> : <p className="note">{loading ? 'Growing your saved topic tree…' : all.length ? 'Your branches are pruned. Restore a topic below to grow it back.' : 'No topics yet. Finish and review a session to grow your tree.'}</p>}
+    {hoveredTopic && hoverPosition && createPortal(<div className="living-hover-action" role="group" aria-label={`Actions for ${hoveredTopic.name}`}
+      style={{ left: hoverPosition.left, top: hoverPosition.top }}
+      onMouseEnter={() => showHover(hoveredTopic.id)} onMouseLeave={hideHover}
+      onFocus={() => showHover(hoveredTopic.id)} onBlur={hideHover}>
+      <PruneAction topic={hoveredTopic} busy={busy} onPrune={(id, value) => { setHovered(null); onPrune(id, value) }} />
+    </div>, document.body)}
     {createPortal(<>
-      {previewTopic && <section className="living-preview" role="alertdialog" aria-modal="false" aria-labelledby="prune-preview-title">
-        <h3 id="prune-preview-title">Prune {previewTopic.name}?</h3>
-        <p>This cuts {flatten([previewTopic]).length - 1} descendant topics and includes {previewTopic.video_ids ? new Set(previewTopic.video_ids).size : previewTopic.video_count} unique videos. You can undo it.</p>
-        <button className="btn btn--dark" autoFocus disabled={busy} onClick={() => { onPrune(previewTopic.id, true); setPreview(null) }}>Confirm prune</button>
-        <button className="btn btn--outline" onClick={() => setPreview(null)}>Cancel</button>
-      </section>}
       {selectedTopic && <section className="living-inspector" aria-label="Topic details">
-        <h3>{selectedTopic.name}</h3><p>{selectedTopic.description}</p>
-        <p>{selectedTopic.video_count} videos · {selectedTopic.children.length} child topics · Hostility not rated</p>
-        <div className="living-actions">
-          <button className="btn btn--outline" onClick={() => focusBranch(selectedTopic.id)}>Focus branch</button>
-          {selectedTopic.children.length > 0 && <button className="btn btn--outline" onClick={() => changeCollapse(selectedTopic.id)}>{collapsed.has(selectedTopic.id) ? 'Expand' : 'Collapse'} children</button>}
-          <button className="btn btn--dark" disabled={busy || selectedTopic.inherited} onClick={() => selectedTopic.selected ? onPrune(selectedTopic.id, false) : setPreview(selectedTopic.id)}>{selectedTopic.selected ? 'Restore branch' : 'Prune branch'}</button>
+        <div className="living-inspector__head">
+          <h3>{selectedTopic.name}</h3><VideoCount count={selectedTopic.video_count} />
+          <button className="living-inspector__close" aria-label="Close topic details" onClick={() => setSelected(null)}><X size={15} aria-hidden="true" /></button>
         </div>
-        {selectedTopic.children.length > 0 && <ul>{selectedTopic.children.map(child => <li key={child.id}><button className="living-topic-link" onClick={() => setSelected(child.id)}>{child.name}</button></li>)}</ul>}
-        <ul className="living-videos">{(selectedTopic.video_ids || []).slice(0, 20).map(id => {
-          const video = videoMap.get(id)
-          const source = id.startsWith('youtube:') ? `https://www.youtube.com/watch?v=${encodeURIComponent(id.slice(8))}` : id.startsWith('instagram:') ? `https://www.instagram.com/reel/${encodeURIComponent(id.slice(10))}/` : null
-          return <li key={id}>{source ? <a href={source} target="_blank" rel="noopener noreferrer">{video?.title || id}</a> : video?.title || id}</li>
-        })}</ul>
-        {(selectedTopic.video_ids?.length || 0) > 20 && <p className="note">Showing the first 20 videos. Open the full summary for all results.</p>}
+        {selectedTopic.description && <p className="living-inspector__description" title={selectedTopic.description}>{selectedTopic.description}</p>}
+        <div className="living-actions">
+          <span className="note-sm">{selectedTopic.children.length} child topics</span>
+          <PruneAction topic={selectedTopic} busy={busy} onPrune={onPrune} />
+        </div>
+        {(selectedTopic.video_ids?.length || 0) > 0 && <details className="living-video-details"><summary>View videos</summary>
+          <ul className="living-videos">{(selectedTopic.video_ids || []).slice(0, 20).map(id => {
+            const video = videoMap.get(id)
+            const source = id.startsWith('youtube:') ? `https://www.youtube.com/watch?v=${encodeURIComponent(id.slice(8))}` : id.startsWith('instagram:') ? `https://www.instagram.com/reel/${encodeURIComponent(id.slice(10))}/` : null
+            return <li key={id}>{source ? <a href={source} target="_blank" rel="noopener noreferrer">{video?.title || id}</a> : video?.title || id}</li>
+          })}</ul>
+          {(selectedTopic.video_ids?.length || 0) > 20 && <p className="note-sm">First 20 videos. Open the full summary for all results.</p>}
+        </details>}
       </section>}
     </>, inspector)}
-    {createPortal(all.map(topic => <div className="branch" key={topic.id} data-topic-id={topic.id}>
-      <div className="branch__info"><button className="living-topic-link" onClick={() => setSelected(topic.id)}>{topic.name}</button><span className="note-sm">{topic.video_count} videos{topic.reduce ? ' · Pruned' : ''}</span></div>
-      <button className={topic.reduce ? 'btn btn--outline' : 'btn btn--dark'} disabled={busy || topic.inherited}
-        aria-label={`${topic.selected ? 'Restore' : 'Prune'} ${topic.name}`}
-        onClick={() => topic.selected ? onPrune(topic.id, false) : setPreview(topic.id)}>{topic.inherited ? 'Parent pruned' : topic.selected ? 'Undo prune' : 'Prune'}</button>
-    </div>), list)}
+    {createPortal(<ul className="topic-list" aria-label="Topics and child branches">
+      {data.tree.map(topicRow)}
+    </ul>, list)}
   </>
 }
