@@ -12,11 +12,15 @@
   const hasStorage = typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local;
   let topicsRefreshGeneration = 0;
   let restoringTopics = false, topicRestoreButtons = [], compostSignature = null;
+  let compostState = { roots: [], selected: [], count: 0, nodes: new Map() }, compostVersion = null;
+  let compostRows = new Map(), compostTopics = [];
+  let compostPieces = new Map();
 
   function renderDetectionCompost(roots, count) {
     const signature = JSON.stringify([roots.map(root => [root.id, root.name]), count]);
     if (signature === compostSignature) return;
     compostSignature = signature;
+    compostPieces = new Map();
     const pile = document.getElementById('detection-compost');
     pile.replaceChildren();
     pile.setAttribute('aria-label', `Compost pile with ${roots.length} pruned branches covering ${count} topics`);
@@ -25,15 +29,20 @@
       for (const [key, value] of Object.entries(attributes)) node.setAttribute(key, String(value));
       return node;
     };
-    const svg = svgNode('svg', { viewBox: '0 0 260 200', 'aria-hidden': 'true', focusable: 'false' });
-    svg.appendChild(svgNode('ellipse', { cx: 130, cy: 182, rx: 116, ry: 9, fill: '#dcdcca' }));
-    if (roots.length) svg.appendChild(svgNode('path', { d: 'M18 180C40 144 80 126 130 124C180 126 220 144 242 180Z', fill: '#7a5a3e' }));
+    const extraHeight = Math.ceil(Math.max(0, roots.length - 8) / 4) * 28;
+    const sceneHeight = 200 + extraHeight;
+    const svg = svgNode('svg', { viewBox: `0 0 260 ${sceneHeight}`, 'aria-hidden': 'true', focusable: 'false' });
+    svg.style.height = `${sceneHeight * .775}px`;
+    svg.appendChild(svgNode('ellipse', { cx: 130, cy: 182 + extraHeight, rx: 116, ry: 9, fill: '#dcdcca' }));
+    if (roots.length) svg.appendChild(svgNode('path', { d: 'M18 180C40 144 80 126 130 124C180 126 220 144 242 180Z', fill: '#7a5a3e', transform: `translate(0 ${extraHeight})` }));
     const slots = [[40, 134, -8], [130, 138, 10], [86, 122, 4], [20, 114, -18], [150, 118, -6], [64, 102, 16], [118, 98, -12], [92, 82, 6]];
-    roots.slice(0, slots.length).forEach((topic, index) => {
-      const [x, y, rotation] = slots[index];
+    roots.forEach((topic, index) => {
+      const [x, y, rotation] = index < slots.length ? [slots[index][0], slots[index][1] + extraHeight, slots[index][2]] :
+        [20 + (index - slots.length) % 4 * 53, 64 + Math.floor((index - slots.length) / 4) * 28, index % 2 ? 8 : -8];
       const position = svgNode('g', { transform: `translate(${x} ${y}) rotate(${rotation})` });
       const branch = svgNode('g', { class: 'detection-compost__piece' });
-      branch.style.animationDelay = `${index * 30}ms`;
+      compostPieces.set(topic.id, branch);
+      branch.style.animationDelay = `${Math.min(index, 8) * 30}ms`;
       branch.appendChild(svgNode('path', { d: 'M4 20C20 16 40 14 66 10M30 15C34 9 38 6 44 4', stroke: '#6b4a33', 'stroke-width': 4, fill: 'none', 'stroke-linecap': 'round' }));
       for (const [cx, cy, rx, ry, fill] of [[66, 9, 6, 3.5, '#8a5a3b'], [46, 4, 5, 3, '#8a5a3b'], [20, 22, 5, 3, '#a9784f']]) {
         branch.appendChild(svgNode('ellipse', { cx, cy, rx, ry, fill }));
@@ -41,15 +50,66 @@
       const title = svgNode('title', {}); title.textContent = topic.name; branch.appendChild(title);
       position.appendChild(branch); svg.appendChild(position);
     });
-    const caption = svgNode('text', { x: 130, y: roots.length ? 198 : 160, 'text-anchor': 'middle', class: 'detection-compost__caption' });
-    caption.textContent = roots.length ? `${roots.length} pruned ${roots.length === 1 ? 'branch' : 'branches'} · ${count} topics` : 'Room to grow. No topics pruned.';
+    const caption = svgNode('text', { x: 130, y: roots.length ? sceneHeight - 2 : 160, 'text-anchor': 'middle', class: 'detection-compost__caption' });
+    caption.textContent = roots.length ? `${roots.length} pruned ${roots.length === 1 ? 'branch' : 'branches'} · ${count} topics` : 'Compost bin empty.';
     svg.appendChild(caption); pile.appendChild(svg);
+    const flames = el('div', 'compost-fire'); flames.setAttribute('aria-hidden', 'true');
+    for (let index = 0; index < 3; index++) flames.appendChild(PruneCompost.icon('flame'));
+    pile.appendChild(flames);
   }
 
-  async function unpruneDetectionTopics(roots, name) {
-    if (restoringTopics) return;
+  async function permanentlyPruneCompost(ids, name) {
+    if (restoringTopics || !ids.length) return;
+    const prompt = `Permanently delete "${name}" and all its child topics from your tree?`;
+    if (!window.confirm(`${prompt}\n\nThis cannot be undone. Deleted topics stay blocked and cannot be restored.`)) return;
     restoringTopics = true; topicsRefreshGeneration++;
     topicRestoreButtons.forEach(button => { button.disabled = true; });
+    $('#compost-clear').disabled = true;
+    const feedback = $('#detection-topics-feedback'); feedback.hidden = false;
+    feedback.textContent = `Permanently pruning ${name}…`;
+    const pile = $('#detection-compost');
+    try {
+      if (hasStorage) await chrome.storage.local.set({ detectionPreferencesPending: true,
+        detectionPreferencesPendingUntil: Date.now() + 20000, detectionMutation: crypto.randomUUID() });
+      const response = await fetch(`${API_BASE}/local-sessions/taxonomy/compost`, {
+        method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ category_ids: ids, blacklist_version: compostVersion, confirmed: true }), signal: AbortSignal.timeout(15000),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(typeof result.detail === 'string' ? result.detail : 'Could not permanently prune topics.');
+      if (hasStorage && result.blacklist_version) await chrome.storage.local.set({ detectionBlacklistVersion: result.blacklist_version }).catch(() => {});
+      if (Array.isArray(result.tree)) await topicGarden?.applySnapshot(result);
+      // Burn only after deletion succeeds, and only inside the compost bin.
+      for (const id of ids) {
+        compostRows.get(id)?.classList.add('compost-item--burning');
+        compostPieces.get(id)?.classList.add('compost-piece--burning');
+      }
+      pile.classList.add('detection-compost--burning');
+      if (!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) await new Promise(resolve => setTimeout(resolve, 700));
+      const deleted = new Set(result.deleted_ids || ids);
+      renderCompostTopics(compostTopics.map(root => ({ ...root, permanent: root.permanent || deleted.has(root.id),
+        descendants: (root.descendants || []).map(child => ({ ...child, permanent: child.permanent || deleted.has(child.id) })) })), result.blacklist_version);
+      feedback.textContent = `${name} permanently pruned.`;
+    } catch (error) {
+      feedback.textContent = `${error.message || 'Permanent pruning failed.'} Your saved topics are shown below.`;
+    } finally {
+      pile.classList.remove('detection-compost--burning');
+      if (hasStorage) {
+        await chrome.storage.local.set({ detectionPreferencesPending: false }).catch(() => {});
+        void chrome.runtime.sendMessage({ type: 'DETECTION_REFRESH' }).catch(() => {});
+      }
+      restoringTopics = false;
+      topicRestoreButtons.forEach(button => { button.disabled = false; });
+      await refreshDetectionTopics();
+      void topicGarden?.refresh();
+    }
+  }
+
+  async function unpruneDetectionTopics(roots, name, animateBurn = false) {
+    if (restoringTopics || !roots.length) return;
+    restoringTopics = true; topicsRefreshGeneration++;
+    topicRestoreButtons.forEach(button => { button.disabled = true; });
+    $('#compost-clear').disabled = true;
     const feedback = document.getElementById('detection-topics-feedback');
     feedback.hidden = false; feedback.textContent = `Unpruning ${name}…`;
     try {
@@ -64,10 +124,17 @@
         const result = await response.json();
         if (hasStorage && result.blacklist_version) await chrome.storage.local.set({ detectionBlacklistVersion: result.blacklist_version });
       }
+      if (animateBurn) {
+        compostRows.forEach(row => row.classList.add('compost-item--burning'));
+        compostPieces.forEach(piece => piece.classList.add('compost-piece--burning'));
+        $('#detection-compost').classList.add('detection-compost--burning');
+        if (!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) await new Promise(resolve => setTimeout(resolve, 700));
+      }
       feedback.textContent = `${name} unpruned.`;
     } catch {
       feedback.textContent = `Could not finish unpruning ${name}. Please try again. The list shows the latest saved topics.`;
     } finally {
+      if (animateBurn) $('#detection-compost').classList.remove('detection-compost--burning');
       if (hasStorage) {
         await chrome.storage.local.set({ detectionPreferencesPending: false }).catch(() => {});
         void chrome.runtime.sendMessage({ type: 'DETECTION_REFRESH' }).catch(() => {});
@@ -77,6 +144,56 @@
       await refreshDetectionTopics();
       void topicGarden?.refresh();
     }
+  }
+
+  function renderCompostTopics(topics, version) {
+    compostTopics = topics;
+    const list = $('#detection-topics-list'), status = $('#detection-topics-status');
+    compostVersion = version;
+    compostState = PruneCompost.hierarchy(topics);
+    compostRows = new Map();
+    topicRestoreButtons = [];
+    const renderTopic = topic => {
+      const item = el('li', 'compost-item'); compostRows.set(topic.id, item);
+      const row = el('div', 'compost-row'); row.appendChild(PruneCompost.icon('branch'));
+      const label = el('span', 'detection-topic__label', topic.name);
+      const roots = topic.coverage;
+      const parents = roots.filter(root => root.id !== topic.id);
+      if (parents.length) label.appendChild(el('small', 'detection-topic__parent', `Pruned with ${parents.map(root => root.name).join(', ')}`));
+      if (!roots.length) label.appendChild(el('small', 'detection-topic__parent', 'Parent topic'));
+      row.appendChild(label);
+      if (roots.length) {
+      if (!parents.length) {
+      const restore = el('button', 'detection-topic__restore', 'Unprune');
+      restore.type = 'button';
+      restore.title = `Unprune ${roots.map(root => root.name).join(', ')} to restore ${topic.name}`;
+      restore.setAttribute('aria-label', restore.title);
+      restore.addEventListener('click', () => unpruneDetectionTopics(roots, topic.name));
+      restore.appendChild(PruneCompost.icon('restore'));
+      topicRestoreButtons.push(restore);
+      row.appendChild(restore);
+      }
+      const burn = el('button', 'compost-delete'); burn.type = 'button';
+      burn.title = `Delete ${topic.name} and its child topics forever`; burn.setAttribute('aria-label', burn.title);
+      burn.appendChild(PruneCompost.icon('flame'));
+      burn.addEventListener('click', () => permanentlyPruneCompost([topic.id], topic.name));
+      topicRestoreButtons.push(burn); row.appendChild(burn);
+      }
+      item.appendChild(row);
+      if (topic.children.length) {
+        const children = el('ul', 'compost-children'); children.setAttribute('aria-label', `Child topics of ${topic.name}`);
+        topic.children.forEach(child => children.appendChild(renderTopic(child))); item.appendChild(children);
+      }
+      return item;
+    };
+    const items = compostState.roots.map(renderTopic);
+    list.replaceChildren(...items);
+    renderDetectionCompost([...compostState.nodes.values()].filter(topic => topic.coverage.length), compostState.count);
+    $('#compost-clear').disabled = !compostState.selected.length;
+    document.getElementById('detection-topics-count').textContent = String(compostState.count);
+    status.textContent = items.length ? '' : topics.some(topic => topic.permanent) ?
+      'Compost bin empty. Permanently pruned topics stay blocked.' : 'No topics pruned yet.';
+    status.hidden = items.length > 0;
   }
 
   async function refreshDetectionTopics() {
@@ -92,35 +209,7 @@
       const data = await response.json();
       if (!Array.isArray(data.topics)) throw new Error('Invalid topics');
       if (generation !== topicsRefreshGeneration) return;
-      const checkedTopics = new Map(), coverage = new Map();
-      for (const root of data.topics) {
-        for (const topic of [root, ...(root.descendants || [])]) {
-          checkedTopics.set(topic.id, topic);
-          if (!coverage.has(topic.id)) coverage.set(topic.id, []);
-          coverage.get(topic.id).push(root);
-        }
-      }
-      topicRestoreButtons = [];
-      const items = [...checkedTopics.values()].sort((a, b) => a.name.localeCompare(b.name)).map(topic => {
-        const item = document.createElement('li');
-        const label = el('span', 'detection-topic__label', topic.name);
-        const roots = coverage.get(topic.id);
-        const parents = roots.filter(root => root.id !== topic.id);
-        if (parents.length) label.appendChild(el('small', 'detection-topic__parent', `Pruned with ${parents.map(root => root.name).join(', ')}`));
-        const restore = el('button', 'detection-topic__restore', parents.length > 1 ? 'Unprune parents' : parents.length ? 'Unprune parent' : 'Unprune');
-        restore.type = 'button';
-        restore.title = `Unprune ${roots.map(root => root.name).join(', ')} to restore ${topic.name}`;
-        restore.setAttribute('aria-label', restore.title);
-        restore.addEventListener('click', () => unpruneDetectionTopics(roots, topic.name));
-        topicRestoreButtons.push(restore);
-        item.appendChild(label); item.appendChild(restore);
-        return item;
-      });
-      list.replaceChildren(...items);
-      renderDetectionCompost(data.topics, items.length);
-      document.getElementById('detection-topics-count').textContent = String(items.length);
-      status.textContent = items.length ? '' : 'No topics pruned yet.';
-      status.hidden = items.length > 0;
+      renderCompostTopics(data.topics, data.blacklist_version);
     } catch {
       if (generation !== topicsRefreshGeneration) return;
       status.hidden = false;
@@ -538,6 +627,8 @@
     renderCalendar();
     void loadCalendarInsights();
     topicGarden = new window.TopicGarden(API_BASE);
+    $('#compost-clear-icon').appendChild(PruneCompost.icon('restore'));
+    $('#compost-clear').addEventListener('click', () => unpruneDetectionTopics(compostState.selected, 'All listed topics', true));
     const showView = settings => {
       $('#garden-view').hidden = settings;
       $('#settings-view').hidden = !settings;

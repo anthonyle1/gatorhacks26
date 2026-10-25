@@ -65,6 +65,25 @@ def global_preference(body: TopicPreference):
     return global_tree()
 
 
+class PermanentPrune(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    category_ids: list[Annotated[str, Field(min_length=1, max_length=120)]] = Field(min_length=1, max_length=5000)
+    blacklist_version: str = Field(min_length=64, max_length=64)
+    confirmed: bool
+
+
+@router.delete("/taxonomy/compost")
+def permanently_prune_compost(body: PermanentPrune):
+    if body.confirmed is not True:
+        raise HTTPException(422, "Confirm permanent pruning before deleting topics.")
+    jobs = LocalSessions()
+    try:
+        deleted = jobs.store.permanently_prune(LOCAL_USER, body.category_ids, body.blacklist_version)
+    except ValueError as error:
+        raise HTTPException(409, str(error)) from None
+    return {**global_tree(), "deleted_ids": deleted}
+
+
 class ReelEvidence(BaseModel):
     model_config = ConfigDict(extra="forbid")
     video_id: str = Field(min_length=1, max_length=120)
