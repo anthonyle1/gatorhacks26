@@ -34,7 +34,7 @@ const TWIG_LEVELS: Record<Level, Level[]> = {
 
 /** Placeholder channels for a branch. Replace names with real channel data. */
 export function twigsFor(branch: Branch): Twig[] {
-  return TWIG_LEVELS[branch.level].map((level, i) => ({
+  return (branch.level === 'not_rated' ? [] : TWIG_LEVELS[branch.level]).map((level, i) => ({
     id: `${branch.id}-${i}`,
     name: `[Channel ${i + 1}]`,
     level,

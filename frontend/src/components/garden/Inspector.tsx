@@ -1,50 +1,32 @@
-import { BRANCHES, twigsFor } from '../../data/sample'
 import { usePrune } from '../../state/prune-context'
 import Chip from '../Chip'
 
 export default function Inspector() {
-  const { pruned, snipped, selectedId, setSnipped } = usePrune()
-  const branch = BRANCHES.find((b) => b.id === selectedId) ?? BRANCHES[0]
-  const branchPruned = !!pruned[branch.id]
-
+  const { branches, pruned, selectedId, setSelected, setPruned } = usePrune()
+  const branch = branches.find(item => item.id === selectedId) ?? branches[0]
+  if (!branch) return <section className="card card--lg inspector"><h3 className="h2">Inspect a topic</h3><p>Topics appear after you finish and review a scrolling session.</p></section>
+  const inherited = !!branch.parentId && !!pruned[branch.parentId]
   return (
     <section className="card card--lg inspector" aria-labelledby="inspect-heading">
-      <span className="eyebrow">Inspecting</span>
+      <span className="eyebrow">Inspecting topic</span>
       <div className="inspector__head">
         <h3 id="inspect-heading" className="h2">{branch.name}</h3>
-        <Chip level={branchPruned ? 'cut' : branch.level} size="md" />
+        <Chip level={pruned[branch.id] ? 'cut' : branch.level} size="md" />
       </div>
-      <p className="inspector__why">
-        {branchPruned ? 'You pruned this branch. Shorts from it are hidden from your feed.' : branch.why}
-      </p>
-
-      <span className="inspector__sub">Twigs on this branch (channels)</span>
-      {twigsFor(branch).map((twig) => {
-        const isSnipped = !!snipped[twig.id]
-        const gone = isSnipped || branchPruned
-        return (
-          <div key={twig.id} className="twig">
-            <div className="twig__info">
-              <span className="twig__name">{twig.name}</span>
-              <Chip level={gone ? 'cut' : twig.level} label={gone ? 'Snipped' : undefined} />
-            </div>
-            {!gone && twig.level !== 'calm' && (
-              <button type="button" className="btn btn--outline" onClick={() => setSnipped(twig.id, true)}>
-                Snip
-              </button>
-            )}
-            {isSnipped && !branchPruned && (
-              <button type="button" className="btn btn--dashed" onClick={() => setSnipped(twig.id, false)}>
-                Snipped · Undo
-              </button>
-            )}
-          </div>
-        )
-      })}
-
-      <span className="fine">
-        Snipping hides one channel but keeps the rest of the branch. Good for a category you like with one bad corner.
-      </span>
+      <p className="inspector__why">{branch.why || 'A topic discovered from your completed sessions.'}</p>
+      <p className="fine">{branch.videoCount ?? 0} videos · {branch.children?.length ?? 0} child topics</p>
+      <button type="button" className="btn btn--outline" disabled={inherited}
+        onClick={() => setPruned(branch.id, !pruned[branch.id])}>
+        {inherited ? 'Restore the parent branch first' : pruned[branch.id] ? 'Restore branch' : 'Prune branch and children'}
+      </button>
+      <span className="inspector__sub">Child topics</span>
+      {(branch.children ?? []).map(child => (
+        <div key={child.id} className="twig">
+          <button type="button" className="btn btn--outline-soft" onClick={() => setSelected(child.id)}>{child.name}</button>
+          <Chip level={pruned[child.id] ? 'cut' : child.level} />
+        </div>
+      ))}
+      <span className="fine">Pruning removes this branch and its descendants from your garden. Restore it from compost. Saved preferences do not yet change platform recommendations.</span>
     </section>
   )
 }

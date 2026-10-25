@@ -919,6 +919,29 @@ button {
 }
 
 /* ---------- Small screens ---------- */
+.tree-wrap { overflow-x: auto; overflow-y: hidden; }
+.tree-card .legend { flex-wrap: wrap; justify-content: flex-end; }
+.topic-tree { display: block; max-width: none; }
+.topic-node { cursor: pointer; outline: none; }
+.topic-node:focus-visible > circle:first-of-type { stroke: var(--ink); stroke-width: 3px; }
+.topic-node__label { font: 600 11px var(--font-body, sans-serif); fill: var(--ink); }
+.topic-node__count { font: 10px var(--font-body, sans-serif); fill: var(--muted); }
+.topic-limb--falling {
+  transform-box: view-box;
+  pointer-events: none;
+  animation: topicBranchFall 1.15s cubic-bezier(.45, 0, .85, .55) forwards;
+}
+@keyframes topicBranchFall {
+  0% { transform: translate(0, 0) rotate(0); opacity: 1; }
+  18% { transform: translate(0, 6px) rotate(calc(var(--fall-turn) * -.2)); opacity: 1; }
+  55% { opacity: 1; }
+  100% { transform: translate(22px, 560px) rotate(var(--fall-turn)); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .topic-limb--falling { animation: topicBranchFade .15s ease-out forwards; }
+  @keyframes topicBranchFade { to { opacity: 0; } }
+}
+
 @media (max-width: 520px) {
   .page {
     padding: 24px 16px 40px;

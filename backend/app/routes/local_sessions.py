@@ -43,6 +43,25 @@ def reset_tree():
     return {"status": "reset", "tree": [], "global_video_count": 0}
 
 
+@router.get("/taxonomy")
+def global_tree():
+    """Read the shared topic tree without requiring a review session ID."""
+    return LocalSessions().store.view("global-tree", LOCAL_USER) or {
+        "tree": [], "tree_videos": [], "global_video_count": 0,
+        "selected_category_ids": [], "tree_scope": "global",
+    }
+
+
+@router.patch("/taxonomy/preferences")
+def global_preference(body: TopicPreference):
+    jobs = LocalSessions()
+    try:
+        jobs.store.set_preference(LOCAL_USER, body.category_id, body.reduce)
+    except ValueError as error:
+        raise HTTPException(404, str(error)) from None
+    return global_tree()
+
+
 class ReelEvidence(BaseModel):
     model_config = ConfigDict(extra="forbid")
     video_id: str = Field(min_length=1, max_length=120)

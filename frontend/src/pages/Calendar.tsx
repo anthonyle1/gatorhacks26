@@ -130,7 +130,8 @@ import { DAYS, getBranch } from '../data/sample'
 import { usePrune } from '../state/prune-context'
 import type { Level } from '../types'
 
-const BAR_COLOR: Record<Level | 'cut', string> = {
+const BAR_COLOR: Record<Level | 'cut' | 'not_rated', string> = {
+  not_rated: '#94aa98',
   heavy: 'var(--heavy-leaf)',
   some: 'var(--some-leaf-light)',
   calm: 'var(--calm-leaf-light)',

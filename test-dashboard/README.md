@@ -2,13 +2,16 @@
 
 A local dashboard for inspecting YouTube metadata, comment sentiment, and individual content assessments. Topics are discovered after a completed scrolling session in the [React extension](../chrome-react/README.md), rather than on this single-video dashboard.
 
-Start the backend using [analysis setup](../backend/analysis/README.md), then:
+Install and configure the backend using [analysis setup](../backend/analysis/README.md), then:
 
 ```powershell
 cd test-dashboard
 npm ci
 npm run dev
 ```
+
+`npm run dev` starts both Vite and the backend. Ctrl+C stops both.
+Use `npm run dev:ui` if the backend is already running.
 
 Enter a YouTube video ID and run analysis. The dashboard shows returned comments, classifier scores, aggregate sentiment, consistency checks, filters, and JSON export. Requests are proxied to port 8000.
 

@@ -9,10 +9,13 @@ export type BranchSize = 'Sprout' | 'Growing' | 'Full branch'
 export interface Branch {
   id: string
   name: string
-  level: Level
+  level: Level | 'not_rated'
   size: BranchSize
   /** One-line explanation shown in the inspector. */
   why: string
+  children?: Branch[]
+  parentId?: string | null
+  videoCount?: number
 }
 
 export interface Twig {

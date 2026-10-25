@@ -4,6 +4,25 @@
 
 A Chrome extension that tracks YouTube Shorts and Instagram Reels, analyzes available comment sentiment, and discovers a dynamic topic tree after each completed scrolling session. Users can expand branches and save specific see-less preferences.
 
+## Development
+
+Install the Python dependencies and configure the root `.env` using the
+[backend setup](backend/analysis/README.md#setup), then run from the repository root:
+
+```powershell
+npm --prefix frontend ci
+npm run dev
+```
+
+This starts the frontend's Vite server and the backend at `http://localhost:8000`
+with auto-reload. Ctrl+C stops both servers. The launcher uses `backend/.venv`
+when present, otherwise `python` on PATH; set `PYTHON` to override the interpreter.
+
+Running `npm run dev` inside `frontend/`, `chrome-react/`, or `test-dashboard/`
+starts that app alongside the same backend. Install that app's dependencies with
+`npm ci` first. Use `npm run dev:ui` in an app directory to start only Vite when
+the backend is already running. Provider services such as Ollama still run separately.
+
 ## Local AI prompting
 
 The backend supports local Ollama prompting with `gemma4:e2b` through

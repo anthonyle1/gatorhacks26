@@ -211,9 +211,30 @@ button {
 /* ---------- Tree ---------- */
 .tree {
   width: 100%;
-  max-width: 220px;
-  aspect-ratio: 340 / 330;
+  overflow: auto;
+  max-height: 680px;
+  min-height: 80px;
+  overscroll-behavior: contain;
   align-self: center;
+}
+.tree-zoom { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tree-zoom output { min-width: 48px; text-align: center; font-variant-numeric: tabular-nums; font-size: 12px; }
+.topic-tree__label { font-family: Inter, sans-serif; font-weight: 600; fill: #1f3a2e; }
+.topic-tree__count { font-family: Inter, sans-serif; fill: #425d49; }
+.topic-limb--falling {
+  transform-box: view-box;
+  pointer-events: none;
+  animation: topicBranchFall 1.15s cubic-bezier(.45,0,.85,.55) forwards;
+}
+@keyframes topicBranchFall {
+  0% { transform: translate(0,0) rotate(0); opacity: 1; }
+  18% { transform: translate(0,6px) rotate(calc(var(--fall-turn) * -.2)); opacity: 1; }
+  55% { opacity: 1; }
+  100% { transform: translate(20px,560px) rotate(var(--fall-turn)); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .topic-limb--falling { animation: topicBranchFade .15s ease-out forwards; }
+  @keyframes topicBranchFade { to { opacity: 0; } }
 }
 .tree svg {
   display: block;

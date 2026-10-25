@@ -199,7 +199,8 @@ async function sessionControl(message) {
   if (message.type === "RESET_TOPIC_TREE") {
     const result = await apiRequest("/local-sessions/taxonomy", { method: "DELETE" });
     await chrome.storage.local.remove("lastSessionReview");
-    await chrome.storage.local.set({ prunePruned: {}, pruneTreeReset: true });
+    await chrome.storage.local.set({ prunePruned: {}, pruneTreeReset: true,
+      pruneTopicTree: { tree: [], global_video_count: 0 } });
     return result;
   }
   if (message.type === "FINISH_SESSION") return finishScrollingSession();

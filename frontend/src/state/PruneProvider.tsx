@@ -1,124 +1,125 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { BRANCHES, PRUNABLE_BRANCHES, getBranch } from '../data/sample'
+import { flattenTree, requestTree, topicBranches, type Topic } from '../data/topics'
 import { PruneContext, type CompostItem, type PilePhase, type PruneState } from './prune-context'
+import type { Branch } from '../types'
 
-const BURN_MS = 1800
-const ASH_MS = 1400
+const FALL_MS = 1200
 
-/**
- * Holds prune/snip/compost state for the whole app so the Garden and Calendar
- * pages stay in sync. Currently in-memory only: wire the setters to the backend
- * (and persist) when the API exists.
- */
 export function PruneProvider({ children }: { children: ReactNode }) {
-  const [pruned, setPrunedMap] = useState<Record<string, boolean>>({})
-  const [snipped, setSnippedMap] = useState<Record<string, boolean>>({})
-  // Compost keys that were burned. Re-pruning an item brings it back to the pile.
+  const [tree, setTree] = useState<Branch[]>([])
+  const [selectedCuts, setSelectedCuts] = useState<Record<string, boolean>>({})
+  const [falling, setFalling] = useState<Record<string, boolean>>({})
   const [cleared, setCleared] = useState<Record<string, boolean>>({})
-  const [selectedId, setSelected] = useState(BRANCHES[0].id)
+  const [selectedId, setSelected] = useState('')
   const [phase, setPhase] = useState<PilePhase>('idle')
-  const timers = useRef<number[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [videoCount, setVideoCount] = useState(0)
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([])
+  const writes = useRef(Promise.resolve())
+  const pending = useRef(0)
+  const revision = useRef(0)
+  const latestChange = useRef<Record<string, number>>({})
+  const confirmedCuts = useRef<Record<string, boolean>>({})
+  const fallTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
 
   useEffect(() => {
-    const pending = timers.current
-    return () => pending.forEach((t) => window.clearTimeout(t))
-  }, [])
-
-  const unclear = useCallback((key: string) => {
-    setCleared((c) => {
-      if (!c[key]) return c
-      const next = { ...c }
-      delete next[key]
-      return next
-    })
-  }, [])
-
-  const setPruned = useCallback(
-    (branchId: string, value: boolean) => {
-      setPrunedMap((p) => ({ ...p, [branchId]: value }))
-      unclear(`B:${branchId}`)
-    },
-    [unclear],
-  )
-
-  const setSnipped = useCallback(
-    (twigId: string, value: boolean) => {
-      setSnippedMap((s) => ({ ...s, [twigId]: value }))
-      unclear(`T:${twigId}`)
-    },
-    [unclear],
-  )
-
-  const pruneAll = useCallback(() => {
-    setPrunedMap((p) => {
-      const next = { ...p }
-      PRUNABLE_BRANCHES.forEach((b) => {
-        next[b.id] = true
-      })
-      return next
-    })
-  }, [])
-
-  const compost = useMemo<CompostItem[]>(() => {
-    const items: CompostItem[] = []
-    BRANCHES.forEach((b) => {
-      const key = `B:${b.id}`
-      if (pruned[b.id] && !cleared[key]) {
-        items.push({ key, kind: 'branch', label: `Branch: ${b.name}`, restore: () => setPruned(b.id, false) })
+    let active = true
+    async function load() {
+      const version = revision.current
+      try {
+        const result = await requestTree()
+        if (!active || pending.current || version !== revision.current) return
+        setTree(topicBranches(result.tree, result.global_video_count))
+        setVideoCount(result.global_video_count)
+        const cuts: Record<string, boolean> = {}
+        function visit(topics: Topic[]) {
+          topics.forEach(topic => { cuts[topic.id] = topic.selected; visit(topic.children) })
+        }
+        visit(result.tree)
+        confirmedCuts.current = cuts
+        setSelectedCuts(cuts)
+        setError(null)
+      } catch (cause) {
+        if (active) setError(cause instanceof Error ? cause.message : 'Could not load topics.')
+      } finally {
+        if (active) setLoading(false)
       }
-    })
-    Object.keys(snipped).forEach((twigId) => {
-      const key = `T:${twigId}`
-      if (!snipped[twigId] || cleared[key]) return
-      const branchId = twigId.slice(0, twigId.lastIndexOf('-'))
-      const branch = getBranch(branchId)
-      // Snipped twigs on a pruned branch are already covered by the branch itself.
-      if (!branch || pruned[branch.id]) return
-      const n = Number(twigId.slice(twigId.lastIndexOf('-') + 1)) + 1
-      items.push({
-        key,
-        kind: 'twig',
-        label: `Twig: [Channel ${n}] on ${branch.name}`,
-        restore: () => setSnipped(twigId, false),
+    }
+    void load()
+    const poll = setInterval(() => { void load() }, 10000)
+    const timeouts = timers.current
+    return () => { active = false; clearInterval(poll); timeouts.forEach(clearTimeout) }
+  }, [])
+
+  const branches = useMemo(() => flattenTree(tree), [tree])
+  const pruned = useMemo(() => {
+    const result: Record<string, boolean> = {}
+    function visit(nodes: Branch[], inherited = false) {
+      nodes.forEach(node => {
+        result[node.id] = inherited || !!selectedCuts[node.id]
+        visit(node.children ?? [], result[node.id])
       })
+    }
+    visit(tree)
+    return result
+  }, [tree, selectedCuts])
+
+  const setPruned = useCallback((id: string, value: boolean) => {
+    if (!branches.some(branch => branch.id === id)) return
+    revision.current++
+    const version = revision.current
+    latestChange.current[id] = version
+    pending.current++
+    setSelectedCuts(cuts => ({ ...cuts, [id]: value }))
+    setCleared(items => ({ ...items, [id]: false }))
+    clearTimeout(fallTimers.current[id])
+    if (value && !pruned[id]) {
+      setFalling(items => ({ ...items, [id]: true }))
+      const timer = setTimeout(() => setFalling(items => ({ ...items, [id]: false })), FALL_MS)
+      fallTimers.current[id] = timer
+      timers.current.push(timer)
+    } else {
+      setFalling(items => ({ ...items, [id]: false }))
+    }
+    // Serialize writes so rapid prune/undo operations reach the backend in order.
+    writes.current = writes.current.then(async () => {
+      try {
+        await requestTree({ category_id: id, reduce: value })
+        confirmedCuts.current[id] = value
+        setError(null)
+      } catch (cause) {
+        if (latestChange.current[id] === version) {
+          setSelectedCuts(cuts => ({ ...cuts, [id]: !!confirmedCuts.current[id] }))
+          setFalling(items => ({ ...items, [id]: false }))
+        }
+        setError(cause instanceof Error ? cause.message : 'Could not save pruning.')
+      } finally { pending.current-- }
     })
-    return items
-  }, [pruned, snipped, cleared, setPruned, setSnipped])
+  }, [branches, pruned])
+
+  const compost = useMemo<CompostItem[]>(() => branches
+    .filter(branch => selectedCuts[branch.id] && !cleared[branch.id])
+    .map(branch => ({ key: `B:${branch.id}`, kind: 'branch', label: `Branch: ${branch.name}`,
+      restore: () => setPruned(branch.id, false) })), [branches, selectedCuts, cleared, setPruned])
 
   const burnPile = useCallback(() => {
-    if (compost.length === 0 || phase !== 'idle') return
-    const keys = compost.map((c) => c.key)
+    if (!compost.length || phase !== 'idle') return
+    const ids = compost.map(item => item.key.slice(2))
     setPhase('burning')
-    timers.current.push(
-      window.setTimeout(() => {
-        setCleared((c) => {
-          const next = { ...c }
-          keys.forEach((k) => {
-            next[k] = true
-          })
-          return next
-        })
-        setPhase('ash')
-      }, BURN_MS),
-      window.setTimeout(() => setPhase('idle'), BURN_MS + ASH_MS),
-    )
+    timers.current.push(setTimeout(() => {
+      setCleared(items => ({ ...items, ...Object.fromEntries(ids.map(id => [id, true])) }))
+      setPhase('ash')
+    }, 1800), setTimeout(() => setPhase('idle'), 3200))
   }, [compost, phase])
 
-  const prunedCount = PRUNABLE_BRANCHES.filter((b) => pruned[b.id]).length
-
   const value: PruneState = {
-    pruned,
-    snipped,
-    selectedId,
-    phase,
-    compost,
-    prunedCount,
-    setSelected,
-    setPruned,
-    setSnipped,
-    pruneAll,
+    tree, branches, falling, loading, error, videoCount, pruned,
+    cuts: selectedCuts, selectedId, phase, compost,
+    prunedCount: branches.filter(branch => pruned[branch.id]).length,
+    setSelected, setPruned,
+    pruneAll: () => tree.filter(branch => !pruned[branch.id]).forEach(branch => setPruned(branch.id, true)),
     burnPile,
   }
-
   return <PruneContext.Provider value={value}>{children}</PruneContext.Provider>
 }
