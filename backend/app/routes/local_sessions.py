@@ -51,6 +51,7 @@ def global_tree():
     return LocalSessions().store.view("global-tree", LOCAL_USER) or {
         "tree": [], "tree_videos": [], "global_video_count": 0,
         "selected_category_ids": [], "tree_scope": "global",
+        "blacklist_version": LocalSessions().store.blacklist(LOCAL_USER)["version"],
     }
 
 

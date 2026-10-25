@@ -22,6 +22,7 @@ export interface TopicVideo {
 }
 
 export interface TreeData {
+  blacklist_version?: string
   tree: Topic[]
   global_video_count: number
   tree_videos?: TopicVideo[]

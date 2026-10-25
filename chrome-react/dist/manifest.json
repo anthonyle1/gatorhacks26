@@ -27,7 +27,7 @@
         "https://www.youtube.com/*",
         "https://www.instagram.com/*"
       ],
-      "js": ["collection-policy.js", "content.js"]
+      "js": ["collection-policy.js", "detection-core.js", "content.js", "detection.js"]
     }
   ],
   "action": {

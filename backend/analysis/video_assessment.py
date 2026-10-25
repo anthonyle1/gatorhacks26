@@ -200,9 +200,18 @@ def assess_video(title: str, caption: str, sentiment_balance: float | None = Non
                 raise ValueError("Non-speech evidence cannot have speech coordinates")
         return result
 
+    # Constrain identifiers in addition to checking them after generation. Give
+    # exact speech coordinates to copy, avoiding guesses about excerpt ownership.
+    schema = VideoAssessment.model_json_schema()
+    schema["$defs"]["EvidenceReference"]["properties"]["id"]["enum"] = list(submitted)
+    citation_catalog = [{"id": identity, **({"occurrence_id": excerpt.occurrence_id,
+                         "media_start": excerpt.media_start, "media_end": excerpt.media_end} if excerpt else {})}
+                        for identity, excerpt in submitted.items()]
+
     result, provenance = generate_validated(
-        {**evidence.model_dump(), "web_context": [], "metadata_evidence_ids": [key for key in ("title", "caption") if key in submitted]},
-        SYSTEM_PROMPT, VideoAssessment.model_json_schema(), validate,
+        {**evidence.model_dump(), "web_context": [], "allowed_evidence_references": citation_catalog,
+         "metadata_evidence_ids": [key for key in ("title", "caption") if key in submitted]},
+        SYSTEM_PROMPT + "\nUse only IDs from allowed_evidence_references. Copy the supplied occurrence and interval for speech citations; omit speech coordinates for metadata/comments. Cite a small relevant subset rather than every input item.", schema, validate,
         client=client, max_tokens=1536, max_chars=12000,
     )
     return AssessmentResult(**result.model_dump(), web_search=context, configuration_fingerprint=assessment_identity(),

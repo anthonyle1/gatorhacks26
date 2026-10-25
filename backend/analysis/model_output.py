@@ -15,6 +15,41 @@ class DuplicateJSONKeyError(ValueError):
     pass
 
 
+class ModelOutputError(OllamaError):
+    code = "invalid_model_output"
+
+    def __init__(self, issues):
+        super().__init__("The configured model returned invalid output after one regeneration.")
+        self.diagnostics = issues
+
+
+def validation_issues(error, schema):
+    """Return bounded diagnostic codes/declared fields, never evidence or output."""
+    fields = set()
+    def collect(node):
+        if isinstance(node, dict):
+            fields.update(node.get("properties", {}))
+            for child in node.values():
+                collect(child)
+        elif isinstance(node, list):
+            for child in node:
+                collect(child)
+    collect(schema)
+    if isinstance(error, ValidationError):
+        return [{"code": row["type"], "path": [part if isinstance(part, int) or part in fields else "*" for part in row["loc"]]}
+                for row in error.errors(include_input=False, include_context=False)[:8]]
+    rules = {
+        "Assessment explanations require evidence references": "missing_evidence_reference",
+        "Unknown or excluded evidence reference": "unknown_evidence_reference",
+        "Transcript citation must identify its occurrence and interval": "missing_transcript_coordinates",
+        "Citation falls outside submitted speech interval": "transcript_interval_out_of_bounds",
+        "Non-speech evidence cannot have speech coordinates": "unexpected_speech_coordinates",
+        "Response size limit": "response_size_limit",
+    }
+    code = "invalid_json" if isinstance(error, json.JSONDecodeError) else "duplicate_json_key" if isinstance(error, DuplicateJSONKeyError) else rules.get(str(error), "invalid_value")
+    return [{"code": code}]
+
+
 def unique_object(pairs):
     result = {}
     for key, value in pairs:
@@ -51,12 +86,13 @@ def generate_validated(data, system, schema, validate, *, client=None, max_token
                 return result, {"provider": provider if isinstance(provider, str) else "ollama", "model": model if isinstance(model, str) else None,
                                 "fallback_used": False, "fallback_reason": None}
             except (ValidationError, ValueError, KeyError, TypeError) as exc:
-                codes = [error["type"] for error in exc.errors(include_input=False, include_context=False)] if isinstance(exc, ValidationError) else [type(exc).__name__]
-                logger.warning("Rejected model response (attempt %s/2): %s", attempt + 1, codes)
+                issues = validation_issues(exc, schema)
+                logger.warning("Rejected model response (attempt %s/2): %s", attempt + 1, issues)
                 if attempt == 0:
                     system += "\nRegenerate the complete object using the original evidence. Respect schema limits, unique IDs, valid references, and coverage rules. Do not invent evidence."
+                    system += "\nCorrect these validation issues (codes and schema fields only): " + json.dumps(issues)
                 else:
-                    raise OllamaError("The configured model returned invalid output after one regeneration.") from None
+                    raise ModelOutputError(issues) from None
     except OllamaError as local_error:
         if getattr(local, "provider", None) in {"gemma", "navigator"}:
             raise
