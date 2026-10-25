@@ -1,86 +1,103 @@
-# GatorHacks 2026
+# Prune
 
-## Prune
+**Your social media feed is a tree. Prune the branches of the categories that tear people down.**
 
-A Chrome extension that tracks YouTube Shorts and Instagram Reels, analyzes available comment sentiment, and discovers a dynamic topic tree after each completed scrolling session. Users can expand branches and save specific see-less preferences.
+Prune is a Chrome extension and website for YouTube Shorts and Instagram Reels. It watches what you scroll, uses Gemma 4 to sort those videos into a tree of topics, and colors each branch by how negative its comments and content are relative to each other. You decide which branches to cut back, and Prune reminds you when a video from a pruned topic appears on your feed.
 
-Real-time reminders for saved pruned topics use Groq. See [setup, behavior, and verification](pruned-topic-detection.md) for the backend key and the Settings detection-delay control.
+Built in 48 hours at Gator Hack V (UF AI Days 2026) by a team from three UF departments: Computer Science, Computer Engineering, and Psychology.
 
-## Development
+## What it does
 
-Install the Python dependencies and configure the root `.env` using the
-[backend setup](backend/analysis/README.md#setup), then run from the repository root:
+- **Tracks your session.** Records each Short or Reel you watch: title, caption, comments, watch time, and (optionally) the video's speech.
+- **Grows a topic tree.** When you finish a session, Gemma 4 sorts every video into topics such as Music > K-pop. The tree keeps growing across sessions.
+- **Colors branches by negativity.** Each leaf mixes the share of negative comments with Gemma's warning signs (for example outrage bait or public shaming). Colors are relative to your own tree, and clicking a topic shows the counts behind its color.
+- **Scores personal attacks in comments.** The "Today so far" meter rates Shorts as calm, some, or heavy by how many comments attack a real person, using a method validated against human labels (see below).
+- **Lets you prune.** Cutting a branch saves your choice. When a video from a pruned topic plays, a short reminder appears on top of it.
+- **Keeps a calendar.** Daily summaries show what you scrolled each day, in the side panel and on the website.
+
+## How it works
+
+1. **Chrome extension** (`chrome-react/`): content scripts read the YouTube or Instagram page, optional tab-audio capture records speech, and the side panel shows the session, tree, meter, and calendar.
+2. **Backend** (`backend/`): a FastAPI server on your machine saves sessions in a local SQLite database and fetches YouTube comments.
+3. **AI models**, each with one job:
+   - `cardiffnlp/twitter-roberta-base-sentiment-latest` labels every comment as positive, neutral, or negative.
+   - Whisper (`faster-whisper`, `base.en`) turns video speech into text. English only.
+   - Gemma 4 31B (`gemma-4-31b-it`), through UF NaviGator, builds the topic tree and flags warning and positive signals for each video, with a short reason.
+   - Gemma 4 E2B (`google/gemma-4-E2B-it`) labels which negative comments attack a person (see How we measure hostility).
+   - Groq (`openai/gpt-oss-20b`) checks in real time whether a playing video belongs to a pruned topic.
+4. **Website** (`frontend/`): a React app with Garden, Growth Journey, Insights, and Settings pages, plus a How we measure explanation.
+
+## Built with
+
+Python, FastAPI, SQLite, React, TypeScript, Vite, Chrome Extensions (Manifest V3), Hugging Face Transformers, faster-whisper, Gemma 4 via UF NaviGator, Groq, and YouTube Data API.
+
+## Team
+
+| Name | Major | Built |
+| --- | --- | --- |
+| Anthony Le | Computer Science | AI pipeline: sentiment, Gemma topic tree and video assessment, audio transcription, tree visualization, pruned-topic reminders |
+| Ivette Saldana Hernandez | Computer Science | Backend, database, session tracking, Instagram comment storage, calendar insights, website design |
+| Zhiting Li | Computer Engineering | Chrome extension, YouTube and Instagram integration, first website |
+| Helena | Psychology | Hostility definition and prompt, data collection, blind human validation, video scores, wireframes |
+
+## Getting started
+
+You need Python 3.12+, Node.js, and Google Chrome 116+ on Windows, macOS, or Linux. Commands below are for Windows PowerShell.
+
+**1. Keys.** Copy the template, then fill in the keys in the new `.env` file in the repository root (never in `.env.example`, which is public):
+
+```powershell
+Copy-Item .env.example .env
+```
+
+| Key | Needed for | Where to get it |
+| --- | --- | --- |
+| `YOUTUBE_API_KEY` | Comments and video details | Google Cloud Console, YouTube Data API v3 |
+| `NAVIGATOR_TOOLKIT_API_KEY` | Topic tree and video assessment (Gemma 4) | https://api.ai.it.ufl.edu/ui with a UF GatorLink |
+| `GROQ_API_KEY` | Optional: pruned-topic reminders | https://console.groq.com/keys |
+
+**2. Install the backend.**
+
+```powershell
+cd backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+cd ..
+```
+
+**3. Install and start everything.** From the repository root:
 
 ```powershell
 npm --prefix frontend ci
 npm run dev
 ```
 
-This starts the frontend's Vite server and the backend at `http://localhost:8000`
-with auto-reload. Ctrl+C stops both servers. The launcher uses `backend/.venv`
-when present, otherwise `python` on PATH; set `PYTHON` to override the interpreter.
+This starts the backend at `http://localhost:8000` and the website at `http://localhost:5173`. Keep this terminal open; Ctrl+C stops both.
 
-Running `npm run dev` inside `frontend/`, `chrome-react/`, or `test-dashboard/`
-starts that app alongside the same backend. Install that app's dependencies with
-`npm ci` first. Use `npm run dev:ui` in an app directory to start only Vite when
-the backend is already running. Provider services such as Ollama still run separately.
+**4. Load the extension.** A ready-built copy is in `chrome-react/dist`.
 
-## Local AI prompting
+1. Open `chrome://extensions` and turn on **Developer mode**.
+2. Click **Load unpacked** and select the `chrome-react/dist` folder.
+3. Pin **Prune** from the puzzle-piece menu.
 
-The backend supports local Ollama prompting with `gemma4:e2b` through
-`POST /analysis/prompt`. See [analysis setup and prompt verification](backend/analysis/README.md)
-for installation, configuration, and a standalone prompt command.
+To rebuild after code changes: `npm --prefix chrome-react ci`, then `npm --prefix chrome-react run build`, then click the reload arrow on the extension card and refresh your YouTube tabs.
 
-## How to Install the Chrome Extension
+**5. Try it.**
 
-Build the session review popup first:
+1. Open a YouTube Short and click the **Prune** icon in Chrome's toolbar. The side panel opens. (Clicking the toolbar icon on the video tab is also what allows audio capture.)
+2. Press **Start session** and watch a few Shorts or Reels.
+3. Press **Finish & review**. After a minute or two, your feed tree grows.
+4. Click a topic to see why it has its color, and prune it if you want less of it.
 
-```powershell
-cd chrome-react
-npm ci
-npm run build
-```
+Scored example Shorts for the comment meter: `youtube.com/shorts/7MVYNSRDvqc` (calm) and `youtube.com/shorts/i2rqPaoY2eQ` (heavy).
 
-Start the backend and Ollama using [the analysis setup](backend/analysis/README.md). The extension records sessions locally and shows completed reviews without MongoDB.
-
-### Step 1: Open Chrome Extensions
-1. Open Google Chrome.
-2. Enter `chrome://extensions/` in the address bar.
-
-### Step 2: Enable Developer Mode
-1. Find the **Developer mode** toggle in the top-right corner.
-2. Turn it **ON**.
-
-### Step 3: Load the Extension
-1. Click **Load unpacked** in the top-left corner.
-2. Navigate to your local `gatorhacks26` project folder.
-3. Select the **`chrome-react/dist`** folder containing `manifest.json`.
-
-### Step 4: Test the Extension
-1. Open [YouTube Shorts](https://www.youtube.com/shorts).
-2. Click the **puzzle-piece icon** in Chrome's toolbar.
-3. Select the **Prune** extension to open its popup.
-4. Scroll through videos, then select **Finish and review session** in the popup.
-5. Expand topic branches to see videos, inspect **Analyzed video results**, or click **Open full summary**. Select **See less** to save preferences. Parent selections include descendants; child selections affect that branch only. These preferences do not yet modify the platform feed.
-
-## Updating the Extension
-
-After making changes to the extension code:
-
-1. Rebuild with `npm run build` from `chrome-react/`, then go to `chrome://extensions/`.
-2. Find **Prune**.
-3. Click the **Reload** icon.
-4. Refresh your YouTube Shorts tab to apply the changes.
-
-# Experimental analysis pipeline
-
-See [audio and hosted assessment setup](backend/analysis/AUDIO_PIPELINE.md) for Redis caching, local ASR, UF NaviGator configuration, Chrome audio capture, evidence cutoffs, and benchmark commands. Audio is enabled by default and falls back to metadata/comments if transcription fails. Set `NAVIGATOR_TOOLKIT_API_KEY` in the repository-root `.env` to use the default hosted Gemma model.
 ## How we measure hostility
 
 Prune rates YouTube Shorts by **person-targeted hostility** in their comment
 sections: comments that demean, mock, or attack a real person or their fans.
 We found plain sentiment analysis is not enough: K-pop comment sections scored
-47% positive by sentiment, yet still contained talent-shaming and fan-war
+47% positive by sentiment yet still contained talent-shaming and fan-war
 attacks buried among the praise.
 
 **Pipeline**
@@ -110,11 +127,31 @@ labels, and limits: `research/validation/`.
 - High-conflict test feed: 373 Shorts (K-pop vocals, fancams and dance, influencer
   drama, YouTuber apologies, what-I-eat-in-a-day, outfit of the day), 35,255 comments.
 
+## Limitations
+
+- **Pruning reminds; it doesn't remove.** A pruned topic triggers a reminder on screen; YouTube and Instagram still show those videos.
+- **Comment scores cover analyzed videos only.** The personal-attack meter uses scores for 408 Shorts computed ahead of time. Scoring new videos live would need a GPU server.
+- **Small validation set.** One human labeler and 14 hostile examples, so the true agreement could plausibly sit anywhere from about 0.4 to 0.75. Gemma over-flags borderline comments, so rates lean high.
+- **English works best.** Speech-to-text is English only, and the prompts were tuned on English comments.
+- **Tree colors are relative.** Red means "highest in your tree", not a diagnosis of harm.
+
 ## Use of AI tools
 
-We used Claude (Anthropic) as a coding and research assistant: it helped write
-the data-collection and analysis notebook, the hostility prompt, the
-`/hostility` route, and the UI mockups. Gemma 4 E2B is the model that labels
-comments. Team members chose the research question, collected the video list,
-hand-labeled all test sets, made the design decisions, and ran and checked
-every step.
+**AI models inside Prune:** RoBERTa (comment sentiment), Whisper (speech to text), Gemma 4 31B through UF NaviGator (topic tree and video assessment), Gemma 4 E2B (personal-attack labels), and Groq `openai/gpt-oss-20b` (pruned-topic reminders).
+
+**AI tools used to build Prune:**
+
+- Claude (Anthropic) and GPT (OpenAI) were used as coding and research assistants. Claude helped write the data-collection and analysis notebook, the hostility prompt, the `/hostility` route, and the UI mockups.
+
+Team members chose the research question, collected the video list, hand-labeled all test sets, made the design decisions, and ran and checked every step.
+
+## More documentation
+
+- [Backend setup and analysis contracts](backend/analysis/README.md), including the optional local Ollama provider
+- [Audio pipeline and UF NaviGator configuration](backend/analysis/AUDIO_PIPELINE.md)
+- [Pruned-topic reminders](pruned-topic-detection.md)
+- [Chrome extension](chrome-react/README.md)
+
+## License
+
+MIT. See [LICENSE](LICENSE).
