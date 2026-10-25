@@ -1,6 +1,6 @@
 # GatorHacks 2026
 
-## Healthy Doomscrolling
+## Prune
 
 A Chrome extension that tracks YouTube Shorts and Instagram Reels, analyzes available comment sentiment, and discovers a dynamic topic tree after each completed scrolling session. Users can expand branches and save specific see-less preferences.
 
@@ -57,7 +57,7 @@ Start the backend and Ollama using [the analysis setup](backend/analysis/README.
 ### Step 4: Test the Extension
 1. Open [YouTube Shorts](https://www.youtube.com/shorts).
 2. Click the **puzzle-piece icon** in Chrome's toolbar.
-3. Select the **Healthy Doomscrolling** extension to open its popup.
+3. Select the **Prune** extension to open its popup.
 4. Scroll through videos, then select **Finish and review session** in the popup.
 5. Expand topic branches to see videos, inspect **Analyzed video results**, or click **Open full summary**. Select **See less** to save preferences. Parent selections include descendants; child selections affect that branch only. These preferences do not yet modify the platform feed.
 
@@ -66,7 +66,7 @@ Start the backend and Ollama using [the analysis setup](backend/analysis/README.
 After making changes to the extension code:
 
 1. Rebuild with `npm run build` from `chrome-react/`, then go to `chrome://extensions/`.
-2. Find **Healthy Doomscrolling**.
+2. Find **Prune**.
 3. Click the **Reload** icon.
 4. Refresh your YouTube Shorts tab to apply the changes.
 
