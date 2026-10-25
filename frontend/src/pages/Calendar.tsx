@@ -409,7 +409,7 @@ export default function Calendar() {
         </span>
 
         <h1>
-          Your growth <em>journal.</em>
+          Your growth <em style={{marginLeft:"1.5rem"}}>journal.</em>
         </h1>
 
         <p>
