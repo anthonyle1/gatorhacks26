@@ -1,5 +1,5 @@
-import {useMemo, useRef, useState, type DragEvent, type FormEvent,} from 'react'
-import {usePrune, type CategoryChange, } from '../state/prune-context'
+import { useMemo, useState } from 'react'
+import { usePrune } from '../state/prune-context'
 import type { Topic } from '../data/topics'
 
 type VideoRecord = {
@@ -30,16 +30,25 @@ type VideoRecord = {
   }
 }
 
-type Dragged = {
-  kind: 'category' | 'video'
-  id: string
-} | null
-
 function flatten(nodes: Topic[]): Topic[] {
   return nodes.flatMap(node => [
     node,
     ...flatten(node.children ?? []),
   ])
+}
+
+function findTopic(
+  nodes: Topic[],
+  id: string
+): Topic | undefined {
+  for (const node of nodes) {
+    if (node.id === id) return node
+
+    const found = findTopic(node.children ?? [], id)
+    if (found) return found
+  }
+
+  return undefined
 }
 
 function isDemo(id: string) {
@@ -78,30 +87,30 @@ function VideoDetails({
   video,
   videoId,
   onClose,
-  canEdit,
   busy,
-  assignedCategory,
-  destinations,
+  canEdit,
+  categoryId,
+  categories,
   onMove,
 }: {
   video?: VideoRecord
   videoId: string
   onClose: () => void
-  canEdit: boolean
   busy: boolean
-  assignedCategory: string
-  destinations: Topic[]
+  canEdit: boolean
+  categoryId: string
+  categories: Topic[]
   onMove: (videoId: string, categoryId: string) => void
 }) {
-  const url = video ? videoUrl(video) : null
   const assessment = video?.analysis?.assessment
   const sentiment = video?.analysis?.sentiment
   const comments = video?.analysis?.comments ?? []
+  const url = video ? videoUrl(video) : null
 
   return (
     <section
       className="prune-video-details"
-      aria-label={`Details for ${video?.title ?? videoId}`}
+      aria-label={`Video details: ${video?.title ?? videoId}`}
     >
       <div className="prune-video-details__header">
         <div>
@@ -122,7 +131,7 @@ function VideoDetails({
       </div>
 
       {!video && (
-        <p>Additional details are not available for this video.</p>
+        <p>Additional information is unavailable for this video.</p>
       )}
 
       {video && (
@@ -145,9 +154,7 @@ function VideoDetails({
                 }`
               }
             >
-              {assessmentLabel(
-                assessment?.negative_for_user
-              )}
+              {assessmentLabel(assessment?.negative_for_user)}
             </span>
           </div>
 
@@ -194,21 +201,16 @@ function VideoDetails({
 
               <div className="prune-video-details__sentiment">
                 <span>
-                  Positive <strong>
-                    {sentiment.counts?.positive ?? 0}
-                  </strong>
+                  Positive
+                  <strong>{sentiment.counts?.positive ?? 0}</strong>
                 </span>
-
                 <span>
-                  Neutral <strong>
-                    {sentiment.counts?.neutral ?? 0}
-                  </strong>
+                  Neutral
+                  <strong>{sentiment.counts?.neutral ?? 0}</strong>
                 </span>
-
                 <span>
-                  Negative <strong>
-                    {sentiment.counts?.negative ?? 0}
-                  </strong>
+                  Negative
+                  <strong>{sentiment.counts?.negative ?? 0}</strong>
                 </span>
               </div>
             </div>
@@ -225,11 +227,8 @@ function VideoDetails({
                     className="prune-video-details__comment"
                   >
                     <p>{comment.text}</p>
-
                     {comment.sentiment && (
-                      <span>
-                        {comment.sentiment}
-                      </span>
+                      <span>{comment.sentiment}</span>
                     )}
                   </div>
                 ))}
@@ -240,11 +239,11 @@ function VideoDetails({
           {canEdit && (
             <div className="prune-video-details__section">
               <label className="prune-video-details__field">
-                Move video to category
+                Move video to another category
 
                 <select
                   disabled={busy}
-                  value={assignedCategory}
+                  value={categoryId}
                   onChange={event => {
                     if (event.target.value) {
                       onMove(videoId, event.target.value)
@@ -255,12 +254,12 @@ function VideoDetails({
                     Choose category
                   </option>
 
-                  {destinations.map(topic => (
+                  {categories.map(category => (
                     <option
-                      key={topic.id}
-                      value={topic.id}
+                      key={category.id}
+                      value={category.id}
                     >
-                      {topic.name}
+                      {category.name}
                     </option>
                   ))}
                 </select>
@@ -276,16 +275,15 @@ function VideoDetails({
 export default function WebsiteTopicEditor({
   inspectedId,
 }: {
-  inspectedId: string
+  inspectedId?: string | null
 }) {
   const {
     taxonomy,
     cuts,
     pruned,
-    selectedId,
-    setSelected,
     setPruned,
-    editCategory,
+    setSelected,
+    selectedId,
     moveVideo,
     busy,
   } = usePrune()
@@ -300,46 +298,25 @@ export default function WebsiteTopicEditor({
   const [actionError, setActionError] =
     useState<string | null>(null)
 
-  const [dragged, setDragged] = useState<Dragged>(null)
-  const dragging = useRef<Dragged>(null)
-
-  const [over, setOver] = useState<string | null>(null)
-
-  const allRoots = taxonomy?.tree ?? []
-
-  function findTopic(nodes: Topic[], id: string): Topic | undefined {
-    for (const node of nodes) {
-      if (node.id === id) return node
-      const child = findTopic(node.children ?? [], id)
-      if (child) return child
-    }
-    return undefined
-  }
-
-  const inspectedTopic = findTopic(allRoots, inspectedId)
-  const roots = inspectedTopic ? [inspectedTopic] : []
-
-  const topics = useMemo(
-    () => flatten(taxonomy?.tree ?? []),
+  const allRoots = useMemo(
+    () => taxonomy?.tree ?? [],
     [taxonomy]
   )
 
-  const parentIds = useMemo(() => {
-    const result = new Map<string, string | null>()
+  const topics = useMemo(
+    () => flatten(allRoots),
+    [allRoots]
+  )
 
-    function visit(
-      nodes: Topic[],
-      parent: string | null
-    ) {
-      for (const node of nodes) {
-        result.set(node.id, parent)
-        visit(node.children ?? [], node.id)
-      }
-    }
+  const inspectedTopic = inspectedId
+    ? findTopic(allRoots, inspectedId)
+    : undefined
 
-    visit(taxonomy?.tree ?? [], null)
-    return result
-  }, [taxonomy])
+  const roots = inspectedId
+    ? inspectedTopic
+      ? [inspectedTopic]
+      : []
+    : allRoots
 
   const videos = useMemo(() => {
     const result = new Map<string, VideoRecord>()
@@ -366,46 +343,33 @@ export default function WebsiteTopicEditor({
 
     for (const topic of topics) {
       for (const id of topic.video_ids ?? []) {
-        const ids = result.get(id) ?? []
+        const existing = result.get(id) ?? []
 
-        if (!ids.includes(topic.id)) {
-          ids.push(topic.id)
+        if (!existing.includes(topic.id)) {
+          existing.push(topic.id)
         }
 
-        result.set(id, ids)
+        result.set(id, existing)
       }
     }
 
     return result
   }, [topics])
 
-  async function edit(
-    id: string,
-    change: CategoryChange
-  ) {
-    if (isDemo(id)) return
-
-    try {
-      setActionError(null)
-      await editCategory(id, change)
-    } catch (error) {
-      setActionError(
-        error instanceof Error
-          ? error.message
-          : 'Could not update category.'
-      )
-    }
-  }
-
   async function reassign(
-    id: string,
-    category: string
+    videoId: string,
+    categoryId: string
   ) {
-    if (isDemo(id) || isDemo(category)) return
+    if (
+      isDemo(videoId) ||
+      isDemo(categoryId)
+    ) {
+      return
+    }
 
     try {
       setActionError(null)
-      await moveVideo(id, category)
+      await moveVideo(videoId, categoryId)
     } catch (error) {
       setActionError(
         error instanceof Error
@@ -415,170 +379,17 @@ export default function WebsiteTopicEditor({
     }
   }
 
-  function begin(
-    event: DragEvent,
-    kind: 'category' | 'video',
-    id: string
-  ) {
-    if (busy || isDemo(id)) {
-      event.preventDefault()
-      return
-    }
-
-    event.stopPropagation()
-    event.dataTransfer.effectAllowed = 'move'
-    event.dataTransfer.setData('text/plain', id)
-
-    dragging.current = { kind, id }
-    setDragged(dragging.current)
-  }
-
-  function clear() {
-    dragging.current = null
-    setDragged(null)
-    setOver(null)
-  }
-
-  function canDrop(
-    parent: string | null,
-    target?: string
-  ) {
-    const active = dragging.current
-
-    if (
-      !active ||
-      busy ||
-      (parent !== null && isDemo(parent))
-    ) {
-      return false
-    }
-
-    if (active.kind === 'video') {
-      return parent !== null && !target
-    }
-
-    const source = topics.find(
-      topic => topic.id === active.id
-    )
-
-    const forbidden = new Set(
-      source
-        ? flatten([source]).map(topic => topic.id)
-        : []
-    )
-
-    return (
-      !forbidden.has(parent ?? '') &&
-      target !== active.id &&
-      (!target || !isDemo(target))
-    )
-  }
-
-  function accept(
-    event: DragEvent,
-    id: string,
-    parent: string | null,
-    target?: string
-  ) {
-    if (!canDrop(parent, target)) return
-
-    event.preventDefault()
-    event.stopPropagation()
-    event.dataTransfer.dropEffect = 'move'
-    setOver(id)
-  }
-
-  function drop(
-    event: DragEvent,
-    parent: string | null,
-    order?: {
-      before_id?: string
-      after_id?: string
-    }
-  ) {
-    event.preventDefault()
-    event.stopPropagation()
-
-    const active = dragging.current
-
-    if (
-      active &&
-      canDrop(
-        parent,
-        order?.before_id ?? order?.after_id
-      )
-    ) {
-      if (active.kind === 'video' && parent) {
-        void reassign(active.id, parent)
-      }
-
-      if (active.kind === 'category') {
-        void edit(active.id, {
-          move: true,
-          parent_id: parent,
-          ...order,
-        })
-      }
-    }
-
-    clear()
-  }
-
-  function gap(
-    node: Topic,
-    position: 'before' | 'after'
-  ) {
-    const id = `${position}:${node.id}`
-    const parent = parentIds.get(node.id) ?? null
-
-    return (
-      <div
-        className={
-          `website-topic-drop-gap${
-            over === id ? ' is-over' : ''
-          }`
-        }
-        aria-label={`Drop ${position} ${node.name}`}
-        onDragOver={event =>
-          accept(event, id, parent, node.id)
-        }
-        onDragLeave={() => setOver(null)}
-        onDrop={event =>
-          drop(
-            event,
-            parent,
-            position === 'before'
-              ? { before_id: node.id }
-              : { after_id: node.id }
-          )
-        }
-      />
-    )
-  }
-
   function branch(
     node: Topic,
-    siblings: Topic[],
-    index: number,
     depth = 0
   ) {
-    const open = expanded[node.id] ?? depth === 0
+    const open =
+      expanded[node.id] ??
+      (depth === 0 || node.id === inspectedId)
+
     const demo = isDemo(node.id)
-    const parent = parentIds.get(node.id) ?? null
 
-    const descendants = new Set(
-      flatten([node]).map(topic => topic.id)
-    )
-
-    const destinations = topics.filter(
-      topic =>
-        !isDemo(topic.id) &&
-        !descendants.has(topic.id)
-    )
-
-    const directVideos = (
-      node.video_ids ?? []
-    ).filter(
+    const directVideos = (node.video_ids ?? []).filter(
       id =>
         !(node.children ?? []).some(
           child =>
@@ -595,47 +406,24 @@ export default function WebsiteTopicEditor({
           }`
         }
       >
-        {!demo && gap(node, 'before')}
-
         <div
           className={
             `website-topic-editor__category-row${
               selectedId === node.id
                 ? ' is-selected'
                 : ''
-            }${
-              over === node.id ? ' is-over' : ''
             }`
           }
-          onDragOver={event =>
-            accept(event, node.id, node.id)
-          }
-          onDragLeave={() => setOver(null)}
-          onDrop={event => drop(event, node.id)}
         >
-          {!demo && (
-            <span
-              className="website-topic-drag"
-              draggable={!busy}
-              title="Drag category"
-              onDragStart={event =>
-                begin(event, 'category', node.id)
-              }
-              onDragEnd={clear}
-            >
-              ⠿
-            </span>
-          )}
-
           <button
             type="button"
             className="website-topic-editor__expand"
+            aria-expanded={open}
             aria-label={
               open
                 ? `Collapse ${node.name}`
                 : `Expand ${node.name}`
             }
-            aria-expanded={open}
             onClick={() =>
               setExpanded(current => ({
                 ...current,
@@ -664,68 +452,6 @@ export default function WebsiteTopicEditor({
             {node.video_count ?? 0} videos
           </span>
 
-          {!demo && (
-            <span className="website-topic-order">
-              <button
-                type="button"
-                title="Move up"
-                aria-label={`Move ${node.name} up`}
-                disabled={
-                  busy ||
-                  index === 0 ||
-                  isDemo(siblings[index - 1].id)
-                }
-                onClick={() =>
-                  void edit(node.id, {
-                    move: true,
-                    parent_id: parent,
-                    before_id:
-                      siblings[index - 1].id,
-                  })
-                }
-              >
-                ↑
-              </button>
-
-              <button
-                type="button"
-                title="Move down"
-                aria-label={`Move ${node.name} down`}
-                disabled={
-                  busy ||
-                  index === siblings.length - 1 ||
-                  isDemo(siblings[index + 1].id)
-                }
-                onClick={() =>
-                  void edit(node.id, {
-                    move: true,
-                    parent_id: parent,
-                    after_id:
-                      siblings[index + 1].id,
-                  })
-                }
-              >
-                ↓
-              </button>
-
-              {parent && (
-                <button
-                  type="button"
-                  title="Move to top level"
-                  disabled={busy}
-                  onClick={() =>
-                    void edit(node.id, {
-                      move: true,
-                      parent_id: null,
-                    })
-                  }
-                >
-                  ↰
-                </button>
-              )}
-            </span>
-          )}
-
           <button
             type="button"
             className={
@@ -737,16 +463,10 @@ export default function WebsiteTopicEditor({
             }
             disabled={
               busy ||
-              (
-                !!pruned[node.id] &&
-                !cuts[node.id]
-              )
+              (!!pruned[node.id] && !cuts[node.id])
             }
             onClick={() =>
-              setPruned(
-                node.id,
-                !cuts[node.id]
-              )
+              setPruned(node.id, !cuts[node.id])
             }
           >
             {cuts[node.id]
@@ -767,14 +487,8 @@ export default function WebsiteTopicEditor({
 
             {(node.children ?? []).length > 0 && (
               <ul className="website-topic-editor__children">
-                {(node.children ?? []).map(
-                  (child, childIndex) =>
-                    branch(
-                      child,
-                      node.children ?? [],
-                      childIndex,
-                      depth + 1
-                    )
+                {(node.children ?? []).map(child =>
+                  branch(child, depth + 1)
                 )}
               </ul>
             )}
@@ -783,51 +497,28 @@ export default function WebsiteTopicEditor({
               <ul className="website-topic-editor__videos">
                 {directVideos.map(id => {
                   const video = videos.get(id)
-                  const isSelected =
-                    selectedVideo === id
-                  const assigned =
-                    assignments.get(id) ?? []
-                  const canEditVideo = !demo
+                  const selected = selectedVideo === id
+                  const assigned = assignments.get(id) ?? []
 
                   return (
                     <li
                       key={id}
                       className={
                         `website-topic-video${
-                          isSelected
+                          selected
                             ? ' website-topic-video--selected'
                             : ''
                         }`
                       }
                     >
                       <div className="website-topic-video__row">
-                        {!demo && !isDemo(id) && (
-                          <span
-                            draggable={!busy}
-                            className="website-topic-drag"
-                            title="Drag video to another category"
-                            onDragStart={event =>
-                              begin(
-                                event,
-                                'video',
-                                id
-                              )
-                            }
-                            onDragEnd={clear}
-                          >
-                            ⠿
-                          </span>
-                        )}
-
                         <button
                           type="button"
                           className="website-topic-editor__video"
-                          aria-expanded={isSelected}
+                          aria-expanded={selected}
                           onClick={() =>
                             setSelectedVideo(
-                              isSelected
-                                ? null
-                                : id
+                              selected ? null : id
                             )
                           }
                         >
@@ -835,7 +526,7 @@ export default function WebsiteTopicEditor({
                             className="website-topic-video__chevron"
                             aria-hidden="true"
                           >
-                            {isSelected ? '▾' : '▸'}
+                            {selected ? '▾' : '▸'}
                           </span>
 
                           <span>
@@ -844,29 +535,28 @@ export default function WebsiteTopicEditor({
                         </button>
                       </div>
 
-                      {isSelected && (
+                      {selected && (
                         <VideoDetails
                           video={video}
                           videoId={id}
-                          onClose={() =>
-                            setSelectedVideo(null)
-                          }
-                          canEdit={canEditVideo}
                           busy={busy}
-                          assignedCategory={
+                          canEdit={!demo}
+                          categoryId={
                             assigned.length === 1
                               ? assigned[0]
                               : ''
                           }
-                          destinations={topics.filter(
-                            topic =>
-                              !isDemo(topic.id)
+                          categories={topics.filter(
+                            topic => !isDemo(topic.id)
                           )}
                           onMove={(videoId, categoryId) =>
                             void reassign(
                               videoId,
                               categoryId
                             )
+                          }
+                          onClose={() =>
+                            setSelectedVideo(null)
                           }
                         />
                       )}
@@ -875,21 +565,8 @@ export default function WebsiteTopicEditor({
                 })}
               </ul>
             )}
-
-            {!demo && (
-              <CategoryManager
-                key={`${node.id}:${node.name}:${parent ?? ''}`}
-                node={node}
-                parent={parent}
-                destinations={destinations}
-                busy={busy}
-                edit={edit}
-              />
-            )}
           </div>
         )}
-
-        {!demo && gap(node, 'after')}
       </li>
     )
   }
@@ -899,184 +576,25 @@ export default function WebsiteTopicEditor({
       className="website-topic-editor"
       aria-label="Topic editor"
     >
-      <div className="website-topic-editor__heading">
-        <h3>Explore &amp; manage topics</h3>
-        <p>
-          Organize categories, explore videos,
-          and prune topics you want to see less often.
-        </p>
-      </div>
-
       {actionError && (
         <p role="alert" className="error">
           {actionError}
         </p>
       )}
 
-      <div
-        className={
-          `website-topic-editor__organizer${
-            dragged ? ' is-dragging' : ''
-          }`
-        }
-      >
+      <div className="website-topic-editor__organizer">
         <ul className="website-topic-editor__categories">
-          {roots.map((node, index) =>
-            branch(node, roots, index)
-          )}
+          {roots.map(root => branch(root))}
         </ul>
 
-        {!roots.length && (
+        {roots.length === 0 && (
           <p>
-            No topics available yet. Finish and review
-            a scrolling session to create your topic tree.
+            {inspectedId
+              ? 'This topic is no longer available.'
+              : 'No topics available yet. Finish and review a scrolling session to grow your garden.'}
           </p>
         )}
       </div>
     </aside>
-  )
-}
-
-function CategoryManager({
-  node,
-  parent,
-  destinations,
-  busy,
-  edit,
-}: {
-  node: Topic
-  parent: string | null
-  destinations: Topic[]
-  busy: boolean
-  edit: (
-    id: string,
-    change: CategoryChange
-  ) => Promise<void>
-}) {
-  const [name, setName] = useState(node.name)
-  const [newParent, setNewParent] =
-    useState(parent ?? '')
-  const [mergeTarget, setMergeTarget] =
-    useState('')
-
-  function rename(event: FormEvent) {
-    event.preventDefault()
-
-    if (name.trim()) {
-      void edit(node.id, {
-        name: name.trim(),
-      })
-    }
-  }
-
-  return (
-    <details className="website-topic-category-manager">
-      <summary>Manage category</summary>
-
-      <form onSubmit={rename}>
-        <label>
-          Display name
-          <input
-            value={name}
-            maxLength={80}
-            required
-            onChange={event =>
-              setName(event.target.value)
-            }
-          />
-        </label>
-
-        <button
-          type="submit"
-          disabled={busy || !name.trim()}
-        >
-          Rename
-        </button>
-      </form>
-
-      <div className="website-topic-manager-action">
-        <label>
-          Move branch under
-          <select
-            value={newParent}
-            onChange={event =>
-              setNewParent(event.target.value)
-            }
-          >
-            <option value="">
-              Top level
-            </option>
-
-            {destinations.map(topic => (
-              <option
-                key={topic.id}
-                value={topic.id}
-              >
-                {topic.name}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() =>
-            void edit(node.id, {
-              move: true,
-              parent_id:
-                newParent || null,
-            })
-          }
-        >
-          Move branch
-        </button>
-      </div>
-
-      <div className="website-topic-manager-action">
-        <label>
-          Merge into
-          <select
-            value={mergeTarget}
-            onChange={event =>
-              setMergeTarget(
-                event.target.value
-              )
-            }
-          >
-            <option value="">
-              Choose category
-            </option>
-
-            {destinations.map(topic => (
-              <option
-                key={topic.id}
-                value={topic.id}
-              >
-                {topic.name}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <button
-          type="button"
-          disabled={busy || !mergeTarget}
-          onClick={() => {
-            if (
-              window.confirm(
-                `Merge "${node.name}" into the selected category?`
-              )
-            ) {
-              void edit(node.id, {
-                merge_into: mergeTarget,
-              })
-            }
-          }}
-        >
-          Merge category
-        </button>
-      </div>
-    </details>
   )
 }

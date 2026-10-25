@@ -8,9 +8,18 @@ export default function Inspector() {
     const handleInspect = (event: Event) => {
       const categoryId = (event as CustomEvent<string>).detail
 
-      if (categoryId) {
-        setInspectedId(categoryId)
-      }
+      if (!categoryId) return
+
+      setInspectedId(categoryId)
+
+      window.requestAnimationFrame(() => {
+        document
+          .getElementById('garden-topic-editor')
+          ?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          })
+      })
     }
 
     window.addEventListener('prune:inspect-topic', handleInspect)
@@ -19,10 +28,6 @@ export default function Inspector() {
       window.removeEventListener('prune:inspect-topic', handleInspect)
     }
   }, [])
-
-  if (!inspectedId) {
-    return null
-  }
 
   return (
     <section
@@ -38,20 +43,28 @@ export default function Inspector() {
           <h2>Explore &amp; manage topics</h2>
 
           <p>
-            Take a closer look at what's growing in your feed.
-            Organize your interests and make room for the
-            content you want to see.
+            {inspectedId
+              ? 'Explore this topic, its subtopics, and watched videos.'
+              : "Explore what's growing in your feed, inspect videos, and prune topics you want to see less often."}
           </p>
         </div>
 
-        <button
-          type="button"
-          className="botanical-topic-editor__close"
-          onClick={() => setInspectedId(null)}
-          aria-label="Close topic editor"
-        >
-          Close ×
-        </button>
+        {inspectedId ? (
+          <button
+            type="button"
+            className="botanical-topic-editor__close"
+            onClick={() => setInspectedId(null)}
+          >
+            Show all topics ×
+          </button>
+        ) : (
+          <span
+            className="botanical-topic-editor__flourish"
+            aria-hidden="true"
+          >
+            ❧
+          </span>
+        )}
       </div>
 
       <WebsiteTopicEditor inspectedId={inspectedId} />

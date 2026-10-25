@@ -1,10 +1,11 @@
-
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import CompostPile from '../components/garden/CompostPile'
 import Inspector from '../components/garden/Inspector'
 import PruningStation from '../components/garden/PruningStation'
 import TreeCard from '../components/garden/TreeCard'
 import { usePrune } from '../state/prune-context'
+import '../styles/garden-layout-fix.css'
 
 function BotanicalSprig() {
   return (
@@ -60,14 +61,12 @@ function HeroTree() {
         fill="#D9DBC4"
         opacity=".55"
       />
-
       <path
         d="M180 300c4-43 4-93-3-152"
         stroke="#80604A"
         strokeWidth="19"
         strokeLinecap="round"
       />
-
       <path
         d="M180 221c-25-32-51-54-89-74
            M179 195c25-42 56-66 99-80
@@ -76,7 +75,6 @@ function HeroTree() {
         strokeWidth="10"
         strokeLinecap="round"
       />
-
       <g className="botanical-tree-crown">
         <ellipse cx="114" cy="126" rx="62" ry="51" fill="#ADC6A0" />
         <ellipse cx="169" cy="89" rx="74" ry="67" fill="#8BAD87" />
@@ -85,14 +83,12 @@ function HeroTree() {
         <ellipse cx="213" cy="89" rx="51" ry="49" fill="#C7D7A8" />
         <ellipse cx="97" cy="143" rx="40" ry="35" fill="#C7D7A8" />
       </g>
-
       <g fill="#ECDFBA" opacity=".9">
         <circle cx="125" cy="86" r="5" />
         <circle cx="215" cy="50" r="4" />
         <circle cx="250" cy="143" r="5" />
         <circle cx="154" cy="166" r="3" />
       </g>
-
       <path
         d="M50 301q15-29 30 0m196 0q15-34 32 0"
         stroke="#93AD83"
@@ -107,10 +103,89 @@ export default function Garden() {
   const { prunedCount, branches, videoCount } = usePrune()
   const total = branches.length
 
+  const treeRef = useRef<HTMLDivElement>(null)
+  const stationRef = useRef<HTMLDivElement>(null)
+
+  // Extra cards appear beneath whichever upper card is shorter.
+  const [extrasOnLeft, setExtrasOnLeft] = useState(false)
+
+  useEffect(() => {
+    const tree = treeRef.current
+    const station = stationRef.current
+
+    if (!tree || !station) return
+
+    const updatePlacement = () => {
+      if (window.innerWidth <= 900) {
+        setExtrasOnLeft(false)
+        return
+      }
+
+      const treeHeight = tree.getBoundingClientRect().height
+      const stationHeight = station.getBoundingClientRect().height
+
+      setExtrasOnLeft(treeHeight < stationHeight)
+    }
+
+    const observer = new ResizeObserver(updatePlacement)
+    observer.observe(tree)
+    observer.observe(station)
+
+    window.addEventListener('resize', updatePlacement)
+    updatePlacement()
+
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('resize', updatePlacement)
+    }
+  }, [])
+
+  const additionalCards = (
+    <>
+      <CompostPile />
+
+      <section
+        className="card card--lg change"
+        aria-labelledby="change-heading"
+      >
+        <h2 id="change-heading" className="h3">
+          Your garden now
+        </h2>
+
+        <p className="change__intro">
+          See how your garden changes as you prune
+          and restore topics.
+        </p>
+
+        <div className="change__grid">
+          <div className="change__cell">
+            <span className="change__label">
+              Growing topics
+            </span>
+            <span className="change__value">
+              {total - prunedCount}
+            </span>
+          </div>
+
+          <div className="change__cell change__cell--after">
+            <span className="change__label">
+              Removed topics
+            </span>
+            <span className="change__value">
+              {prunedCount}
+            </span>
+          </div>
+        </div>
+
+        <Link to="/calendar" className="link-strong">
+          Explore your growth journey →
+        </Link>
+      </section>
+    </>
+  )
+
   return (
     <div className="stack botanical-garden">
-
-      {/* HERO */}
       <section className="botanical-hero">
         <div className="botanical-hero__copy">
           <div className="botanical-eyebrow">
@@ -139,10 +214,7 @@ export default function Garden() {
               <span aria-hidden="true">↗</span>
             </a>
 
-            <a
-              href="#your-garden"
-              className="botanical-text-link"
-            >
+            <a href="#your-garden" className="botanical-text-link">
               Explore your Garden ↓
             </a>
           </div>
@@ -165,16 +237,12 @@ export default function Garden() {
         </div>
       </section>
 
-      {/* START SESSION INSTRUCTIONS */}
       <section
         id="start-scrolling"
         className="journal-card garden-start-card"
         aria-labelledby="garden-start-title"
       >
-        <div
-          className="garden-start-card__symbol"
-          aria-hidden="true"
-        >
+        <div className="garden-start-card__symbol" aria-hidden="true">
           ❧
         </div>
 
@@ -208,13 +276,11 @@ export default function Garden() {
 
           <details className="garden-start-card__help">
             <summary>Where is the extension?</summary>
-
             <p>
               In Chrome, select the puzzle-piece Extensions
               icon near the address bar, then open the Prune
               extension. Pin it for easier access.
             </p>
-
             <p>
               If a session is already active, the extension
               will show its timer and Finish button instead
@@ -224,7 +290,6 @@ export default function Garden() {
         </div>
       </section>
 
-      {/* FEED GARDEN */}
       <section
         id="your-garden"
         className="botanical-garden__content"
@@ -234,33 +299,25 @@ export default function Garden() {
             <div className="botanical-eyebrow">
               A LITTLE ROOM TO GROW
             </div>
-
             <h2>Your feed garden</h2>
-
             <p>
               Explore the categories in your feed and choose
               what you'd like to see less of.
             </p>
           </div>
-
           <BotanicalSprig />
         </div>
 
-        {/* REAL STATS */}
         <div className="stats">
           <div className="stat">
-            <span className="stat__label">
-              Growing topics
-            </span>
+            <span className="stat__label">Growing topics</span>
             <span className="stat__value">
               {total - prunedCount}
             </span>
           </div>
 
           <div className="stat">
-            <span className="stat__label">
-              Branches pruned
-            </span>
+            <span className="stat__label">Branches pruned</span>
             <span className="stat__value">
               {prunedCount} of {total} topics
             </span>
@@ -276,69 +333,30 @@ export default function Garden() {
           </div>
         </div>
 
-        {/* TREE + COMBINED MANAGEMENT PANEL */}
-        <div className="columns">
-          <TreeCard />
-
-          <div className="side">
-            <div className="garden-management-box">
-              <div className="garden-management-box__content">
-
-                {/* PRUNING STATION */}
-                <PruningStation />
-
-                {/* COMPOST PILE - FIXED */}
-                <CompostPile />
-
-                {/* YOUR GARDEN NOW - FIXED */}
-                <section
-                  className="garden-management-summary"
-                  aria-labelledby="change-heading"
-                >
-                  <h2 id="change-heading" className="h3">
-                    Your garden now
-                  </h2>
-
-                  <div className="change__grid">
-                    <div className="change__cell">
-                      <span className="change__label">
-                        Growing topics
-                      </span>
-
-                      <span className="change__value">
-                        {total - prunedCount}
-                      </span>
-                    </div>
-
-                    <div className="change__cell change__cell--after">
-                      <span className="change__label">
-                        Removed topics
-                      </span>
-
-                      <span className="change__value">
-                        {prunedCount}
-                      </span>
-                    </div>
-                  </div>
-
-                  <Link
-                    to="/calendar"
-                    className="link-strong"
-                  >
-                    Explore your growth journey →
-                  </Link>
-                </section>
-
-              </div>
+        <div className="garden-balanced-layout">
+          <div className="garden-balanced-column">
+            <div ref={treeRef} className="garden-measured-card">
+              <TreeCard />
             </div>
+
+            {extrasOnLeft && additionalCards}
+          </div>
+
+          <div className="garden-balanced-column">
+            <div ref={stationRef} className="garden-measured-card">
+              <PruningStation />
+            </div>
+
+            {!extrasOnLeft && additionalCards}
           </div>
         </div>
 
-        {/* TOPIC EDITOR - OPENS ONLY WHEN INSPECTING */}
-        <div className="garden-topic-editor-section">
+        <div
+          id="garden-topic-editor"
+          className="garden-topic-editor-section"
+        >
           <Inspector />
         </div>
-
       </section>
     </div>
   )

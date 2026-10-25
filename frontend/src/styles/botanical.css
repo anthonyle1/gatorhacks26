@@ -5015,3 +5015,159 @@ body {
   outline: 2px solid #315b43;
   outline-offset: 3px;
 }
+
+
+/* ===================================================
+   GARDEN LAYOUT RESTORATION
+   Tree + Pruning Station
+   Topic Editor
+   Compost Pile + Garden Summary
+   =================================================== */
+
+/* Return to the original two-column Garden layout. */
+.botanical-garden__content .columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr);
+  align-items: stretch;
+  gap: 24px;
+}
+
+/* Pruning Station is its own card again. */
+.botanical-garden__content .columns > .side {
+  position: static;
+  height: auto;
+  min-height: 0;
+  min-width: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+}
+
+.botanical-garden__content .columns > .side > .station {
+  position: static;
+  width: 100%;
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+/* Allow the pruning list to scroll without clipping
+   other sections or leaving oversized blank areas. */
+.botanical-garden__content .side .station__scroll {
+  flex: initial;
+  min-height: 0;
+  max-height: 340px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+}
+
+/* Bring back the full-width topic editor. */
+.botanical-garden__content .garden-topic-editor-section {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin: 30px 0;
+  scroll-margin-top: 110px;
+}
+
+.botanical-garden__content
+.garden-topic-editor-section .botanical-topic-editor {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  padding: clamp(20px, 3vw, 36px);
+  border: 1px solid #d9e1cf;
+  border-radius: 24px;
+  background: #fffdf7;
+  box-shadow: 0 5px 20px rgba(55, 76, 48, 0.045);
+}
+
+/* Restore separate Compost and Summary cards. */
+.botanical-garden__content > .row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.botanical-garden__content > .row > .compost,
+.botanical-garden__content > .row > .change {
+  position: static;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  box-sizing: border-box;
+  border: 1px solid #dedfce;
+  border-radius: 24px;
+  background: #fffdf7;
+  box-shadow: 0 5px 20px rgba(55, 76, 48, 0.045);
+  overflow: visible;
+}
+
+/* Bring back the compost illustration and text. */
+.botanical-garden__content > .row .pile {
+  display: block;
+  width: 100%;
+  max-width: 230px;
+  height: auto;
+  margin: 16px auto;
+}
+
+.botanical-garden__content > .row .compost__intro,
+.botanical-garden__content > .row .change__intro {
+  display: block;
+}
+
+.botanical-garden__content > .row .compost__empty {
+  width: 100%;
+  max-width: none;
+  text-align: center;
+  white-space: normal;
+  font-size: 0.9rem;
+  padding: 10px;
+}
+
+.botanical-garden__content > .row .compost__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Return Your Garden Now to its card layout. */
+.botanical-garden__content > .row .change {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.botanical-garden__content > .row .change__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+/* Responsive Garden layout. */
+@media (max-width: 900px) {
+  .botanical-garden__content .columns,
+  .botanical-garden__content > .row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .botanical-garden__content .columns > .side {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .botanical-garden__content
+  .garden-topic-editor-section .botanical-topic-editor {
+    padding: 18px;
+    border-radius: 18px;
+  }
+}
