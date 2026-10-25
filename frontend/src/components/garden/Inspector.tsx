@@ -20,7 +20,6 @@ export default function Inspector() {
     }
   }, [])
 
-  // Hide the topic editor until a category is inspected.
   if (!inspectedId) {
     return null
   }
@@ -45,20 +44,11 @@ export default function Inspector() {
           </p>
         </div>
 
-        <span
-          className="botanical-topic-editor__flourish"
-          aria-hidden="true"
-        >
-          ❧
-        </span>
-      </div>
-
-      <WebsiteTopicEditor />
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <button
           type="button"
-          className="btn btn--outline-soft"
+          className="botanical-topic-editor__close"
           onClick={() => setInspectedId(null)}
+          aria-label="Close topic editor"
         >
           Close ×
         </button>

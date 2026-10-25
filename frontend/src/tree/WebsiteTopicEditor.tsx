@@ -273,7 +273,11 @@ function VideoDetails({
   )
 }
 
-export default function WebsiteTopicEditor() {
+export default function WebsiteTopicEditor({
+  inspectedId,
+}: {
+  inspectedId: string
+}) {
   const {
     taxonomy,
     cuts,
@@ -296,25 +300,13 @@ export default function WebsiteTopicEditor() {
   const [actionError, setActionError] =
     useState<string | null>(null)
 
-export default function WebsiteTopicEditor({ inspectedId }: { inspectedId: string }) {
-  const { taxonomy, cuts, pruned, selectedId, setSelected, setPruned, editCategory, moveVideo, busy } = usePrune()
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({})
-  const [selectedVideo, setSelectedVideo] = useState<string | null>(null)
-  const [actionError, setActionError] = useState<string | null>(null)
   const [dragged, setDragged] = useState<Dragged>(null)
   const dragging = useRef<Dragged>(null)
 
   const [over, setOver] = useState<string | null>(null)
 
-  const roots = taxonomy?.tree ?? []
-
-  const topics = useMemo(
-    () => flatten(taxonomy?.tree ?? []),
-    [taxonomy]
-  )
-
   const allRoots = taxonomy?.tree ?? []
-  // Show only the inspected category (and its descendants).
+
   function findTopic(nodes: Topic[], id: string): Topic | undefined {
     for (const node of nodes) {
       if (node.id === id) return node
@@ -323,9 +315,15 @@ export default function WebsiteTopicEditor({ inspectedId }: { inspectedId: strin
     }
     return undefined
   }
-  const inspectedTopic = inspectedId ? findTopic(allRoots, inspectedId) : undefined
+
+  const inspectedTopic = findTopic(allRoots, inspectedId)
   const roots = inspectedTopic ? [inspectedTopic] : []
-  const topics = useMemo(() => flatten(taxonomy?.tree ?? []), [taxonomy])
+
+  const topics = useMemo(
+    () => flatten(taxonomy?.tree ?? []),
+    [taxonomy]
+  )
+
   const parentIds = useMemo(() => {
     const result = new Map<string, string | null>()
 
@@ -937,30 +935,6 @@ export default function WebsiteTopicEditor({ inspectedId }: { inspectedId: strin
       </div>
     </aside>
   )
-  const video = selectedVideo ? videos.get(selectedVideo) : undefined
-  const url = video ? videoUrl(video) : null
-  return <aside className="website-topic-editor" aria-label="Topic editor">
-    <div className="website-topic-editor__heading"><h3>Explore &amp; manage topics</h3>
-      <p>Inspect and manage this topic and its child categories.</p></div>
-    {actionError && <p role="alert" className="error">{actionError}</p>}
-    <div className={`website-topic-editor__organizer${dragged ? ' is-dragging' : ''}`}>
-      <div className={`website-topic-root-drop${over === 'root' ? ' is-over' : ''}`} onDragOver={event => accept(event, 'root', null)} onDragLeave={() => setOver(null)} onDrop={event => drop(event, null)}>↰ Drop a branch here to make it top level</div>
-      <ul className="website-topic-editor__categories">{roots.map((node, i) => branch(node, roots, i))}</ul>
-      {!roots.length && <p>This topic is no longer available.</p>}
-    </div>
-    {selectedVideo && <section className="website-topic-editor__details">
-      <div className="website-topic-editor__details-heading"><h4>{video?.title || selectedVideo}</h4><button type="button" onClick={() => setSelectedVideo(null)} aria-label="Close video details">×</button></div>
-      {!video && <p>Additional details are not available for this video.</p>}
-      {url && <p><a href={url} target="_blank" rel="noreferrer">Open original video ↗</a></p>}
-      {video?.platform && <p>Platform: {video.platform}</p>}
-      {video?.caption && <p>Caption: {video.caption}</p>}
-      {video?.analysis?.sentiment && <div><h5>Comment sentiment</h5><p>Positive: {video.analysis.sentiment.counts?.positive ?? 0} · Neutral: {video.analysis.sentiment.counts?.neutral ?? 0} · Negative: {video.analysis.sentiment.counts?.negative ?? 0}</p></div>}
-      {video?.analysis?.assessment && <div><h5>AI assessment</h5><p>{video.analysis.assessment.context_summary}</p><p>{video.analysis.assessment.reason}</p></div>}
-      {!!video?.analysis?.comments?.length && <div><h5>Comments</h5>{video.analysis.comments.map((comment, i) => <p key={i}>{comment.text}{comment.sentiment ? ` (${comment.sentiment})` : ''}</p>)}</div>}
-      {!isDemo(selectedVideo) && <label>Move video to category <select disabled={busy} value={(assignments.get(selectedVideo) ?? []).length === 1 ? (assignments.get(selectedVideo) ?? [])[0] : ''}
-        onChange={event => { if (event.target.value) void reassign(selectedVideo, event.target.value) }}><option value="" disabled>Choose category</option>{topics.filter(topic => !isDemo(topic.id)).map(topic => <option key={topic.id} value={topic.id}>{topic.name}</option>)}</select></label>}
-    </section>}
-  </aside>
 }
 
 function CategoryManager({

@@ -4992,3 +4992,26 @@ body {
   font-size: 11px;
   padding: 4px 0;
 }
+
+.botanical-topic-editor__close {
+  flex-shrink: 0;
+  align-self: flex-start;
+  padding: 10px 18px;
+  border: 1px solid #c9d9c3;
+  border-radius: 999px;
+  background: #edf3e9;
+  color: #315b43;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.botanical-topic-editor__close:hover {
+  background: #dcebd6;
+}
+
+.botanical-topic-editor__close:focus-visible {
+  outline: 2px solid #315b43;
+  outline-offset: 3px;
+}
