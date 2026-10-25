@@ -40,6 +40,7 @@ function background(failUpload = false) {
     },
   };
   vm.createContext(context);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/collection-policy.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/background.js'), 'utf8'), context);
   return { context, state, calls, listeners, openedTabs, invokeToolbar(tab) { return toolbarListener(tab); }, fail(value) { fails = value; } };
 }
@@ -129,11 +130,13 @@ test('tree reset clears cached tree only after the backend succeeds', async () =
   assert.equal(setup.state.pruneTreeReset, true);
 });
 
-function content(trackingPaused = true) {
+function content(trackingPaused = true, minimum = 0) {
   const listeners = [];
   const messages = [];
   const intervals = [];
+  let now = Date.now();
   const context = {
+    Date: class extends Date { static now() { return now; } },
     console: { log() {}, warn() {}, error() {} },
     crypto: { randomUUID: () => 'stable-event-id' },
     setInterval(callback) { intervals.push(callback); return intervals.length; }, clearInterval() {},
@@ -143,7 +146,7 @@ function content(trackingPaused = true) {
         getBoundingClientRect: () => ({ top: 0, bottom: 500, left: 0, right: 500 }) }];
     } },
     chrome: {
-      storage: { local: { async get() { return { trackingPaused }; }, async set() {} } },
+      storage: { local: { async get() { return { trackingPaused, sessionMinimumWatchSeconds: minimum }; }, async set() {} } },
       runtime: {
         lastError: undefined,
         onMessage: { addListener(listener) { listeners.push(listener); } },
@@ -152,9 +155,83 @@ function content(trackingPaused = true) {
     },
   };
   vm.createContext(context);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/collection-policy.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/content.js'), 'utf8'), context);
-  return { context, listeners, messages, intervals };
+  return { context, listeners, messages, intervals, advance(milliseconds) { now += milliseconds; } };
 }
+
+test('watch cutoff is fixed for a session and zero preserves collect-all behavior', async () => {
+  const setup = background();
+  setup.state.minimumWatchSeconds = 2;
+  await setup.context.sessionControl({ type: 'START_SESSION' });
+  assert.equal(setup.state.sessionMinimumWatchSeconds, 2);
+  setup.state.minimumWatchSeconds = 10;
+  await setup.context.sessionControl({ type: 'START_SESSION' });
+  assert.equal(setup.state.sessionMinimumWatchSeconds, 2);
+  assert.equal((await setup.context.queueEvent({ event_id:'skip',video_id:'short',platform:'youtube',dwell_seconds:1.99 })).skipped, true);
+  await setup.context.queueEvent({ event_id:'keep',video_id:'long',platform:'youtube',dwell_seconds:2 });
+  assert.deepEqual(setup.state.pendingEvents.map(event => event.event_id), ['keep']);
+  setup.state.sessionMinimumWatchSeconds = 0;
+  await setup.context.queueEvent({ event_id:'all',video_id:'short',platform:'youtube',dwell_seconds:0 });
+  assert.equal(setup.state.pendingEvents.length, 2);
+});
+
+test('short visits never prefetch models and finish excludes their video, comments and audio', async () => {
+  const setup = background();
+  Object.assign(setup.state, { trackingPaused:false, localSessionId:SESSION_ID,sessionMinimumWatchSeconds:2 });
+  setup.context.chrome.tabs.sendMessage = async () => ({success:true});
+  const occurrence = (id, source) => ({ occurrence_id:id,video_session_id:`yt_${source}`,platform:'youtube',source_id:source,generation:1 });
+  const short = await setup.context.playbackOccurrence({ occurrence:occurrence('short-occ','short'),visit_id:'short-visit' },{tab:{id:7}});
+  const long = await setup.context.playbackOccurrence({ occurrence:occurrence('long-occ','long'),visit_id:'long-visit' },{tab:{id:7}});
+  const seek = await setup.context.playbackOccurrence({ occurrence:occurrence('seek-occ','long'),visit_id:'long-visit' },{tab:{id:7}});
+  assert.equal(setup.calls.length,0);
+  await setup.context.audioExpected({occurrence:short,segment_id:'short-audio'});
+  await setup.context.audioExpected({occurrence:long,segment_id:'long-audio'});
+  await setup.context.audioExpected({occurrence:seek,segment_id:'seek-audio'});
+  await setup.context.queueEvent({event_id:'short-event',video_id:'short',platform:'youtube',dwell_seconds:1.5,collection_visit_id:'short-visit',occurrence_id:short.occurrence_id});
+  assert.equal((await setup.context.audioCollectionDecision({occurrence:short})).decision,'skipped');
+  assert.equal((await setup.context.audioExpected({occurrence:short,segment_id:'late-short-audio'})).discard,true);
+  await setup.context.qualifyVideoVisit({visit_id:'long-visit',played_seconds:2},{tab:{id:7}});
+  assert.equal((await setup.context.audioCollectionDecision({occurrence:long})).decision,'approved');
+  await setup.context.queueEvent({event_id:'long-event',video_id:'long',platform:'youtube',dwell_seconds:2,collection_visit_id:'long-visit',occurrence_id:seek.occurrence_id});
+  await setup.context.finishScrollingSession();
+  const snapshot = JSON.parse(setup.calls.find(call => call.url.endsWith('/finish')).options.body);
+  assert.deepEqual(snapshot.events.map(event => event.video_id),['long']);
+  assert.equal(snapshot.events[0].collection_visit_id,undefined);
+  assert.deepEqual(snapshot.evidence_manifest.map(entry => entry.occurrence_id),['long-occ','seek-occ']);
+  assert.deepEqual(snapshot.evidence_manifest.flatMap(entry => entry.segment_ids),['long-audio','seek-audio']);
+  assert.ok(setup.calls.every(call => !String(call.options.body).includes('short-occ')));
+});
+
+test('filtered live counters wait for actual playback eligibility', async () => {
+  const setup = content(false,2);
+  await new Promise(setImmediate);
+  assert.equal(vm.runInContext('session.videoCount',setup.context),0);
+  for(let i=0;i<7;i++) { setup.advance(250); setup.context.mediaClock(); }
+  assert.equal(vm.runInContext('session.videoCount',setup.context),0);
+  setup.advance(250); setup.context.mediaClock();
+  assert.equal(vm.runInContext('session.videoCount',setup.context),1);
+  assert.equal(setup.messages.filter(message => message.type === 'VIDEO_QUALIFIED').length,1);
+  assert.equal(setup.messages.find(message => message.type === 'VIDEO_QUALIFIED').played_seconds,2);
+  assert.equal(vm.runInContext('session.videoHistory.length',setup.context),1);
+});
+
+test('paused playback and short visits do not contribute to filtered counters', async () => {
+  const setup = content(false,2);
+  await new Promise(setImmediate);
+  const media = setup.context.document.querySelectorAll()[0];
+  setup.context.document.querySelectorAll = () => [media];
+  media.paused = true;
+  for(let i=0;i<12;i++) { setup.advance(250); setup.context.mediaClock(); }
+  assert.equal(vm.runInContext('currentVideoSeconds',setup.context),0);
+  media.paused = false;
+  for(let i=0;i<6;i++) { setup.advance(250); setup.context.mediaClock(); }
+  setup.context.window.location.pathname = '/shorts/second';
+  await setup.context.trackScrolling();
+  assert.equal(setup.messages.find(message => message.type === 'VIDEO_EVENT').event.dwell_seconds,1.5);
+  assert.equal(vm.runInContext('session.videoCount',setup.context),0);
+  assert.equal(vm.runInContext('session.videoHistory.length',setup.context),0);
+});
 
 test('a fresh install waits for Start before running tracking intervals', async () => {
   const idle = content(null);

@@ -9,6 +9,11 @@ let currentVideoId = null;
 let currentPlatform = null;
 let videoStartedAt = null;
 let currentVideoSeconds = 0;
+let currentVisitId = null;
+let currentQualified = false;
+let qualificationSent = false;
+let minimumWatchSeconds = 0;
+let lastPlaybackCheck = Date.now();
 let currentMetadata = { title: "", caption: "" };
 let currentOccurrence = null;
 let occurrenceGeneration = 0;
@@ -109,6 +114,10 @@ async function trackScrolling() {
     currentVideoId = playback ? videoId : null;
     currentPlatform = playback ? platform : null;
     currentOccurrence = null;
+    currentVisitId = crypto.randomUUID();
+    currentQualified = false;
+    qualificationSent = false;
+    lastPlaybackCheck = now;
     currentMetadata = readVideoMetadata();
 
     session.currentVideoId = videoId;
@@ -122,13 +131,7 @@ async function trackScrolling() {
 
     if (videoId && playback) {
       beginOccurrence(video, media);
-      session.videoCount++;
-
-      session.videoHistory.push({
-        videoId,
-        platform,
-        timestamp: videoStartedAt
-      });
+      qualifyCurrentVideo();
 
       console.log(
         "New video detected:",
@@ -138,8 +141,7 @@ async function trackScrolling() {
     }
   } else if (videoId && !document.hidden) {
     currentMetadata = readVideoMetadata();
-    session.durationSeconds += elapsed;
-    currentVideoSeconds += elapsed;
+    if (minimumWatchSeconds === 0) { session.durationSeconds += elapsed; currentVideoSeconds += elapsed; }
   }
 
   try {
@@ -173,6 +175,7 @@ function sendVideoEvent(videoId, platform, startedAt, seconds) {
     event_id: crypto.randomUUID(), video_id: videoId, platform,
     video_session_id: (platform === "youtube" ? "yt_" : "ig_") + videoId,
     occurrence_id: currentOccurrence?.occurrence_id || null,
+    collection_visit_id: currentVisitId,
     ...currentMetadata,
     sequence_number: Math.max(1, session.videoHistory.length),
     started_at: startedAt, ended_at: new Date().toISOString(),
@@ -191,9 +194,27 @@ function beginOccurrence(video, media) {
   };
   previousMediaTime = media.currentTime;
   previousClockTime = Date.now();
-  chrome.runtime.sendMessage({ type: "PLAYBACK_EVENT", occurrence: currentOccurrence }, () => { void chrome.runtime.lastError; });
+  chrome.runtime.sendMessage({ type: "PLAYBACK_EVENT", occurrence: currentOccurrence, visit_id: currentVisitId }, () => { void chrome.runtime.lastError; });
+}
+function qualifyCurrentVideo() {
+  if (!currentVideoId || currentVideoSeconds < minimumWatchSeconds) return;
+  if (!currentQualified) {
+    currentQualified = true;
+    session.videoCount++;
+    session.videoHistory.push({ videoId: currentVideoId, platform: currentPlatform, timestamp: videoStartedAt });
+    if (minimumWatchSeconds > 0) session.durationSeconds += currentVideoSeconds;
+  }
+  if (minimumWatchSeconds > 0 && !qualificationSent) {
+    qualificationSent = true;
+    chrome.runtime.sendMessage({ type: 'VIDEO_QUALIFIED', visit_id: currentVisitId, played_seconds: currentVideoSeconds }, response => {
+      if (chrome.runtime.lastError || !response?.success) qualificationSent = false;
+    });
+  }
 }
 function mediaClock() {
+  const now = Date.now();
+  const elapsed = Math.max(0, Math.min(.5, (now - lastPlaybackCheck) / 1000));
+  lastPlaybackCheck = now;
   const detected = getCurrentVideo();
   const media = getActiveInstagramVideo();
   if (!currentOccurrence || !media || detected?.videoId !== currentVideoId || detected.platform !== currentPlatform) return;
@@ -206,6 +227,11 @@ function mediaClock() {
   previousClockTime = Date.now();
   const captureReason = media.paused || media.ended ? "paused" : media.readyState < 3 ? "buffering" :
     !mediaIdentityMatches(media, detected) ? "unverified_video" : "playing";
+  if (minimumWatchSeconds > 0 && !document.hidden && !media.paused && !media.ended && media.readyState >= 3) {
+    currentVideoSeconds += elapsed;
+    if (currentQualified) session.durationSeconds += elapsed;
+    qualifyCurrentVideo();
+  }
   chrome.runtime.sendMessage({ type: "MEDIA_CLOCK", occurrence_id: currentOccurrence.occurrence_id,
     media_time: media.currentTime, rate: media.playbackRate,
     playing: captureReason === "playing", capture_reason: captureReason,
@@ -604,8 +630,10 @@ async function processInstagramReel() {
 // ========================================
 
 async function startTracking(reset = false) {
-  const state = await chrome.storage.local.get("trackingPaused");
+  const state = await chrome.storage.local.get(["trackingPaused", "sessionMinimumWatchSeconds"]);
   if (state.trackingPaused !== false) return;
+  minimumWatchSeconds = globalThis.PruneCollection?.seconds(state.sessionMinimumWatchSeconds) || 0;
+  lastPlaybackCheck = Date.now();
   clearInterval(trackingInterval);
   clearInterval(commentInterval);
   clearInterval(clockInterval);
@@ -614,7 +642,7 @@ async function startTracking(reset = false) {
     currentVideoId = null; currentPlatform = null; videoStartedAt = null; currentVideoSeconds = 0;
   }
   lastCheck = Date.now();
-  trackingInterval = setInterval(trackScrolling, 1000);
+  trackingInterval = setInterval(trackScrolling, minimumWatchSeconds > 0 ? 250 : 1000);
   clockInterval = setInterval(mediaClock, 250);
   commentInterval = setInterval(processInstagramReel, 1000);
   trackScrolling();
@@ -623,6 +651,7 @@ async function startTracking(reset = false) {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "FLUSH_SESSION") {
+    if (minimumWatchSeconds > 0) mediaClock();
     clearInterval(trackingInterval);
     clearInterval(commentInterval);
     clearInterval(clockInterval);
@@ -633,6 +662,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     currentVideoId = null; videoStartedAt = null; currentPlatform = null;
     const uploads = [...unsentEvents.values()].map(transmitVideoEvent);
     if (previous && started) uploads.push(sendVideoEvent(previous, platform, started, seconds));
+    if (minimumWatchSeconds > 0) uploads.push(chrome.storage.local.set({ scrollingSession: session }).then(() => true));
     Promise.all(uploads).then(results => sendResponse({ success: results.every(Boolean) }));
     return true;
   }

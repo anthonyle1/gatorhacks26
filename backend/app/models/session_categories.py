@@ -13,9 +13,15 @@ class CategoryEdit(BaseModel):
     parent_id: str | None = Field(default=None, min_length=1, max_length=80)
     move: bool = False
     merge_into: str | None = Field(default=None, min_length=1, max_length=80)
+    before_id: str | None = Field(default=None, min_length=1, max_length=80)
+    after_id: str | None = Field(default=None, min_length=1, max_length=80)
 
     @model_validator(mode="after")
     def one_operation(self):
+        if (self.before_id or self.after_id) and not self.move:
+            raise ValueError("Ordering requires a move")
+        if self.before_id and self.after_id:
+            raise ValueError("Choose before or after")
         if sum((self.name is not None, self.move, self.merge_into is not None)) != 1:
             raise ValueError("Choose one rename, move, or merge operation")
         if self.name is not None and (not self.name.strip() or any(ord(c) < 32 for c in self.name)):
@@ -23,5 +29,10 @@ class CategoryEdit(BaseModel):
         if self.name is not None:
             self.name = self.name.strip()
         return self
+
+
+class VideoCategoryMove(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    category_id: str = Field(min_length=1, max_length=80)
 
 

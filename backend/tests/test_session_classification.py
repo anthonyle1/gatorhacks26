@@ -112,6 +112,43 @@ class PersistentTaxonomyTests(unittest.TestCase):
         self.assertEqual(self.store.view("s1", "user")["reduce_video_ids"], ["v1", "v2"])
         self.assertTrue(self.store.view("s1", "user")["tree"][0]["children"][0]["children"][0]["inherited"])
 
+    def test_manual_video_move_persists_and_updates_ancestors_preferences_and_reclassification(self):
+        root, ai, children = self.example()
+        target = children["AI Art"]["id"]
+        self.store.set_preference("user", target, True)
+        self.store.move_video("user", "v1", target)
+        view = TopicStore(self.path).view("s1", "user")
+        self.assertEqual(view["tree_assignments"]["v1"], [target])
+        self.assertEqual(view["reduce_video_ids"], ["v1", "v2"])
+        self.assertEqual(view["global_video_count"], 2)
+        self.assertEqual(view["tree"][0]["video_count"], 2)
+        self.store.save_session("s2", "user", {"assignments": {"v1": [children["AI Companions"]["id"]]}, "completed_at": "later"})
+        self.assertEqual(self.store.view("s2", "user")["tree_assignments"]["v1"], [target])
+        with self.assertRaises(ValueError):
+            self.store.move_video("another-user", "v1", target)
+        with self.assertRaises(ValueError):
+            self.store.move_video("user", "invented-video", target)
+        self.store.reset_tree("user")
+        self.assertEqual(self.store.view("s1", "user")["tree"], [])
+
+    def test_category_drag_moves_reorders_promotes_and_rejects_cycles_atomically(self):
+        root, ai, children = self.example()
+        art, companions = children["AI Art"]["id"], children["AI Companions"]["id"]
+        self.store.edit_category("user", companions, move=True, parent_id=ai["id"], before_id=art)
+        ordered = self.store.view("s1", "user")["tree"][0]["children"][0]["children"]
+        self.assertEqual([node["id"] for node in ordered], [companions, art])
+        self.store.edit_category("user", art, move=True, parent_id=companions)
+        with self.assertRaises(ValueError):
+            self.store.edit_category("user", root["id"], move=True, parent_id=art)
+        self.assertIsNone(self.store.view("s1", "user")["tree"][0]["parent_id"])
+        self.store.edit_category("user", art, move=True, parent_id=None, before_id=root["id"])
+        reopened = TopicStore(self.path).view("s1", "user")
+        self.assertEqual([node["id"] for node in reopened["tree"]], [art, root["id"]])
+        self.assertEqual(reopened["global_video_count"], 2)
+        with self.assertRaises(ValueError):
+            self.store.edit_category("user", art, move=True, parent_id=None, before_id=companions)
+        self.assertIsNone(self.store.view("s1", "user")["tree"][0]["parent_id"])
+
     def test_video_counts_use_unique_identity_across_sibling_branches(self):
         result = discovery([topic("tech", "Technology"), topic("ai", "AI", "tech", ["v1"]),
                             topic("code", "Programming", "tech", ["v1"])], ["v1"])

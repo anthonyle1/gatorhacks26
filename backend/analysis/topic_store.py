@@ -38,6 +38,12 @@ class TopicStore:
                     session_id TEXT NOT NULL, user_id TEXT NOT NULL, fingerprint TEXT NOT NULL,
                     result TEXT NOT NULL, PRIMARY KEY(session_id,user_id,fingerprint));
                 CREATE INDEX IF NOT EXISTS category_user_parent ON categories(user_id, parent_id);
+                CREATE TABLE IF NOT EXISTS video_category_overrides (
+                    user_id TEXT NOT NULL, video_id TEXT NOT NULL, category_id TEXT NOT NULL,
+                    PRIMARY KEY(user_id, video_id));
+                CREATE TABLE IF NOT EXISTS category_positions (
+                    user_id TEXT NOT NULL, category_id TEXT NOT NULL, position INTEGER NOT NULL,
+                    PRIMARY KEY(user_id, category_id));
             """)
             with connection:
                 yield connection
@@ -193,6 +199,8 @@ class TopicStore:
                 return self.reset_tree(user_id, connection=connection)
         connection.execute("DELETE FROM category_aliases WHERE category_id IN (SELECT id FROM categories WHERE user_id=?)", (user_id,))
         connection.execute("DELETE FROM topic_preferences WHERE user_id=?", (user_id,))
+        connection.execute("DELETE FROM video_category_overrides WHERE user_id=?", (user_id,))
+        connection.execute("DELETE FROM category_positions WHERE user_id=?", (user_id,))
         connection.execute("DELETE FROM session_topic_batches WHERE user_id=?", (user_id,))
         for row in connection.execute("SELECT session_id,result FROM session_topics WHERE user_id=?", (user_id,)).fetchall():
             result = json.loads(row["result"])
@@ -221,8 +229,19 @@ class TopicStore:
                     if self._category(connection, user_id, row[0])["id"] == category["id"]:
                         connection.execute("DELETE FROM topic_preferences WHERE user_id=? AND category_id=?", (user_id, row[0]))
 
-    def edit_category(self, user_id, category_id, *, name=None, parent_id=None, move=False, merge_into=None):
+    def move_video(self, user_id, video_id, category_id):
         with self.connection() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            category = self._category(connection, user_id, category_id)
+            reviews = [json.loads(row[0]) for row in connection.execute("SELECT result FROM session_topics WHERE user_id=?", (user_id,))]
+            if not any(video_id in review.get("assignments", {}) or any(video.get("video_id") == video_id for video in review.get("videos", [])) for review in reviews):
+                raise ValueError("Unknown video for this user")
+            connection.execute("INSERT INTO video_category_overrides VALUES (?,?,?) ON CONFLICT(user_id,video_id) DO UPDATE SET category_id=excluded.category_id",
+                               (user_id, video_id, category["id"]))
+
+    def edit_category(self, user_id, category_id, *, name=None, parent_id=None, move=False, merge_into=None, before_id=None, after_id=None):
+        with self.connection() as connection:
+            connection.execute("BEGIN IMMEDIATE")
             category = self._category(connection, user_id, category_id)
             category_id = category["id"]
             if merge_into:
@@ -241,7 +260,20 @@ class TopicStore:
                     if parent_id:
                         parent_id = self._category(connection, user_id, parent_id)["id"]
                     self._check_parent(connection, user_id, category_id, parent_id)
+                    if before_id and after_id:
+                        raise ValueError("Choose one ordering target")
+                    anchor = self._category(connection, user_id, before_id or after_id) if before_id or after_id else None
+                    if anchor and (anchor["id"] == category_id or anchor["parent_id"] != parent_id):
+                        raise ValueError("Ordering target must be another child of the destination parent")
                     connection.execute("UPDATE categories SET parent_id=? WHERE id=?", (parent_id, category_id))
+                    positions = {row[0]: row[1] for row in connection.execute("SELECT category_id,position FROM category_positions WHERE user_id=?", (user_id,))}
+                    siblings = [dict(row) for row in connection.execute("SELECT id,name FROM categories WHERE user_id=? AND parent_id IS ? AND merged_into IS NULL AND id<>?", (user_id, parent_id, category_id))]
+                    siblings.sort(key=lambda item: (positions.get(item["id"], 1000000), item["name"].casefold()))
+                    identities = [item["id"] for item in siblings]
+                    index = identities.index(anchor["id"]) + bool(after_id) if anchor else len(identities)
+                    identities.insert(index, category_id)
+                    connection.executemany("INSERT OR REPLACE INTO category_positions VALUES (?,?,?)",
+                                           [(user_id, identity, index) for index, identity in enumerate(identities)])
 
     def view(self, session_id, user_id):
         with self.connection() as connection:
@@ -263,6 +295,11 @@ class TopicStore:
             for review in history:
                 global_assignments.update(review.get("assignments", {}))
                 global_videos.update({video["video_id"]: video for video in review.get("videos", [])})
+            overrides = {row[0]: row[1] for row in connection.execute("SELECT video_id,category_id FROM video_category_overrides WHERE user_id=?", (user_id,))}
+            global_assignments.update({video_id: [category_id] for video_id, category_id in overrides.items()})
+            positions = {row[0]: row[1] for row in connection.execute("SELECT category_id,position FROM category_positions WHERE user_id=?", (user_id,))}
+            def category_order(node):
+                return positions.get(node["id"], 1000000), node["name"].casefold()
             preferences = {self._category(connection, user_id, item[0])["id"] for item in connection.execute(
                 "SELECT category_id FROM topic_preferences WHERE user_id=?", (user_id,))}
             nodes = {item["id"]: {"id": item["id"], "name": item["name"],
@@ -294,13 +331,13 @@ class TopicStore:
             def inherited(node, reduced=False):
                 node["inherited"] = reduced
                 node["reduce"] = reduced or node["selected"]
-                node["children"].sort(key=lambda child: child["name"].casefold())
+                node["children"].sort(key=category_order)
                 for child in node["children"]:
                     inherited(child, node["reduce"])
 
             for root in roots:
                 inherited(root)
-            result["tree"] = sorted(roots, key=lambda node: node["name"].casefold())
+            result["tree"] = sorted(roots, key=category_order)
             result["tree_scope"] = "global"
             result["tree_assignments"] = {video_id: sorted(ids) for video_id, ids in assignments.items()}
             result["tree_videos"] = [video for video_id, video in global_videos.items() if video_id in assignments]
@@ -308,5 +345,8 @@ class TopicStore:
             result["assignments"] = {video_id: sorted({self._category(connection, user_id, category_id)["id"]
                 for category_id in category_ids}) for video_id, category_ids in result.get("assignments", {}).items()}
             result["selected_category_ids"] = sorted(preferences)
+            for video in result.get("videos", []):
+                if video["video_id"] in overrides:
+                    result["assignments"][video["video_id"]] = [self._category(connection, user_id, overrides[video["video_id"]])["id"]]
             result["reduce_video_ids"] = sorted({video_id for node in nodes.values() if node["reduce"] for video_id in node["video_ids"]})
             return result
