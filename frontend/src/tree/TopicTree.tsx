@@ -31,6 +31,34 @@ function tapered(limb: Limb): string {
   return `M${left.join(' L')} L${right.join(' L')} Z`
 }
 
+type HostilityLevel = 'calm' | 'some' | 'heavy'
+
+// Stable demo-only colors until real hostility ratings are available.
+function getHostilityLevel(id: string): HostilityLevel {
+  let hash = 0
+  for (let i = 0; i < id.length; i++) {
+    hash = (hash * 31 + id.charCodeAt(i)) | 0
+  }
+  const value = (hash >>> 0) % 10
+  if (value < 5) return 'calm'
+  if (value < 8) return 'some'
+  return 'heavy'
+}
+
+const LEAF_COLORS: Record<HostilityLevel, { fill: string; stroke: string; accent: string; label: string }> = {
+  calm: { fill: '#4e9a63', stroke: '#367747', accent: '#7dbb8b', label: 'Calm' },
+  some: { fill: '#e3b44f', stroke: '#b58a32', accent: '#e9c46a', label: 'Some hostility' },
+  heavy: { fill: '#8a5a3b', stroke: '#684129', accent: '#a9784f', label: 'Heavy hostility' },
+}
+
+function getLeafColor(id: string): string {
+  return LEAF_COLORS[getHostilityLevel(id)].fill
+}
+
+function getLeafStroke(id: string): string {
+  return LEAF_COLORS[getHostilityLevel(id)].stroke
+}
+
 export function TopicTree({ data, falling, busy, zoom, loading, onPrune, onSize }: Props) {
   const [selected, setSelected] = useState<string | null>(null)
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
@@ -103,11 +131,17 @@ export function TopicTree({ data, falling, busy, zoom, loading, onPrune, onSize 
       <g className="topic-leaf living-foliage" transform={`translate(${end.x} ${end.y})`} data-depth={limb.depth}
         style={{ transform: `translate(${end.x}px, ${end.y}px)` }}
 >
-        <path className="topic-leaf__shape" d={outline} fill="#b7d39b" stroke="#779b65" strokeWidth={1} />
+        <path
+  className="topic-leaf__shape"
+  d={outline}
+  fill={getLeafColor(topic.id)}
+  stroke={getLeafStroke(topic.id)}
+  strokeWidth={1}
+/>
         <g transform={`translate(${-limb.width * .35} ${-limb.height * .24})`} pointerEvents="none">
-          <ellipse className="living-sway" rx={limb.fontSize * .5} ry={limb.fontSize * .2} fill="#86a764" style={{ animationDelay: `${-seeded(topic.id, 'sway') * 9}s` }} />
+          <ellipse className="living-sway" rx={limb.fontSize * .5} ry={limb.fontSize * .2} fill={LEAF_COLORS[getHostilityLevel(topic.id)].accent} style={{ animationDelay: `${-seeded(topic.id, 'sway') * 9}s` }} />
         </g>
-        <title>{topic.name}: {topic.video_count} videos.</title>
+        <title>{topic.name}: {topic.video_count} videos. {LEAF_COLORS[getHostilityLevel(topic.id)].label} (demo).</title>
         <text x="0" y={-(limb.lines.length + 1) * limb.fontSize * 1.3 / 2 + limb.fontSize}
           textAnchor="middle" className="topic-tree__label" fontSize={limb.fontSize}>
           {limb.lines.map((line, index) => <tspan key={index} x="0" dy={index ? limb.fontSize * 1.3 : 0}>{line}</tspan>)}
@@ -136,7 +170,7 @@ export function TopicTree({ data, falling, busy, zoom, loading, onPrune, onSize 
       </section>}
       {selectedTopic && <section className="living-inspector" aria-label="Topic details">
         <h3>{selectedTopic.name}</h3><p>{selectedTopic.description}</p>
-        <p>{selectedTopic.video_count} videos · {selectedTopic.children.length} child topics · Hostility not rated</p>
+        <p>{selectedTopic.video_count} videos · {selectedTopic.children.length} child topics · {LEAF_COLORS[getHostilityLevel(selectedTopic.id)].label} (demo)</p>
         <div className="living-actions">
           <button className="btn btn--outline" onClick={() => focusBranch(selectedTopic.id)}>Focus branch</button>
           {selectedTopic.children.length > 0 && <button className="btn btn--outline" onClick={() => changeCollapse(selectedTopic.id)}>{collapsed.has(selectedTopic.id) ? 'Expand' : 'Collapse'} children</button>}

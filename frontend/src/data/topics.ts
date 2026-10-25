@@ -1,26 +1,219 @@
 
 import type { Branch } from '../types'
 
+export interface TopicVideo {
+  video_id: string
+  source_id?: string
+  platform?: string
+  title?: string
+  caption?: string
+  comments?: string[]
+  transcripts?: Array<{
+    id?: string
+    text: string
+    media_start?: number
+    media_end?: number
+  }>
+  dwell_seconds?: number
+  watch_count?: number
+  sentiment_balance?: number
+  context_summary?: string
+  synthetic?: boolean
+  analysis?: {
+    status?: string
+    sentiment?: {
+      total_comments?: number
+      counts?: {
+        negative?: number
+        neutral?: number
+        positive?: number
+      }
+    }
+    assessment?: {
+      negative_for_user?: string
+      reason?: string
+      context_summary?: string
+    }
+    comments?: Array<{
+      id?: string
+      text?: string
+      sentiment?: string
+      confidence?: number
+    }>
+  }
+}
+
 export interface Topic {
   id: string
   name: string
   description: string
   parent_id: string | null
   video_count: number
+  video_ids?: string[]
   selected: boolean
+  inherited?: boolean
+  reduce?: boolean
+  synthetic?: boolean
   children: Topic[]
 }
 
 export interface TopicTree {
   tree: Topic[]
   global_video_count: number
+  tree_videos?: TopicVideo[]
 }
 
-const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
+const DEMO_URL = '/api/demo/taxonomy'
+const LIVE_URL = '/api/local-sessions/taxonomy'
 
-export function topicBranches(topics: Topic[], total: number): Branch[] {
+async function fetchTree(url: string): Promise<TopicTree> {
+  const response = await fetch(url, { cache: 'no-store' })
+
+  if (!response.ok) {
+    throw new Error(
+      `Could not load taxonomy from ${url} (${response.status})`
+    )
+  }
+
+  return response.json()
+}
+
+function normalizeTopics(
+  topics: Topic[],
+  source: 'demo' | 'live',
+  parentId: string | null = null
+): Topic[] {
   return topics.map(topic => {
-    const share = total ? topic.video_count / total : 0
+    const id = source === 'demo'
+      ? `demo:${topic.id}`
+      : topic.id
+
+    return {
+      ...topic,
+      id,
+      parent_id: parentId,
+      synthetic: source === 'demo',
+      selected: source === 'demo' ? false : topic.selected,
+      inherited: false,
+      reduce: source === 'demo' ? false : !!topic.reduce,
+      video_ids: topic.video_ids ?? [],
+      children: normalizeTopics(
+        topic.children ?? [],
+        source,
+        id
+      ),
+    }
+  })
+}
+
+function mergeVideos(
+  demo: TopicVideo[],
+  live: TopicVideo[]
+): TopicVideo[] {
+  const videos = new Map<string, TopicVideo>()
+
+  for (const video of demo) {
+    videos.set(video.video_id, {
+      ...video,
+      synthetic: true,
+    })
+  }
+
+  // A real record takes precedence if its ID matches a demo record.
+  for (const video of live) {
+    videos.set(video.video_id, {
+      ...video,
+      synthetic: false,
+    })
+  }
+
+  return [...videos.values()]
+}
+
+export async function requestTree(
+  body?: { category_id: string; reduce: boolean }
+): Promise<TopicTree> {
+  if (body) {
+    if (body.category_id.startsWith('demo:')) {
+      throw new Error(
+        'Demo branch pruning must be saved locally.'
+      )
+    }
+
+    const response = await fetch(
+      `${LIVE_URL}/preferences`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      }
+    )
+
+    if (!response.ok) {
+      throw new Error(
+        `Could not save pruning (${response.status})`
+      )
+    }
+
+    return response.json()
+  }
+
+  const [demoResult, liveResult] = await Promise.allSettled([
+    fetchTree(DEMO_URL),
+    fetchTree(LIVE_URL),
+  ])
+
+  if (
+    demoResult.status === 'rejected' &&
+    liveResult.status === 'rejected'
+  ) {
+    throw new Error(
+      'Could not load demo or live topic data.'
+    )
+  }
+
+  const demo = demoResult.status === 'fulfilled'
+    ? demoResult.value
+    : {
+        tree: [],
+        tree_videos: [],
+        global_video_count: 0,
+      }
+
+  const live = liveResult.status === 'fulfilled'
+    ? liveResult.value
+    : {
+        tree: [],
+        tree_videos: [],
+        global_video_count: 0,
+      }
+
+  const videos = mergeVideos(
+    demo.tree_videos ?? [],
+    live.tree_videos ?? []
+  )
+
+  return {
+    tree: [
+      ...normalizeTopics(demo.tree, 'demo'),
+      ...normalizeTopics(live.tree, 'live'),
+    ],
+    tree_videos: videos,
+    global_video_count: videos.length ||
+      demo.global_video_count + live.global_video_count,
+  }
+}
+
+export function topicBranches(
+  topics: Topic[],
+  total: number
+): Branch[] {
+  return topics.map(topic => {
+    const share = total
+      ? topic.video_count / total
+      : 0
 
     return {
       id: topic.id,
@@ -28,18 +221,17 @@ export function topicBranches(topics: Topic[], total: number): Branch[] {
       parentId: topic.parent_id,
       why: topic.description,
       videoCount: topic.video_count,
-
-      // Topic discovery does not establish a category's hostility rating.
       level: 'not_rated',
-
       size:
         share < 0.03
           ? 'Sprout'
           : share <= 0.1
             ? 'Growing'
             : 'Full branch',
-
-      children: topicBranches(topic.children, total),
+      children: topicBranches(
+        topic.children ?? [],
+        total
+      ),
     }
   })
 }
@@ -49,46 +241,4 @@ export function flattenTree(tree: Branch[]): Branch[] {
     branch,
     ...flattenTree(branch.children ?? []),
   ])
-}
-
-export async function requestTree(
-  body?: { category_id: string; reduce: boolean },
-): Promise<TopicTree> {
-
-  if (DEMO_MODE) {
-    if (body) {
-      throw new Error(
-        'Saving topic preferences is not enabled in demo mode yet.',
-      )
-    }
-
-    const response = await fetch('/api/demo/taxonomy')
-
-    if (!response.ok) {
-      throw new Error(
-        `Could not load demo topics (${response.status}).`,
-      )
-    }
-
-    return response.json()
-  }
-
-  const response = await fetch(
-    `/api/local-sessions/taxonomy${body ? '/preferences' : ''}`,
-    {
-      method: body ? 'PATCH' : 'GET',
-      headers: body
-        ? { 'Content-Type': 'application/json' }
-        : undefined,
-      body: body ? JSON.stringify(body) : undefined,
-    },
-  )
-
-  if (!response.ok) {
-    throw new Error(
-      `Could not ${body ? 'save pruning' : 'load topics'} (${response.status}).`,
-    )
-  }
-
-  return response.json()
 }
