@@ -2,13 +2,6 @@ import { usePrune } from '../../state/prune-context'
 import { LEVEL_LABEL } from '../Chip'
 import Tree from '../Tree'
 
-const LEGEND = [
-  { color: '#94aa98', label: 'Not rated' },
-  { color: 'var(--calm-leaf)', label: 'Healthy' },
-  { color: 'var(--some-leaf)', label: 'Some hostility' },
-  { color: 'var(--heavy-leaf)', label: 'Heavy hostility' },
-]
-
 export default function TreeCard() {
   const { branches, pruned, selectedId, setSelected, loading, error } = usePrune()
 
