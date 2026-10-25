@@ -88,12 +88,26 @@ export class TopicGarden {
   }
 
   private async request(body?: { category_id: string; reduce: boolean }): Promise<TreeData> {
+    if (body && typeof chrome !== 'undefined' && chrome.storage?.local) {
+      await chrome.storage.local.set({ detectionPreferencesPending: true, detectionPreferencesPendingUntil: Date.now() + 20000, detectionMutation: crypto.randomUUID() })
+    }
+    try {
     const response = await fetch(`${this.apiBase}/local-sessions/taxonomy${body ? '/preferences' : ''}`, {
       method: body ? 'PATCH' : 'GET', headers: body ? { 'Content-Type': 'application/json' } : undefined,
       body: body ? JSON.stringify(body) : undefined, signal: AbortSignal.timeout(15000),
     })
     if (!response.ok) throw new Error(`Topic tree request failed (${response.status}).`)
-    return response.json()
+    const result: TreeData = await response.json()
+    if (result.blacklist_version && typeof chrome !== 'undefined' && chrome.storage?.local) {
+      await chrome.storage.local.set({ detectionBlacklistVersion: result.blacklist_version })
+    }
+    return result
+    } finally {
+      if (body && typeof chrome !== 'undefined' && chrome.storage?.local) {
+        await chrome.storage.local.set({ detectionPreferencesPending: false })
+        void chrome.runtime.sendMessage({ type: 'DETECTION_REFRESH' }).catch(() => {})
+      }
+    }
   }
 
   private async cache() {

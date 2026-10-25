@@ -246,8 +246,19 @@ def analyze_video(video, previous=None, *, publish=None):
                 analysis["assessment"] = assessment.model_dump()
             analysis["evidence_key"] = evidence_key
             video["context_summary"] = analysis["assessment"]["context_summary"]
-        except (OllamaError, ValueError):
-            errors.append("Content assessment unavailable; session topics will still be attempted from metadata.")
+        except (OllamaError, ValueError) as error:
+            from analysis.model_output import ModelOutputError, validation_issues
+            from analysis.navigator_client import NavigatorError
+            if isinstance(error, (ModelOutputError, NavigatorError)):
+                detail = str(error)
+                code = error.code
+            else:
+                code = "assessment_input_invalid" if isinstance(error, ValueError) else "assessment_provider_unavailable"
+                detail = "Assessment input validation failed." if isinstance(error, ValueError) else "The assessment provider could not complete the request."
+            issues = error.diagnostics if isinstance(error, ModelOutputError) else validation_issues(error, {}) if isinstance(error, ValueError) else []
+            analysis["assessment_error"] = {"code": code, "detail": detail, "issues": issues}
+            logger.warning("Content assessment unavailable code=%s issues=%s", code, issues)
+            errors.append(f"Content assessment unavailable: {detail} Session topics will still be attempted from metadata.")
     else:
         errors.append("No usable metadata, transcript, or comments were captured for this video.")
     analysis["status"] = "partial" if errors else "complete"

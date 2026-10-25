@@ -1,4 +1,5 @@
 const API_BASE = "http://localhost:8000";
+if (typeof importScripts === 'function') importScripts('detection-background.js');
 if (typeof importScripts === 'function') importScripts('collection-policy.js');
 const collectionSeconds = value => globalThis.PruneCollection?.seconds(value) || 0;
 
@@ -275,7 +276,20 @@ async function sessionControl(message) {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (!["AUDIO_DIAGNOSTICS", "RESET_TOPIC_TREE", "FINISH_SESSION", "START_SESSION", "SESSION_TAXONOMY", "RETRY_SESSION_TAXONOMY", "TOPIC_PREFERENCE", "EDIT_TOPIC_CATEGORY", "MOVE_TOPIC_VIDEO"].includes(message?.type)) return false;
-  sessionControl(message).then(data => sendResponse({ success: true, data })).catch(error => sendResponse({ success: false, error: error.message }));
+  const changesPreferences = ['RESET_TOPIC_TREE', 'TOPIC_PREFERENCE', 'EDIT_TOPIC_CATEGORY'].includes(message.type);
+  (async () => {
+    if (changesPreferences) await chrome.storage.local.set({ detectionPreferencesPending: true, detectionPreferencesPendingUntil: Date.now() + 20000, detectionMutation: crypto.randomUUID() });
+    try {
+      const data = await sessionControl(message);
+      if (data?.blacklist_version) await chrome.storage.local.set({ detectionBlacklistVersion: data.blacklist_version });
+      return data;
+    } finally {
+      if (changesPreferences) {
+        await chrome.storage.local.set({ detectionPreferencesPending: false });
+        void detectionState().catch(() => {});
+      }
+    }
+  })().then(data => sendResponse({ success: true, data })).catch(error => sendResponse({ success: false, error: error.message }));
   return true;
 });
 

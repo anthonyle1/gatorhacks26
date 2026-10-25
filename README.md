@@ -4,6 +4,8 @@
 
 A Chrome extension that tracks YouTube Shorts and Instagram Reels, analyzes available comment sentiment, and discovers a dynamic topic tree after each completed scrolling session. Users can expand branches and save specific see-less preferences.
 
+Real-time reminders for saved pruned topics use Groq. See [setup, behavior, and verification](pruned-topic-detection.md) for the backend key and the Settings detection-delay control.
+
 ## Development
 
 Install the Python dependencies and configure the root `.env` using the

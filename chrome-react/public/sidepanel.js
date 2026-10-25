@@ -22,6 +22,41 @@
   const MAX_HISTORY = 30;
 
   const hasStorage = typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local;
+  let topicsRefreshGeneration = 0;
+
+  async function refreshDetectionTopics() {
+    const generation = ++topicsRefreshGeneration;
+    const list = document.getElementById('detection-topics-list');
+    const status = document.getElementById('detection-topics-status');
+    const section = list.closest('section');
+    section.setAttribute('aria-busy', 'true');
+    try {
+      const response = await fetch(`${API_BASE}/detection/topics`, { signal: AbortSignal.timeout(10000) });
+      if (!response.ok) throw new Error('Topics unavailable');
+      const data = await response.json();
+      if (!Array.isArray(data.topics)) throw new Error('Invalid topics');
+      if (generation !== topicsRefreshGeneration) return;
+      const checkedTopics = new Map();
+      for (const root of data.topics) {
+        for (const topic of [root, ...(root.descendants || [])]) checkedTopics.set(topic.id, topic);
+      }
+      const items = [...checkedTopics.values()].sort((a, b) => a.name.localeCompare(b.name)).map(topic => {
+        const item = document.createElement('li');
+        item.textContent = topic.name;
+        return item;
+      });
+      list.replaceChildren(...items);
+      document.getElementById('detection-topics-count').textContent = String(items.length);
+      status.textContent = items.length ? '' : 'No topics pruned yet.';
+      status.hidden = items.length > 0;
+    } catch {
+      if (generation !== topicsRefreshGeneration) return;
+      status.hidden = false;
+      status.textContent = list.children.length ? 'Could not refresh topics. Showing the last loaded list.' : 'Could not load pruned topics. Check that the backend is running.';
+    } finally {
+      if (generation === topicsRefreshGeneration) section.setAttribute('aria-busy', 'false');
+    }
+  }
 
   // ---------------------------------------------------------------------------
   // SAMPLE DATA
@@ -273,6 +308,7 @@
 
   async function init() {
     setLinks();
+    void refreshDetectionTopics();
     renderCalendar();
     topicGarden = new window.TopicGarden(API_BASE);
     const showView = settings => {
@@ -283,6 +319,23 @@
     };
     $('#settings-link').addEventListener('click', () => { showView(true); $('#settings-back').focus(); });
     $('#settings-back').addEventListener('click', () => { showView(false); $('#settings-link').focus(); });
+    const renderDetectionDelay = value => {
+      const seconds = globalThis.PruneDetection.delay(value);
+      $('#detection-delay').value = String(seconds);
+      $('#detection-delay-value').textContent = `${seconds} seconds`;
+      $('#detection-delay').setAttribute('aria-valuetext', `${seconds} seconds of visible playback`);
+    };
+    $('#detection-delay').addEventListener('input', event => renderDetectionDelay(Number(event.target.value)));
+    $('#detection-delay').addEventListener('change', async event => {
+      try {
+        await chrome.storage.local.set({ detectionDelaySeconds: globalThis.PruneDetection.delay(Number(event.target.value)) });
+        $('#detection-delay-error').hidden = true;
+        $('#detection-delay-saved').textContent = 'Saved. Applies immediately.';
+      } catch {
+        $('#detection-delay-error').textContent = 'Could not save detection delay. Please try again.';
+        $('#detection-delay-error').hidden = false;
+      }
+    });
     let minimum = 0, lastMinimum = 2;
     const renderMinimum = value => {
       minimum = globalThis.PruneCollection?.seconds(value) || 0;
@@ -307,7 +360,9 @@
     $('#skip-short-videos').addEventListener('change', event => { void saveMinimum(event.target.checked ? lastMinimum || 2 : 0); });
     $('#minimum-watch-seconds').addEventListener('input', event => renderMinimum(event.target.value));
     $('#minimum-watch-seconds').addEventListener('change', event => { void saveMinimum(event.target.value); });
-    const refreshVisibleTree = () => { if (document.visibilityState !== 'hidden') void topicGarden.refresh(); };
+    const refreshVisibleTree = () => {
+      if (document.visibilityState !== 'hidden') { void topicGarden.refresh(); void refreshDetectionTopics(); }
+    };
     document.addEventListener('visibilitychange', refreshVisibleTree);
     window.addEventListener('focus', refreshVisibleTree);
     window.addEventListener('pageshow', refreshVisibleTree);
@@ -362,6 +417,9 @@
 
     if (hasStorage) {
       const stored = await chrome.storage.local.get(['scrollingSession', 'pruneTopicTree', 'lastSessionReview', 'audioCaptureEnabled', 'audioCaptureStatus', 'audioBackendStatus', 'minimumWatchSeconds', 'lastMinimumWatchSeconds', ...SESSION_KEYS]);
+      const detectionSettings = await chrome.storage.local.get('detectionDelaySeconds');
+      renderDetectionDelay(detectionSettings.detectionDelaySeconds);
+      $('#detection-delay').disabled = false;
       lastMinimum = globalThis.PruneCollection?.seconds(stored.lastMinimumWatchSeconds) || 2;
       renderMinimum(stored.minimumWatchSeconds);
       $('#skip-short-videos').disabled = false;
@@ -371,6 +429,15 @@
       void topicGarden.start(stored.pruneTopicTree || stored.lastSessionReview);
       chrome.storage.onChanged.addListener((changes, area) => {
         if (area !== 'local') return;
+        if (changes.detectionPreferencesPending?.newValue === true) {
+          topicsRefreshGeneration++;
+          $('#detection-topics-status').textContent = 'Updating saved topics…';
+          $('#detection-topics-status').hidden = false;
+          $('#detection-topics-list').closest('section').setAttribute('aria-busy', 'true');
+        } else if (changes.detectionBlacklistVersion || changes.detectionPreferencesPending?.newValue === false || changes.pruneTreeReset) {
+          void refreshDetectionTopics();
+        }
+        if (changes.detectionDelaySeconds) renderDetectionDelay(changes.detectionDelaySeconds.newValue);
         if (changes.minimumWatchSeconds) renderMinimum(changes.minimumWatchSeconds.newValue);
         if (changes.lastMinimumWatchSeconds) lastMinimum = globalThis.PruneCollection?.seconds(changes.lastMinimumWatchSeconds.newValue) || 2;
         if (changes.audioCaptureEnabled) { $('#audio-enabled').checked = changes.audioCaptureEnabled.newValue !== false; renderAudio(); }

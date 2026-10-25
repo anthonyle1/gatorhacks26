@@ -18,7 +18,8 @@ def classify_session_data(session_id, user_id, videos, *, store=None, client=Non
             eligible.append({**video, "caption": video.get("caption") or " ".join(row["text"] for row in video.get("transcripts", []))[:500]})
     assignments, provenance, errors = {}, [], []
     for batch in pack_videos(eligible):
-        fingerprint = evidence_fingerprint([versions("topics"), SESSION_PROMPT, SessionDiscovery.model_json_schema(), batch])
+        fingerprint = evidence_fingerprint([versions("topics"), SESSION_PROMPT, SessionDiscovery.model_json_schema(), batch,
+                                            store.blacklist(user_id)["topics"]])
         cached = store.cached_batch(session_id, user_id, fingerprint)
         if cached is None:
             catalog = store.candidates(user_id, " ".join(video["title"] + " " + video["caption"] for video in batch))
