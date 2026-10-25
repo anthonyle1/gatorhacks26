@@ -5,6 +5,12 @@
   "name": "Prune",
   "version": "2.0",
   "description": "Track YouTube Shorts and Instagram Reels viewing activity.",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
   "permissions": [
     "storage",
     "activeTab",
@@ -31,7 +37,13 @@
     }
   ],
   "action": {
-    "default_title": "Open Prune"
+    "default_title": "Open Prune",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
   },
   "web_accessible_resources": [{
     "resources": ["fonts/bricolage-grotesque-700.ttf"],

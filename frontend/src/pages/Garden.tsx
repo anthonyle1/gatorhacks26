@@ -4,6 +4,7 @@ import Inspector from '../components/garden/Inspector'
 import PruningStation from '../components/garden/PruningStation'
 import TreeCard from '../components/garden/TreeCard'
 import { usePrune } from '../state/prune-context'
+import { Leaf } from 'lucide-react'
 
 function BotanicalSprig() {
   return (
@@ -119,7 +120,15 @@ export default function Garden() {
 
           <h1 className="botanical-hero__title">
             Watch your scrolling
-            <span> grow into a tree.</span>
+            <span style={{
+                  position: "relative",
+                  top: "-0.5rem",
+                  left: "3rem",
+                  display: "inline-block",
+                }}
+              >
+              grow into a tree.
+            </span>
           </h1>
 
           <p className="botanical-hero__description">
