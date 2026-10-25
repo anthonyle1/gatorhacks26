@@ -132,28 +132,26 @@
       </section>
 
       <!-- Calendar -->
-      <section class="card" aria-labelledby="cal-heading">
-        <div class="card__row">
-          <span class="h2" id="cal-heading"></span>
-          <div class="cal__nav">
+      <section class="card cal" aria-labelledby="cal-heading">
+        <div class="cal__header">
             <button class="icon-btn" id="cal-prev" type="button" aria-label="Previous month">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F3A2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
             </button>
+            <div class="cal__title"><h2 class="h2" id="cal-heading"></h2><span>Choose a day to explore</span></div>
             <button class="icon-btn" id="cal-next" type="button" aria-label="Next month">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1F3A2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
             </button>
-          </div>
         </div>
         <div class="cal__week" aria-hidden="true">
-          <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+          <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
         </div>
         <div class="cal__grid" id="cal-grid"></div>
         <div class="cal__legend">
-          <span><i class="swatch swatch--calm"></i>Calm</span>
-          <span><i class="swatch swatch--some"></i>Some</span>
-          <span><i class="swatch swatch--heavy"></i>Heavy</span>
+          <span><i class="swatch swatch--calm"></i>Activity</span>
+          <span><i class="swatch swatch--some"></i>Unrated</span>
+          <span><i class="swatch swatch--heavy"></i>Concerns</span>
         </div>
-        <span class="note">Tap a day to see your tree on that day.</span>
+        <span class="note">Choose a recorded day to explore its topics and videos.</span>
       </section>
 
       </div>

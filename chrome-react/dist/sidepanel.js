@@ -424,9 +424,12 @@
     }
   }
 
+  const calendarCells = new Map();
+
   async function showDaySummary(date) {
     const requestId = ++calendarDetailRequestId;
     selectedCalendarDate = date;
+    for (const [key, cell] of calendarCells) cell.setAttribute('aria-pressed', String(key === date));
 
     let container = document.querySelector('#prune-day-summary');
 
@@ -519,7 +522,8 @@
     const grid = $('#cal-grid');
     grid.replaceChildren();
 
-    const firstWeekday = new Date(year, month, 1).getDay();
+    calendarCells.clear();
+    const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7;
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
     for (let i = 0; i < firstWeekday; i++) {
@@ -550,12 +554,12 @@
         // hostility score.
         const levelClass = hasWarning ? 'heavy' : hasUncertainty || hasUnrated ? 'some' : 'calm';
 
-        cell = el('a', `cal__cell cal__cell--${levelClass}`, String(d));
-
-        // Open the actual selected date in the dashboard.
-        cell.href = `${WEBSITE_URL}/calendar?date=${key}`;
-        cell.target = '_blank';
-        cell.rel = 'noopener';
+        cell = el('button', `cal__cell cal__cell--${levelClass}`);
+        cell.type = 'button';
+        cell.appendChild(el('span', '', String(d)));
+        cell.appendChild(el('small', 'cal__count', `${activity.videos_watched} videos`));
+        cell.setAttribute('aria-pressed', String(selectedCalendarDate === key));
+        calendarCells.set(key, cell);
 
         cell.addEventListener('click', event => {event.preventDefault(); void showDaySummary(key);});
 

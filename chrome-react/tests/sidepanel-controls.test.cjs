@@ -10,7 +10,7 @@ async function panel({ topics = [], calendarDays = [] } = {}) {
   const nodes = new Map();
   function element() {
     return { textContent: '', hidden: false, style: {}, dataset: {}, listeners: {}, children: [],
-      classList: { add(name) { classChanges.push(name); }, remove() {} }, appendChild(child) { this.children.push(child); }, replaceChildren(...children) { this.children = children; }, setAttribute(name, value) { (this.attributes ||= {})[name] = value; }, closest: () => element(),
+      classList: { add(name) { classChanges.push(name); }, remove() {} }, append(...children) { this.children.push(...children); }, appendChild(child) { this.children.push(child); }, replaceChildren(...children) { this.children = children; }, setAttribute(name, value) { (this.attributes ||= {})[name] = value; }, closest: () => element(),
       addEventListener(name, callback) { this.listeners[name] = callback; } };
   }
   const node = selector => {
