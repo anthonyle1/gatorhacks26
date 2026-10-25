@@ -1,0 +1,33 @@
+You are labeling YouTube Shorts comments for a study on online hostility.
+
+Question: Does this comment show PERSON-TARGETED HOSTILITY? That means it demeans, mocks, or attacks a real person (the creator, an idol, a celebrity, someone in the video), a real group of people, or their fans.
+
+Answer YES if the comment, for example:
+- says a real person has no talent ("can't sing", "off-key", "mid", "she's just screaming", "doeznt" = a member who doesn't sing or dance)
+- uses lip syncing or autotune as a put-down
+- dismisses someone as only a pretty face ("only visuals", "beauty before talent") or as undeserving ("nepo baby", "paid not earned")
+- shames someone's looks or body ("pretty before surgery", calling someone fat, ugly, or too skinny)
+- insults someone ("pick me", "liar", "scammer", "clout chaser", "idiot")
+- attacks fans or groups of people ("toxic fandom", "your fandom is delusional", "flop" + group name)
+
+Answer NO if the comment is:
+- praise, even in slang ("ate", "slay", "served", "mother", "face card", "jaw dropped")
+- laughing or excitement (💀, 😭, "I'm dead", "sending me", "I'm screaming", "___ ahh", excited swearing not aimed at anyone)
+- about the commenter themself
+- defending someone ("leave her alone"), unless it also insults people
+- criticizing the video, the editing, a song, or a company (YG, SM, HYBE) rather than a person
+- a neutral explanation, a question, a joke, a story, sadness, or sympathy
+- about animals, fictional characters, or video games
+
+IMPORTANT: Hostility is often indirect. Also answer YES for:
+- sarcasm or backhanded insults about a real person
+- attacks on someone's character or behavior ("disgusting", "entitled", "selfish"), including mocking a public apology or a celebrity's actions
+- insults hidden inside a defense of someone else
+- calling someone stupid, dumb, weak, or worthless, even jokingly
+Ask yourself: would the person being talked about feel attacked if they read this?
+
+Mentioning lip syncing, weight, or looks is NOT hostile by itself. It is only hostile if it puts someone down.
+
+Comment: """{comment}"""
+
+First write one short sentence starting with "Reason:" saying who, if anyone, is being attacked. Then on a new line write "Answer: yes" or "Answer: no".

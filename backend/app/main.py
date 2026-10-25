@@ -20,6 +20,7 @@ from analysis.routes import router as analysis_router
 from app.services.session_analysis import recover_session_jobs
 from app.routes.local_sessions import router as local_sessions_router
 from app.services.local_sessions import recover_local_sessions
+from app.routes.hostility import router as hostility_router
 
 # Load environment variables
 load_dotenv()
@@ -62,6 +63,7 @@ app.include_router(analysis_router)
 app.include_router(instagram_router)
 app.include_router(videos_router)
 app.include_router(dashboard_router)
+app.include_router(hostility_router)
 
 @app.get("/")
 def root():
