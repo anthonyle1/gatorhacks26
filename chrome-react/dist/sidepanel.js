@@ -1,14 +1,4 @@
-/*
- * Prune side panel.
- *
- * LIVE data:
- *   - The topic garden uses the global saved taxonomy (topic-tree.js).
- *   - Session controls use the background session commands. "Today so far" uses `scrollingSession`, saved to
- *     chrome.storage.local every second, plus GET {API_BASE}/hostility/{video_id} for each video.
- *
- * SAMPLE data (from the design mockups, replace when the backend can supply it):
- *   - SAMPLE_DAY_LEVELS (the colored calendar days)
- */
+/* Prune side panel: live rolling activity, session controls, and saved topic garden. */
 (() => {
   'use strict';
 
@@ -17,9 +7,7 @@
   // ---------------------------------------------------------------------------
   const API_BASE = 'http://localhost:8000'; // same server background.js talks to
   const WEBSITE_URL = 'http://localhost:5173'; // the Prune website (frontend/ dev server)
-  const RECHECK_MS = 20000; // re-ask the backend about an unrated Short
-  const NEGATIVE_CACHE_MS = 15000;
-  const MAX_HISTORY = 30;
+  const RECHECK_MS = 15000; // Refresh activity and analysis checkpoints.
 
   const hasStorage = typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local;
   let topicsRefreshGeneration = 0;
@@ -75,7 +63,7 @@
     session: null,
     trackingPaused: true, localSessionId: null, finishPending: false, lastCompletedLocalSessionId: null,
     sessionBusy: false, sessionReady: false,
-    day: { rated: 0, calm: 0, some: 0, heavy: 0, score: null },
+    day: { videos: [], unavailable: false },
     month: new Date(today.getFullYear(), today.getMonth(), 1),
   };
 
@@ -86,52 +74,6 @@
     if (className) node.className = className;
     if (text !== undefined) node.textContent = text;
     return node;
-  }
-
-  // ---------------------------------------------------------------------------
-  // Backend: GET /hostility/{video_id} -> calm | some | heavy | not_rated
-  // ---------------------------------------------------------------------------
-  const levelCache = new Map(); // videoId -> { value, at }
-
-  function normalizeLevel(data) {
-    // Accepts {"level": "calm"}, {"hostility": "calm"}, or a bare "calm" string.
-    const raw =
-      typeof data === 'string'
-        ? data
-        : data && (data.level ?? data.hostility_level ?? data.hostility ?? data.rating ?? data.label);
-    const value = String(raw || '').toLowerCase();
-    return value === 'calm' || value === 'some' || value === 'heavy' ? value : 'not_rated';
-  }
-
-  function pickSummary(data) {
-    if (!data || typeof data !== 'object') return '';
-    const text = data.summary ?? data.reason ?? data.explanation ?? '';
-    return typeof text === 'string' ? text : '';
-  }
-
-  async function fetchHostility(videoId) {
-    const cached = levelCache.get(videoId);
-    if (cached) {
-      const settled = cached.value.level === 'calm' || cached.value.level === 'some' || cached.value.level === 'heavy';
-      if (settled || Date.now() - cached.at < NEGATIVE_CACHE_MS) return cached.value;
-    }
-
-    let value;
-    try {
-      const response = await fetch(`${API_BASE}/hostility/${encodeURIComponent(videoId)}`);
-      if (response.status === 404) {
-        value = { level: 'not_rated', summary: '', unreachable: false };
-      } else if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      } else {
-        const data = await response.json();
-        value = { level: normalizeLevel(data), summary: pickSummary(data), unreachable: false };
-      }
-    } catch {
-      value = { level: 'not_rated', summary: '', unreachable: true };
-    }
-    levelCache.set(videoId, { value, at: Date.now() });
-    return value;
   }
 
   // ---------------------------------------------------------------------------
@@ -188,50 +130,57 @@
   // ---------------------------------------------------------------------------
   // Today so far
   // ---------------------------------------------------------------------------
-  function renderToday() {
-    const session = state.session || {};
-    const count = session.videoCount || 0;
-    $('#today-count').textContent = `${count} ${count === 1 ? 'Short' : 'Shorts'}`;
-
-    const marker = $('#meter-marker');
-    const summary = $('#today-summary');
-    const { rated, calm, score } = state.day;
-
-    if (rated === 0 || score === null) {
-      marker.hidden = true;
-      summary.textContent = count === 0 ? 'Nothing watched yet.' : 'Waiting on ratings for your Shorts.';
-      return;
-    }
-
-    marker.hidden = false;
-    marker.style.left = `${Math.round(score * 100)}%`;
-    if (score < 0.25) {
-      summary.textContent = calm === rated ? 'All calm so far.' : 'Mostly calm, with a few rough patches.';
-    } else if (score < 0.6) {
-      summary.textContent = 'A mix of calm and rough patches.';
-    } else {
-      summary.textContent = 'Getting heavy today.';
-    }
+  function renderActivityVideo(video) {
+    const row = el('li', 'today-video');
+    row.appendChild(el('strong', '', video.title || video.video_id));
+    row.appendChild(el('p', 'note-sm', `${video.platform} · ${Math.round(video.dwell_seconds || 0)}s watched`));
+    row.appendChild(el('p', '', PruneActivity.insightText(video)));
+    row.appendChild(el('p', 'note-sm', PruneActivity.commentText(video)));
+    return row;
   }
 
-  async function updateToday() {
-    const history = (state.session && state.session.videoHistory) || [];
-    const ids = [];
-    for (let i = history.length - 1; i >= 0 && ids.length < MAX_HISTORY; i--) {
-      if (history[i] && history[i].videoId && !ids.includes(history[i].videoId)) ids.push(history[i].videoId);
-    }
+  function renderToday() {
+    const videos = state.day?.videos || [];
+    const totals = PruneActivity.summarize(videos);
+    $('#today-count').textContent = `${totals.videos_watched} video${totals.videos_watched === 1 ? '' : 's'}`;
+    const signals = totals.warning_count + totals.positive_insight_count;
+    $('#meter-marker').hidden = signals === 0;
+    if (signals) $('#meter-marker').style.left = `${Math.round(totals.warning_count / signals * 100)}%`;
+    $('#today-summary').textContent = `${totals.warning_count} warnings · ${totals.positive_insight_count} positive insights` +
+      (totals.not_assessed_count ? ` · ${totals.not_assessed_count} videos awaiting assessment` : '') +
+      (state.day?.unavailable ? ' · Backend unavailable; showing saved activity' : '');
+    const commentVideos = videos.filter(video => video.comment_counts).length;
+    $('#today-comments').textContent = commentVideos ?
+      `Comments: ${totals.comment_counts.positive} positive · ${totals.comment_counts.neutral} neutral · ${totals.comment_counts.negative} negative · available for ${commentVideos}/${videos.length} videos` :
+      'Comment analysis pending or unavailable';
+    const list = $('#today-video-list'); list.replaceChildren();
+    for (const video of videos.slice(-20).reverse()) list.appendChild(renderActivityVideo(video));
+    if (!videos.length) list.appendChild(el('li', 'note-sm', 'No videos watched in the past 24 hours.'));
+  }
 
-    const results = await Promise.all(ids.map((id) => fetchHostility(id)));
-    const tally = { rated: 0, calm: 0, some: 0, heavy: 0 };
-    results.forEach((r) => {
-      if (r.level === 'calm' || r.level === 'some' || r.level === 'heavy') {
-        tally.rated++;
-        tally[r.level]++;
-      }
-    });
-    const score = tally.rated ? (tally.some * 0.5 + tally.heavy) / tally.rated : null;
-    state.day = { ...tally, score };
-    renderToday();
+  let todayUpdating = false, todayRefreshQueued = false;
+  async function updateToday() {
+    if (todayUpdating) { todayRefreshQueued = true; return; }
+    todayUpdating = true;
+    try {
+      const buffered = hasStorage ? await chrome.storage.local.get('dailyActivityEvents') : {};
+      state.day = { ...state.day, videos: PruneActivity.recent(state.day?.videos || [], buffered.dailyActivityEvents || []) };
+      renderToday();
+      if (hasStorage) await chrome.runtime.sendMessage({ type: 'SYNC_DAILY_ACTIVITY' }).catch(() => null);
+      let videos = state.day?.videos || [], unavailable = false;
+      try {
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const response = await fetch(`${API_BASE}/local-sessions/activity/recent?${new URLSearchParams({ timezone })}`, { signal: AbortSignal.timeout(10000) });
+        if (!response.ok) throw new Error('Activity unavailable');
+        videos = (await response.json()).videos || [];
+      } catch { unavailable = true; }
+      const stored = hasStorage ? await chrome.storage.local.get('dailyActivityEvents') : {};
+      state.day = { videos: PruneActivity.recent(videos, stored.dailyActivityEvents || []), unavailable };
+      renderToday();
+    } finally {
+      todayUpdating = false;
+      if (todayRefreshQueued) { todayRefreshQueued = false; void updateToday(); }
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -345,7 +294,7 @@
       );
 
       container.appendChild(
-        el('p', '', `${summary.negative_count} potential warnings · ${summary.not_assessed_count} not assessed`)
+        el('p', '', `${summary.warning_count} warnings · ${summary.positive_insight_count} positive insights · ${summary.not_assessed_count} not assessed`)
       );
 
       const categoryHeading = el('strong', '', 'Top topics');
@@ -366,6 +315,10 @@
 
         container.appendChild(list);
       }
+
+      const videos = el('ul', 'today-video-list');
+      for (const video of data.videos || []) videos.appendChild(renderActivityVideo(video));
+      container.appendChild(videos);
 
       const link = el('a', '', 'View full day →');
       link.href = `${WEBSITE_URL}/calendar?date=${date}`;
@@ -410,7 +363,7 @@
       let cell;
 
       if (!isFuture && activity && activity.videos_watched > 0) {
-        const hasWarning = activity.negative_count > 0;
+        const hasWarning = activity.warning_count > 0;
         const hasUncertainty = activity.uncertain_count > 0;
         const hasUnrated = activity.not_assessed_count > 0;
 
@@ -428,7 +381,7 @@
 
         cell.addEventListener('click', event => {event.preventDefault(); void showDaySummary(key);});
 
-        const warningDescription = hasWarning ? `, ${activity.negative_count} potential content warnings` : '';
+        const warningDescription = hasWarning ? `, ${activity.warning_count} potential content warnings` : '';
 
         const unknownDescription = hasUncertainty || hasUnrated ? ', some assessments incomplete or uncertain' : '';
 
@@ -440,7 +393,7 @@
         cell.title =
           `${activity.videos_watched} videos watched` +
           (hasWarning
-            ? ` · ${activity.negative_count} potential warnings`
+            ? ` · ${activity.warning_count} potential warnings`
             : '') +
           (hasUncertainty || hasUnrated
             ? ' · Some assessments uncertain or unavailable'
@@ -456,7 +409,7 @@
           String(d)
         );
 
-        let description = 'no recorded completed-session activity';
+        let description = 'no recorded activity';
 
         if (isFuture) {description = 'upcoming';
         } else if (calendarLoading) {description = 'loading';
@@ -516,6 +469,23 @@
       $('#detection-delay').setAttribute('aria-valuetext', `${seconds} seconds of visible playback`);
     };
     $('#detection-delay').addEventListener('input', event => renderDetectionDelay(Number(event.target.value)));
+    let savedAutoSkip = false;
+    const renderAutoSkip = value => {
+      savedAutoSkip = value === true;
+      $('#auto-skip-topics').checked = savedAutoSkip;
+    };
+    $('#auto-skip-topics').addEventListener('change', async event => {
+      const enabled = event.target.checked === true;
+      try {
+        await chrome.storage.local.set({ detectionAutoSkip: enabled });
+        renderAutoSkip(enabled);
+        $('#auto-skip-error').hidden = true;
+      } catch {
+        renderAutoSkip(savedAutoSkip);
+        $('#auto-skip-error').textContent = 'Could not save automatic skipping. Please try again.';
+        $('#auto-skip-error').hidden = false;
+      }
+    });
     $('#detection-delay').addEventListener('change', async event => {
       try {
         await chrome.storage.local.set({ detectionDelaySeconds: globalThis.PruneDetection.delay(Number(event.target.value)) });
@@ -610,8 +580,10 @@
 
     if (hasStorage) {
       const stored = await chrome.storage.local.get(['scrollingSession', 'pruneTopicTree', 'lastSessionReview', 'audioCaptureEnabled', 'audioCaptureStatus', 'audioBackendStatus', 'minimumWatchSeconds', 'lastMinimumWatchSeconds', ...SESSION_KEYS]);
-      const detectionSettings = await chrome.storage.local.get('detectionDelaySeconds');
+      const detectionSettings = await chrome.storage.local.get(['detectionDelaySeconds', 'detectionAutoSkip']);
       renderDetectionDelay(detectionSettings.detectionDelaySeconds);
+      renderAutoSkip(detectionSettings.detectionAutoSkip);
+      $('#auto-skip-topics').disabled = false;
       $('#detection-delay').disabled = false;
       lastMinimum = globalThis.PruneCollection?.seconds(stored.lastMinimumWatchSeconds) || 2;
       renderMinimum(stored.minimumWatchSeconds);
@@ -631,6 +603,7 @@
           void refreshDetectionTopics();
         }
         if (changes.detectionDelaySeconds) renderDetectionDelay(changes.detectionDelaySeconds.newValue);
+        if (changes.detectionAutoSkip) renderAutoSkip(changes.detectionAutoSkip.newValue);
         if (changes.minimumWatchSeconds) renderMinimum(changes.minimumWatchSeconds.newValue);
         if (changes.lastMinimumWatchSeconds) lastMinimum = globalThis.PruneCollection?.seconds(changes.lastMinimumWatchSeconds.newValue) || 2;
         if (changes.audioCaptureEnabled) { $('#audio-enabled').checked = changes.audioCaptureEnabled.newValue !== false; renderAudio(); }
@@ -638,6 +611,14 @@
         if (changes.audioBackendStatus) renderAudio(audioValue, changes.audioBackendStatus.newValue);
         if (changes.pruneTreeReset?.newValue) topicGarden.clear();
         if (changes.lastSessionReview) void topicGarden.refresh();
+        if (changes.dailyActivityEvents || changes.lastSessionReview || changes.lastCompletedLocalSessionId) {
+          if (changes.dailyActivityEvents) {
+            state.day = { ...state.day, videos: PruneActivity.recent(state.day?.videos || [], changes.dailyActivityEvents.newValue || []) };
+            renderToday();
+          }
+          void updateToday(); void loadCalendarInsights();
+          if (selectedCalendarDate) void showDaySummary(selectedCalendarDate);
+        }
         for (const key of SESSION_KEYS) { if (changes[key]) state[key] = changes[key].newValue; }
         if (changes.scrollingSession) onSessionChanged(changes.scrollingSession.newValue);
         renderSession();
@@ -659,9 +640,10 @@
     void refreshAudio();
     setInterval(() => { void refreshAudio(); }, 3000);
 
-    // Unrated Shorts can become rated once the backend finishes analysing comments.
+    // Refresh analysis checkpoints and expire encounters as they leave the rolling day.
     setInterval(() => {
-      updateToday();
+      void updateToday(); void loadCalendarInsights();
+      if (selectedCalendarDate) void showDaySummary(selectedCalendarDate);
     }, RECHECK_MS);
   }
 

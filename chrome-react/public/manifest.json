@@ -33,6 +33,10 @@
   "action": {
     "default_title": "Open Prune"
   },
+  "web_accessible_resources": [{
+    "resources": ["fonts/bricolage-grotesque-700.ttf"],
+    "matches": ["https://www.youtube.com/*", "https://www.instagram.com/*"]
+  }],
   "side_panel": {
     "default_path": "sidepanel.html"
   }

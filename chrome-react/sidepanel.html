@@ -74,14 +74,17 @@
           <span class="eyebrow" id="today-heading">Today so far</span>
           <span class="note-sm" id="today-count"></span>
         </div>
-        <div class="meter" id="meter" role="img" aria-label="How hostile your Shorts have been today">
+        <p class="note-sm">Past 24 hours · across sessions</p>
+        <div class="meter" id="meter" role="img" aria-label="Share of warnings among assessed warnings and positive insights in the past 24 hours">
           <div class="meter__seg meter__seg--calm"></div>
           <div class="meter__seg meter__seg--some"></div>
           <div class="meter__seg meter__seg--heavy"></div>
           <div class="meter__marker" id="meter-marker" hidden></div>
         </div>
-        <div class="meter__labels"><span>Calm</span><span>Some</span><span>Heavy</span></div>
+        <div class="meter__labels"><span>More positive insights</span><span>Mixed</span><span>More warnings</span></div>
         <span class="today__summary" id="today-summary"></span>
+        <p class="note-sm" id="today-comments"></p>
+        <details class="today-videos"><summary>Recent videos · latest 20</summary><ul id="today-video-list"></ul></details>
       </section>
 
       <!-- Feed tree -->
@@ -186,6 +189,11 @@
         <p class="fine">Changes apply immediately to open video tabs. This does not change which videos are collected for your session.</p>
         <span class="note-sm" id="detection-delay-saved" role="status"></span>
         <p class="session__error" id="detection-delay-error" role="alert" hidden></p>
+        <label class="session__audio-option" for="auto-skip-topics">
+          <span><strong>Automatically skip pruned topics</strong><small>Move to the next video when a pruned topic is detected. An alert names the topic that was skipped.</small></span>
+          <input id="auto-skip-topics" type="checkbox" role="switch" aria-describedby="auto-skip-error" disabled />
+        </label>
+        <p class="session__error" id="auto-skip-error" role="alert" hidden></p>
       </section>
       <section class="card detection-topics" aria-labelledby="detection-topics-heading" aria-busy="true">
         <div class="card__row">
@@ -200,6 +208,7 @@
     <script src="/collection-policy.js"></script>
     <script src="/detection-core.js"></script>
     <script src="/audio-status.js"></script>
+    <script src="/daily-activity.js"></script>
     <script type="module" src="/src/tree/entry.tsx"></script>
   </body>
 </html>

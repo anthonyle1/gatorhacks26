@@ -117,7 +117,48 @@ async function queueEvent(event) {
   if (!events.some(item => item.event_id === event.event_id)) events.push(collectedEvent);
   await getOrCreateSession();
   await chrome.storage.local.set({ pendingEvents: events });
+  await recordDailyActivity(collectedEvent);
   return { recorded: events.length };
+}
+
+async function recordDailyActivity(event) {
+  if (!event?.event_id || !event.started_at) return { recorded: 0 };
+  const state = await chrome.storage.local.get(['dailyActivityEvents', 'localSessionId']);
+  const sessionId = state.localSessionId || await getOrCreateSession();
+  const { collection_visit_id, ...collected } = event;
+  const rows = (state.dailyActivityEvents || []).filter(row =>
+    Date.parse(row.event.started_at) >= Date.now() - 48 * 60 * 60 * 1000 &&
+    !(row.session_id === sessionId && row.event.event_id === event.event_id));
+  rows.push({ session_id: sessionId, event: collected, synced: false });
+  await chrome.storage.local.set({ dailyActivityEvents: rows });
+  return { recorded: rows.length };
+}
+
+let activitySync = null;
+function syncDailyActivity() {
+  if (activitySync) return activitySync;
+  activitySync = (async () => {
+    const state = await chrome.storage.local.get('dailyActivityEvents');
+    const groups = new Map();
+    for (const row of state.dailyActivityEvents || []) {
+      if (row.synced) continue;
+      if (!groups.has(row.session_id)) groups.set(row.session_id, []);
+      groups.get(row.session_id).push(row.event);
+    }
+    for (const [session_id, events] of groups) {
+      await apiRequest('/local-sessions/activity', { method: 'PUT', body: JSON.stringify({ session_id, events }) });
+      // Do not mark a newer dwell update synced using an older request's acknowledgement.
+      const sent = new Set(events.map(event => JSON.stringify(event)));
+      syncQueue = syncQueue.catch(() => {}).then(async () => {
+        const latest = await chrome.storage.local.get('dailyActivityEvents');
+        await chrome.storage.local.set({ dailyActivityEvents: (latest.dailyActivityEvents || []).map(row =>
+          row.session_id === session_id && sent.has(JSON.stringify(row.event)) ? { ...row, synced: true } : row) });
+      });
+      await syncQueue;
+    }
+    return { synced: true };
+  })().finally(() => { activitySync = null; });
+  return activitySync;
 }
 
 async function recordComments(message) {
@@ -131,8 +172,21 @@ async function recordComments(message) {
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (!["VIDEO_EVENT", "INSTAGRAM_COMMENTS"].includes(message?.type)) return false;
-  syncQueue = syncQueue.catch(() => {}).then(() => message.type === "VIDEO_EVENT" ? queueEvent(message.event) : recordComments(message));
+  if (message?.type === 'SYNC_DAILY_ACTIVITY') {
+    syncDailyActivity().then(data => sendResponse({ success: true, data })).catch(error => sendResponse({ success: false, error: error.message }));
+    return true;
+  }
+  if (!["VIDEO_EVENT", "INSTAGRAM_COMMENTS", "ACTIVITY_EVENT"].includes(message?.type)) return false;
+  syncQueue = syncQueue.catch(() => {}).then(async () => {
+    if (message.type === 'ACTIVITY_EVENT') {
+      const state = await chrome.storage.local.get('trackingPaused');
+      if (state.trackingPaused) return { skipped: true };
+      const result = await recordDailyActivity(message.event);
+      void syncDailyActivity().catch(() => {}); // Durable local rows retry on the next update.
+      return result;
+    }
+    return message.type === "VIDEO_EVENT" ? queueEvent(message.event) : recordComments(message);
+  });
   syncQueue.then(data => sendResponse({ success: true, data })).catch(error => sendResponse({ success: false, error: error.message }));
   return true;
 });

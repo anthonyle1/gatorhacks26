@@ -11,6 +11,13 @@
   --font-body: Inter, system-ui, sans-serif;
 }
 
+.today-videos { margin-top: 12px; font-size: 12px; }
+.today-videos summary { cursor: pointer; color: var(--link); font-weight: 600; }
+#today-video-list, .today-video-list { list-style: none; margin: 8px 0 0; padding: 0; max-height: 360px; overflow-y: auto; }
+.today-video { padding: 10px 0; border-top: 1px solid var(--border); overflow-wrap: anywhere; }
+.today-video strong { display: block; font-size: 12px; }
+.today-video p { margin: 4px 0 0; font-size: 12px; }
+
 *,
 *::before,
 *::after {

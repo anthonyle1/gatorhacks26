@@ -63,6 +63,9 @@ class LocalSessions:
                 id TEXT PRIMARY KEY, payload TEXT NOT NULL, status TEXT NOT NULL,
                 videos TEXT NOT NULL DEFAULT '[]', detail TEXT, updated_at TEXT NOT NULL,
                 run_id TEXT)""")
+            connection.execute("""CREATE TABLE IF NOT EXISTS local_activity_events (
+                session_id TEXT NOT NULL, event_id TEXT NOT NULL, payload TEXT NOT NULL,
+                PRIMARY KEY(session_id, event_id))""")
 
     def get(self, session_id):
         with self.store.connection() as connection:
