@@ -28,6 +28,9 @@ async def save_roberta_analysis(video_id: str, result: dict):
             summary["total_comments"]
         ),
         "sentiment": sentiment,
+        "summary": summary,
+        "comments": [{"text": row["text"][:300], "sentiment": row["sentiment"], "confidence": row["confidence"]}
+                     for row in result.get("comments", [])[:12]],
         "analyzed_at": utc_now()
     }
 

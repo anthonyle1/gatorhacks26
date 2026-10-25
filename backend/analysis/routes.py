@@ -11,7 +11,7 @@ from app.config import settings
 from .analyzer import ModelUnavailableError, get_analyzer
 from .ollama_client import OllamaClient, OllamaError
 from .video_assessment import AssessmentResult, VideoEvidence, assess_video
-from .taxonomy import CONTENT_SIGNALS, SUBCATEGORIES, TAXONOMY_VERSION, NEGATIVE_CONTENT_SIGNALS, POSITIVE_CONTENT_SIGNALS
+from .taxonomy import CONTENT_SIGNALS, TAXONOMY_VERSION, NEGATIVE_CONTENT_SIGNALS, POSITIVE_CONTENT_SIGNALS
 from app.youtube import YouTubeError, fetch_video_comments, parse_comments
 from app.services.analysis_storage import save_roberta_analysis
 
@@ -21,10 +21,9 @@ logger = logging.getLogger(__name__)
 
 @router.get("/taxonomy")
 def get_taxonomy():
-    """Return stable topic IDs for future preference controls."""
+    """Content signals are fixed; session topics are discovered only at finish."""
     return {"version": TAXONOMY_VERSION,
-            "categories": {parent: [f"{parent}.{child}" for child in children]
-                           for parent, children in SUBCATEGORIES.items()},
+            "classification_scope": "completed_session", "categories": [],
             "content_signals": CONTENT_SIGNALS,
             "signal_groups": {"negative": NEGATIVE_CONTENT_SIGNALS, "positive": POSITIVE_CONTENT_SIGNALS}}
 

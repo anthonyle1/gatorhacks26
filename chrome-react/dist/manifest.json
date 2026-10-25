@@ -6,7 +6,8 @@
   "description": "Track YouTube Shorts and Instagram Reels viewing activity.",
   "permissions": [
     "storage",
-    "activeTab"
+    "activeTab",
+    "sidePanel"
   ],
   "host_permissions": [
     "https://www.youtube.com/*",
@@ -27,6 +28,9 @@
     }
   ],
   "action": {
-    "default_popup": "popup.html"
+    "default_title": "Open Prune"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
   }
 }
