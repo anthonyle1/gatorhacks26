@@ -25,3 +25,187 @@
   .living-wood, .living-trunk, .living-branch-growth, .living-foliage, .living-sway { animation: none; transition: none; }
   .living-children { transition: none; }
 }
+
+.website-topic-editor {
+  width: 100%;
+  min-width: 0;
+  max-height: 720px;
+  overflow-y: auto;
+  padding: 18px;
+  border: 1px solid rgba(83, 110, 82, 0.2);
+  border-radius: 16px;
+  background: #fffdf7;
+  color: #30432f;
+}
+
+.website-topic-editor__heading {
+  margin-bottom: 18px;
+}
+
+.website-topic-editor__heading h3 {
+  margin: 0 0 8px;
+  font-size: 1.15rem;
+}
+
+.website-topic-editor__heading p {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+.website-topic-editor__categories {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.website-topic-editor__category {
+  min-width: 0;
+}
+
+.website-topic-editor__category-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(114, 145, 105, 0.08);
+}
+
+.website-topic-editor__category-row.is-selected {
+  background: rgba(114, 145, 105, 0.2);
+}
+
+.website-topic-editor__expand {
+  flex-shrink: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.website-topic-editor__name {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  overflow-wrap: anywhere;
+  border: 0;
+  background: transparent;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.website-topic-editor__count {
+  font-size: 0.8rem;
+  opacity: 0.65;
+}
+
+.website-topic-editor__category-row > button:last-child {
+  flex-shrink: 0;
+}
+
+.website-topic-editor__content {
+  padding: 8px 0 8px 10px;
+}
+
+.website-topic-editor__content > p {
+  font-size: 0.82rem;
+  opacity: 0.75;
+}
+
+.website-topic-editor__actions {
+  margin-bottom: 10px;
+}
+
+.website-topic-editor__actions form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.website-topic-editor__actions input {
+  min-width: 100px;
+  flex: 1;
+}
+
+.website-topic-editor__video {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+  padding: 9px;
+  margin-bottom: 5px;
+  text-align: left;
+  border: 1px solid rgba(83, 110, 82, 0.15);
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.website-topic-editor__video:hover {
+  background: #f0f5e9;
+}
+
+.website-topic-editor__details {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(83, 110, 82, 0.2);
+}
+
+.website-topic-editor__details-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.website-topic-editor__details h4 {
+  margin: 0 0 10px;
+}
+
+.website-topic-editor__details h5 {
+  margin-bottom: 6px;
+}
+
+.website-topic-editor__details select {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+}
+
+
+/* Keep the SVG tree and editor in separate areas */
+.website-tree-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  width: 100%;
+}
+
+/* SVG tree stays full width */
+.website-tree-viewport {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Expand the topic editor */
+.website-tree-details {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  display: block;
+}
+
+/* Make Explore & manage topics fill its area */
+.website-tree-details .website-topic-editor {
+  width: 100%;
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+/* Remove any empty old inspector containers */
+#topic-inspector:empty,
+#branches:empty {
+  display: none;
+}

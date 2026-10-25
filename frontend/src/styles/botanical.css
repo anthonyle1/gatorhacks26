@@ -2168,3 +2168,219 @@ body {
     flex-direction: column;
   }
 }
+
+/* Full-width Explore & Manage Topics panel */
+.garden-topic-editor-section {
+  width: 100%;
+  min-width: 0;
+  margin-top: 24px;
+}
+
+.garden-topic-editor-section .inspector--topic-editor {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 28px;
+}
+
+.garden-topic-editor-section .website-topic-editor {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  max-height: none;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+.garden-topic-editor-section
+.website-topic-editor__categories {
+  width: 100%;
+  min-width: 0;
+}
+
+
+/* Wide Explore & Manage Topics panel */
+.garden-topic-editor-section {
+  width: 100%;
+  min-width: 0;
+  margin-top: 24px;
+}
+
+.garden-topic-editor-section .inspector--topic-editor {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 28px;
+}
+
+.garden-topic-editor-section .website-topic-editor {
+  width: 100%;
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+/* Category lists */
+.website-topic-editor__categories,
+.website-topic-editor__children,
+.website-topic-editor__videos {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+
+.website-topic-editor__children {
+  margin-left: 22px;
+  border-left: 2px solid #d7ddc8;
+  padding-left: 14px;
+}
+
+.website-topic-editor__category {
+  min-width: 0;
+  margin: 8px 0;
+}
+
+.website-topic-editor__category-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(152, 171, 130, 0.10);
+}
+
+.website-topic-editor__category-row .website-topic-editor__name {
+  flex: 1 1 180px;
+  min-width: 0;
+  text-align: left;
+}
+
+.website-topic-editor__content {
+  padding: 8px 12px 12px;
+}
+
+.website-topic-description {
+  margin: 8px 0;
+}
+
+/* Drag-and-drop controls */
+.website-topic-drag {
+  cursor: grab;
+  user-select: none;
+  font-size: 20px;
+  padding: 3px 7px;
+  touch-action: none;
+}
+
+.website-topic-drag:active {
+  cursor: grabbing;
+}
+
+.website-topic-order {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.website-topic-order button {
+  min-width: 28px;
+}
+
+.website-topic-drop-gap {
+  height: 9px;
+  border-radius: 5px;
+}
+
+.website-topic-editor__category-row.is-over,
+.website-topic-drop-gap.is-over,
+.website-topic-root-drop.is-over {
+  background: #dce9cc;
+  outline: 2px dashed #72915e;
+}
+
+.website-topic-editor__organizer.is-dragging
+.website-topic-drop-gap {
+  background: rgba(116, 145, 91, 0.16);
+}
+
+.website-topic-root-drop {
+  border: 1px dashed #a7b49a;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 12px 0;
+  color: #65775b;
+}
+
+/* Video rows */
+.website-topic-video {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(100, 120, 90, 0.15);
+}
+
+.website-topic-video .website-topic-editor__video {
+  flex: 1 1 200px;
+  min-width: 0;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.website-topic-video select {
+  max-width: 100%;
+}
+
+/* Category management */
+.website-topic-category-manager {
+  margin: 12px 0;
+  padding: 10px 12px;
+  border: 1px solid #dce3d4;
+  border-radius: 10px;
+}
+
+.website-topic-category-manager form,
+.website-topic-manager-action {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+
+.website-topic-category-manager label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1 1 220px;
+}
+
+.website-topic-category-manager input,
+.website-topic-category-manager select {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Video detail panel */
+.website-topic-editor__details {
+  margin-top: 20px;
+  overflow-wrap: anywhere;
+}
+
+/* Mobile layout */
+@media (max-width: 640px) {
+  .garden-topic-editor-section .inspector--topic-editor {
+    padding: 16px;
+  }
+
+  .website-topic-editor__children {
+    margin-left: 8px;
+    padding-left: 8px;
+  }
+}

@@ -13,10 +13,12 @@ import {
   requestTree,
   topicBranches,
   type Topic,
+  type TopicTree,
 } from '../data/topics'
 
 import {
   PruneContext,
+  type CategoryChange,
   type CompostItem,
   type PilePhase,
   type PruneState,
@@ -27,6 +29,8 @@ import type { Branch } from '../types'
 const FALL_MS = 1200
 const POLL_MS = 10000
 const DEMO_STORAGE_KEY = 'demo-pruned-branches'
+
+const API_BASE = '/api/local-sessions/taxonomy'
 
 type CutMap = Record<string, boolean>
 
@@ -94,18 +98,54 @@ function collectCuts(topics: Topic[]): CutMap {
   return cuts
 }
 
+async function patchTaxonomy(
+  path: string,
+  body: object
+): Promise<void> {
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  })
+
+  if (!response.ok) {
+    let message = `Request failed (${response.status})`
+
+    try {
+      const result = await response.json()
+
+      if (typeof result.detail === 'string') {
+        message = result.detail
+      } else if (result.detail) {
+        message = JSON.stringify(result.detail)
+      }
+    } catch {
+      // Keep the HTTP status message.
+    }
+
+    throw new Error(message)
+  }
+}
+
 export function PruneProvider({
   children,
 }: {
   children: ReactNode
 }) {
   const [tree, setTree] = useState<Branch[]>([])
+  const [taxonomy, setTaxonomy] = useState<TopicTree | null>(null)
+
   const [selectedCuts, setSelectedCuts] = useState<CutMap>({})
   const [falling, setFalling] = useState<CutMap>({})
   const [cleared, setCleared] = useState<CutMap>({})
+
   const [selectedId, setSelected] = useState('')
   const [phase, setPhase] = useState<PilePhase>('idle')
+
   const [loading, setLoading] = useState(true)
+  const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [videoCount, setVideoCount] = useState(0)
 
@@ -121,73 +161,82 @@ export function PruneProvider({
   const latestChange = useRef<Record<string, number>>({})
   const confirmedCuts = useRef<CutMap>({})
 
-  useEffect(() => {
-    let active = true
-    let loadingTree = false
+  const loadingTree = useRef(false)
+  const mounted = useRef(true)
 
-    async function load() {
-      if (loadingTree) return
+  const applyTaxonomy = useCallback((result: TopicTree) => {
+    const nextTree = topicBranches(
+      result.tree,
+      result.global_video_count
+    )
 
-      loadingTree = true
-      const version = revision.current
+    const nextCuts = collectCuts(result.tree)
 
-      try {
-        const result = await requestTree()
+    setTaxonomy(result)
+    setTree(nextTree)
+    setVideoCount(result.global_video_count)
 
-        if (
-          !active ||
-          pending.current > 0 ||
-          version !== revision.current
-        ) {
-          return
-        }
+    confirmedCuts.current = nextCuts
+    setSelectedCuts(nextCuts)
 
-        const nextTree = topicBranches(
-          result.tree,
-          result.global_video_count
-        )
+    setError(null)
+  }, [])
 
-        const nextCuts = collectCuts(result.tree)
-
-        setTree(nextTree)
-        setVideoCount(result.global_video_count)
-
-        confirmedCuts.current = nextCuts
-        setSelectedCuts(nextCuts)
-
-        setError(null)
-      } catch (cause) {
-        if (active) {
-          setError(
-            cause instanceof Error
-              ? cause.message
-              : 'Could not load topics.'
-          )
-        }
-      } finally {
-        loadingTree = false
-
-        if (active) {
-          setLoading(false)
-        }
-      }
+  const refreshTree = useCallback(async (): Promise<void> => {
+    if (loadingTree.current || pending.current > 0) {
+      return
     }
 
-    void load()
+    loadingTree.current = true
+    const version = revision.current
+
+    try {
+      const result = await requestTree()
+
+      if (
+        !mounted.current ||
+        pending.current > 0 ||
+        version !== revision.current
+      ) {
+        return
+      }
+
+      applyTaxonomy(result)
+    } catch (cause) {
+      if (mounted.current) {
+        setError(
+          cause instanceof Error
+            ? cause.message
+            : 'Could not load topics.'
+        )
+      }
+    } finally {
+      loadingTree.current = false
+
+      if (mounted.current) {
+        setLoading(false)
+      }
+    }
+  }, [applyTaxonomy])
+
+  useEffect(() => {
+    mounted.current = true
+
+    void refreshTree()
 
     const poll = setInterval(() => {
-      void load()
+      void refreshTree()
     }, POLL_MS)
 
     return () => {
-      active = false
+      mounted.current = false
       clearInterval(poll)
 
       timers.current.forEach(clearTimeout)
 
       Object.values(fallTimers.current).forEach(clearTimeout)
     }
-  }, [])
+  }, [refreshTree])
 
   const branches = useMemo(
     () => flattenTree(tree),
@@ -221,21 +270,15 @@ export function PruneProvider({
 
   const setPruned = useCallback(
     (id: string, value: boolean) => {
-      const branchExists = branches.some(
-        branch => branch.id === id
-      )
-
-      if (!branchExists) return
-
-      // Avoid pruning a child that is already hidden
-      // because its parent was pruned.
       const currentBranch = branches.find(
         branch => branch.id === id
       )
 
+      if (!currentBranch) return
+
       if (
         value &&
-        currentBranch?.parentId &&
+        currentBranch.parentId &&
         pruned[currentBranch.parentId]
       ) {
         return
@@ -259,7 +302,6 @@ export function PruneProvider({
         [id]: false,
       }))
 
-      // Cancel any previous falling animation.
       clearTimeout(fallTimers.current[id])
 
       if (value && !pruned[id]) {
@@ -286,15 +328,12 @@ export function PruneProvider({
         }))
       }
 
-      // Serialize changes so pruning and restoring
-      // cannot reach storage in the wrong order.
+      // Keep writes in order.
       writes.current = writes.current.then(async () => {
         try {
           if (id.startsWith('demo:')) {
-            // Synthetic branches are saved locally.
             saveDemoCut(id, value)
           } else {
-            // Real branches use the backend.
             await requestTree({
               category_id: id,
               reduce: value,
@@ -302,11 +341,8 @@ export function PruneProvider({
           }
 
           confirmedCuts.current[id] = value
-
           setError(null)
         } catch (cause) {
-          // Roll back only if this was the latest
-          // action for this branch.
           if (latestChange.current[id] === version) {
             setSelectedCuts(current => ({
               ...current,
@@ -330,6 +366,93 @@ export function PruneProvider({
       })
     },
     [branches, pruned]
+  )
+
+  const editCategory = useCallback(
+    async (
+      categoryId: string,
+      change: CategoryChange
+    ): Promise<void> => {
+      if (categoryId.startsWith('demo:')) {
+        throw new Error(
+          'Synthetic categories cannot be edited through the real-data API.'
+        )
+      }
+
+      pending.current++
+      revision.current++
+      setBusy(true)
+
+      try {
+        // Wait for pending pruning changes.
+        await writes.current
+
+        await patchTaxonomy(
+          `/categories/${encodeURIComponent(categoryId)}`,
+          change
+        )
+
+        setError(null)
+      } catch (cause) {
+        const message =
+          cause instanceof Error
+            ? cause.message
+            : 'Could not edit category.'
+
+        setError(message)
+        throw cause
+      } finally {
+        pending.current--
+        setBusy(false)
+      }
+
+      await refreshTree()
+    },
+    [refreshTree]
+  )
+
+  const moveVideo = useCallback(
+    async (
+      videoId: string,
+      categoryId: string
+    ): Promise<void> => {
+      if (categoryId.startsWith('demo:')) {
+        throw new Error(
+          'Moving real videos into synthetic categories is not supported yet.'
+        )
+      }
+
+      pending.current++
+      revision.current++
+      setBusy(true)
+
+      try {
+        await writes.current
+
+        await patchTaxonomy(
+          `/videos/${encodeURIComponent(videoId)}`,
+          {
+            category_id: categoryId,
+          }
+        )
+
+        setError(null)
+      } catch (cause) {
+        const message =
+          cause instanceof Error
+            ? cause.message
+            : 'Could not move video.'
+
+        setError(message)
+        throw cause
+      } finally {
+        pending.current--
+        setBusy(false)
+      }
+
+      await refreshTree()
+    },
+    [refreshTree]
   )
 
   const compost = useMemo<CompostItem[]>(
@@ -382,8 +505,6 @@ export function PruneProvider({
   }, [compost, phase])
 
   const pruneAll = useCallback(() => {
-    // Prune each unpruned top-level branch.
-    // Its children are automatically included.
     tree
       .filter(branch => !pruned[branch.id])
       .forEach(branch => {
@@ -394,13 +515,18 @@ export function PruneProvider({
   const value: PruneState = {
     tree,
     branches,
+    taxonomy,
+
     falling,
     loading,
+    busy,
     error,
     videoCount,
+
     pruned,
     cuts: selectedCuts,
     selectedId,
+
     phase,
     compost,
 
@@ -412,6 +538,10 @@ export function PruneProvider({
     setPruned,
     pruneAll,
     burnPile,
+
+    editCategory,
+    moveVideo,
+    refreshTree,
   }
 
   return (

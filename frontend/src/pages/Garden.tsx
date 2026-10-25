@@ -276,15 +276,19 @@ export default function Garden() {
           </div>
         </div>
 
-        {/* MAIN'S DYNAMIC TREE AND PRUNING COMPONENTS */}
-        <div className="columns">
-          <TreeCard />
+        {/* ANIMATED TREE AND PRUNING CONTROLS */}
+<div className="columns">
+  <TreeCard />
 
-          <div className="side">
-            <PruningStation />
-            <Inspector />
-          </div>
-        </div>
+  <div className="side">
+    <PruningStation />
+  </div>
+</div>
+
+{/* FULL-WIDTH TOPIC EDITOR */}
+<div className="garden-topic-editor-section">
+  <Inspector />
+</div>
 
         {/* COMPOST AND GARDEN SUMMARY */}
         <div className="row">

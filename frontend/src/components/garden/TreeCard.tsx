@@ -1,6 +1,7 @@
 
 import { useCallback, useMemo, useState } from 'react'
 import { TopicTree } from '../../tree/TopicTree'
+// import WebsiteTopicEditor from '../../tree/WebsiteTopicEditor'
 import type { Topic, TreeData } from '../../tree/types'
 import { usePrune } from '../../state/prune-context'
 import { LEVEL_LABEL } from '../Chip'
@@ -16,25 +17,44 @@ const LEGEND = [
 export default function TreeCard() {
   const {
     tree,
+    taxonomy,
     branches,
     pruned,
     cuts,
     falling,
-    selectedId,
-    setSelected,
     setPruned,
     loading,
+    busy,
     error,
     videoCount,
   } = usePrune()
 
   const [zoom, setZoom] = useState(1)
+
   const [treeSize, setTreeSize] = useState({
     width: 0,
     height: 0,
   })
 
+  // Index the full taxonomy so the SVG tree
+  // can retain video IDs from the backend.
   const treeData = useMemo<TreeData>(() => {
+    const taxonomyTopics = new Map<
+      string,
+      { video_ids?: string[] }
+    >()
+
+    function indexTopics(
+      nodes: NonNullable<typeof taxonomy>['tree']
+    ) {
+      for (const topic of nodes) {
+        taxonomyTopics.set(topic.id, topic)
+        indexTopics(topic.children ?? [])
+      }
+    }
+
+    indexTopics(taxonomy?.tree ?? [])
+
     function convert(
       nodes: typeof tree,
       inherited = false
@@ -48,11 +68,15 @@ export default function TreeCard() {
           name: branch.name,
           description: branch.why || '',
           video_count: branch.videoCount ?? 0,
-          video_ids: [],
+          video_ids:
+            taxonomyTopics.get(branch.id)?.video_ids ?? [],
           selected,
           inherited,
           reduce,
-          children: convert(branch.children ?? [], reduce),
+          children: convert(
+            branch.children ?? [],
+            reduce
+          ),
         }
       })
     }
@@ -61,21 +85,24 @@ export default function TreeCard() {
       tree: convert(tree),
       global_video_count: videoCount,
     }
-  }, [tree, cuts, videoCount])
+  }, [tree, taxonomy, cuts, videoCount])
 
+  // Preserve falling-branch animations.
   const fallingIds = useMemo(
-    () => new Set(
-      Object.entries(falling)
-        .filter(([, active]) => active)
-        .map(([id]) => id)
-    ),
+    () =>
+      new Set(
+        Object.entries(falling)
+          .filter(([, active]) => active)
+          .map(([id]) => id)
+      ),
     [falling]
   )
 
   const handleSize = useCallback(
     (width: number, height: number) => {
       setTreeSize(current =>
-        current.width === width && current.height === height
+        current.width === width &&
+        current.height === height
           ? current
           : { width, height }
       )
@@ -83,31 +110,47 @@ export default function TreeCard() {
     []
   )
 
-  const fitTree = () => {
+  // Fit the SVG tree inside its viewport.
+  const fitTree = useCallback(() => {
     const viewport = document.getElementById('tree')
 
-    if (!viewport || !treeSize.width || !treeSize.height) {
+    if (
+      !viewport ||
+      !treeSize.width ||
+      !treeSize.height
+    ) {
       setZoom(1)
       return
     }
 
+    const widthRatio =
+      viewport.clientWidth / treeSize.width
+
+    const heightRatio =
+      viewport.clientHeight / treeSize.height
+
     setZoom(
       Math.max(
         0.15,
-        Math.min(
-          1,
-          viewport.clientWidth / treeSize.width,
-          viewport.clientHeight / treeSize.height
-        )
+        Math.min(1, widthRatio, heightRatio)
       )
     )
-  }
+  }, [treeSize])
+
+  const growingTopics = useMemo(
+    () =>
+      branches.filter(
+        branch => !pruned[branch.id]
+      ).length,
+    [branches, pruned]
+  )
 
   return (
     <section
       className="card card--lg tree-card feed-tree-card"
       aria-labelledby="tree-heading"
     >
+      {/* Header */}
       <div className="feed-tree-card__heading">
         <div>
           <span className="botanical-eyebrow">
@@ -120,7 +163,8 @@ export default function TreeCard() {
 
           <p>
             Every branch represents a topic.
-            Select one to explore its details.
+            Explore your feed, organize categories,
+            and prune topics you want to see less often.
           </p>
         </div>
 
@@ -132,104 +176,94 @@ export default function TreeCard() {
         </span>
       </div>
 
+      {/* Error message */}
       {error && (
         <p role="alert" className="error">
           {error}
         </p>
       )}
 
+      {/* Tree toolbar */}
       <div className="website-tree-toolbar">
         <span>
-          {branches.filter(branch => !pruned[branch.id]).length}
-          {' '}growing topics
+          {growingTopics} growing topics
         </span>
 
         <div className="website-tree-zoom">
           <button
             type="button"
             onClick={() =>
-              setZoom(value => Math.max(0.15, value / 1.2))
+              setZoom(current =>
+                Math.max(0.15, current / 1.2)
+              )
             }
             aria-label="Zoom out"
           >
             −
           </button>
 
-          <span>{Math.round(zoom * 100)}%</span>
+          <span>
+            {Math.round(zoom * 100)}%
+          </span>
 
           <button
             type="button"
             onClick={() =>
-              setZoom(value => Math.min(3, value * 1.2))
+              setZoom(current =>
+                Math.min(3, current * 1.2)
+              )
             }
             aria-label="Zoom in"
           >
             +
           </button>
 
-          <button type="button" onClick={fitTree}>
+          <button
+            type="button"
+            onClick={fitTree}
+          >
             Fit
           </button>
         </div>
       </div>
 
+      {/* Main layout: SVG tree + Chrome-style editor */}
       <div className="website-tree-layout">
-        <div id="tree" className="website-tree-viewport">
-          <TopicTree
-            data={treeData}
-            falling={fallingIds}
-            busy={false}
-            zoom={zoom}
-            loading={loading}
-            onPrune={setPruned}
-            onSize={handleSize}
-          />
-        </div>
+  <div
+    id="tree"
+    className="website-tree-viewport"
+  >
+    <TopicTree
+      data={treeData}
+      falling={fallingIds}
+      busy={busy}
+      zoom={zoom}
+      loading={loading}
+      onPrune={setPruned}
+      onSize={handleSize}
+    />
+  </div>
 
-        <div className="website-tree-details">
-          <div id="topic-inspector" />
-
-          <div id="branches" />
-        </div>
+  {/* <div className="website-tree-details">
+    <WebsiteTopicEditor />
+  </div> */}
       </div>
 
-      {!loading && !branches.length && (
+      {/* Empty tree state */}
+      {!loading && branches.length === 0 && (
         <p role="status">
-          Your garden is ready to grow. Finish a scrolling
-          session to discover your first topics.
+          Your garden is ready to grow.
+          Finish a scrolling session to discover
+          your first topics.
         </p>
       )}
 
-      <div className="branch-grid">
-        {branches.map(branch => (
-          <button
-            key={branch.id}
-            type="button"
-            className={`branch-tile${
-              selectedId === branch.id
-                ? ' branch-tile--selected'
-                : ''
-            }`}
-            aria-pressed={selectedId === branch.id}
-            onClick={() => setSelected(branch.id)}
-          >
-            <span className="branch-tile__name">
-              {branch.name}
-            </span>
-
-            <span className="branch-tile__meta">
-              {branch.videoCount ?? 0} videos
-              {' · '}
-              {pruned[branch.id] ? 'Pruned' : 'Growing'}
-            </span>
-          </button>
-        ))}
-      </div>
-
+      {/* Footer */}
       <p className="note">
         Each branch represents a topic found in your feed.
-        Pruning a branch also removes its child topics from
-        the growing tree. Restore it from the compost pile.
+        Pruning a branch also removes its child topics
+        from the growing tree. Restore it from the
+        compost pile.
       </p>
     </section>
   )
