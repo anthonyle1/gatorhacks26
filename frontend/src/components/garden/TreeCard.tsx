@@ -3,7 +3,15 @@ import { useCallback, useMemo, useState } from 'react'
 import { TopicTree } from '../../tree/TopicTree'
 import type { Topic, TreeData } from '../../tree/types'
 import { usePrune } from '../../state/prune-context'
-import '../../tree/tree.css'
+import { LEVEL_LABEL } from '../Chip'
+import Tree from '../Tree'
+
+const LEGEND = [
+  { color: '#94aa98', label: 'Not rated' },
+  { color: 'var(--calm-leaf)', label: 'Healthy' },
+  { color: 'var(--some-leaf)', label: 'Some hostility' },
+  { color: 'var(--heavy-leaf)', label: 'Heavy hostility' },
+]
 
 export default function TreeCard() {
   const {

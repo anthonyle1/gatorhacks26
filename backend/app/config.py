@@ -8,6 +8,11 @@ class Settings(BaseSettings):
     mongodb_db: str = "healthy_doomscrolling"
     youtube_api_key: str = ""
     redis_url: str = ""
+    groq_api_key: str = ""
+    groq_detection_model: str = "openai/gpt-oss-20b"
+    detection_timeout_seconds: float = Field(default=6, gt=0, le=30)
+    detection_comment_timeout_seconds: float = Field(default=0.75, ge=0, le=3)
+    detection_confidence_threshold: float = Field(default=0.85, ge=0, le=1)
     analysis_cache_enabled: bool = True
     analysis_cache_ttl: int = Field(default=3600, ge=1, le=86400)
     roberta_revision: str = "3216a57f2a0d9c45a2e6c20157c20c49fb4bf9c7"

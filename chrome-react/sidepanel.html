@@ -94,13 +94,18 @@
           Your saved topics grow into branches, with child topics growing from their parents.
           Pruning drops a branch and all its children. Leaf color is unrated until hostility data is available.
         </span> -->
+        <div class="tree-risk-legend" aria-label="Leaf color scale">
+          <span><i style="background: #a8c394"></i>Lower</span><span><i style="background: #d8bf86"></i>Some</span><span><i style="background: #cb9582"></i>Higher</span><span><i style="background: #d8ded3"></i>Unrated</span>
+        </div>
+          <details class="tree-risk-explanation"><summary>How leaf colors are scaled</summary><p>Leaf colors are scaled relative to your saved topics: the lowest score is green, the highest is red, and scores between them blend through amber. Even small differences use the full color range. If all scores are equal, colors use the underlying score. Warning counts use a logarithmic scale from 0 to 1, capped at 4 warnings per video. Negative comments are divided by all rated comments for each video. Each measure is averaged across videos, then available measures get equal weight. Larger topics and popular videos do not automatically score higher. Missing analysis is excluded; gray means no usable data. Red means relatively stronger signals in this tree, not a diagnosis of harm. Review redder topics to decide what to prune. Click a topic for counts and analysis coverage, including child topics.</p></details>
+        <div class="tree-viewport">
         <div class="tree-zoom" role="group" aria-label="Tree zoom controls">
-          <button class="btn btn--outline" id="tree-zoom-out" type="button" aria-label="Zoom out">−</button>
-          <output id="tree-zoom-level" aria-live="polite">100%</output>
-          <button class="btn btn--outline" id="tree-zoom-in" type="button" aria-label="Zoom in">+</button>
+          <button class="btn btn--outline" id="tree-zoom-out" type="button" aria-label="Zoom out" title="Zoom out"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3M8 11h6"/></svg></button>
+          <button class="btn btn--outline" id="tree-zoom-in" type="button" aria-label="Zoom in" title="Zoom in"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3M8 11h6M11 8v6"/></svg></button>
           <button class="btn btn--outline" id="tree-zoom-reset" type="button">Fit tree</button>
         </div>
         <div class="tree" id="tree" tabindex="0" aria-label="Topic tree. Drag to pan. Use the mouse wheel or zoom buttons to zoom."></div>
+        </div>
         <div id="topic-inspector"></div>
 
         <p class="note" id="topic-tree-status" role="status" hidden></p>
@@ -173,10 +178,27 @@
         <p class="fine">Changes apply to new sessions. Skipped videos are excluded from your count, topics, and model input. Their audio is not uploaded for transcription. Eligible videos keep their opening audio.</p>
         <p class="session__error" id="collection-settings-error" role="alert" hidden></p>
         <span class="note-sm" id="collection-settings-saved" role="status"></span>
+        <hr />
+        <div class="watch-cutoff-heading"><label for="detection-delay">Detection delay</label><output id="detection-delay-value" for="detection-delay">1.5 seconds</output></div>
+        <input id="detection-delay" type="range" min="1.5" max="10" step="0.5" value="1.5" aria-describedby="detection-delay-description" disabled />
+        <div class="watch-cutoff-scale" aria-hidden="true"><span>1.5 seconds</span><span>10 seconds</span></div>
+        <p class="note" id="detection-delay-description">Wait this long while a video is visibly playing before checking for topics you've pruned.</p>
+        <p class="fine">Changes apply immediately to open video tabs. This does not change which videos are collected for your session.</p>
+        <span class="note-sm" id="detection-delay-saved" role="status"></span>
+        <p class="session__error" id="detection-delay-error" role="alert" hidden></p>
+      </section>
+      <section class="card detection-topics" aria-labelledby="detection-topics-heading" aria-busy="true">
+        <div class="card__row">
+          <h2 class="h2" id="detection-topics-heading">Topics checked</h2>
+          <span class="chip chip--sm" id="detection-topics-count">0</span>
+        </div>
+        <p class="note-sm" id="detection-topics-status" role="status">Loading pruned topics…</p>
+        <ul class="detection-topics__list" id="detection-topics-list" aria-label="Pruned topics used for detection"></ul>
       </section>
     </main>
 
     <script src="/collection-policy.js"></script>
+    <script src="/detection-core.js"></script>
     <script src="/audio-status.js"></script>
     <script type="module" src="/src/tree/entry.tsx"></script>
   </body>

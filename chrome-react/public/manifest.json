@@ -2,7 +2,7 @@
 {
   "manifest_version": 3,
   "minimum_chrome_version": "116",
-  "name": "Healthy Doomscrolling",
+  "name": "Prune",
   "version": "2.0",
   "description": "Track YouTube Shorts and Instagram Reels viewing activity.",
   "permissions": [
@@ -27,7 +27,7 @@
         "https://www.youtube.com/*",
         "https://www.instagram.com/*"
       ],
-      "js": ["collection-policy.js", "content.js"]
+      "js": ["collection-policy.js", "detection-core.js", "content.js", "detection.js"]
     }
   ],
   "action": {

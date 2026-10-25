@@ -1,6 +1,7 @@
 """UF NaviGator chat completions. Credentials and all requests stay server-side."""
 import argparse
 import json
+import logging
 from time import monotonic
 from urllib.parse import urlsplit
 
@@ -9,6 +10,14 @@ import httpx
 from app.config import settings
 from .gemma_client import limiter
 from .ollama_client import OllamaError
+
+logger = logging.getLogger(__name__)
+
+
+class NavigatorError(OllamaError):
+    def __init__(self, message, code):
+        super().__init__(message)
+        self.code = code
 
 
 class NavigatorClient:
@@ -30,7 +39,7 @@ class NavigatorClient:
     def _request(self, client, method, path, **kwargs):
         remaining = self.deadline - monotonic()
         if remaining <= 0:
-            raise OllamaError("NaviGator request deadline exceeded.")
+            raise NavigatorError("NaviGator request deadline exceeded.", "navigator_timeout")
         with client.stream(method, self.base_url + path, headers=self._headers(), timeout=remaining, **kwargs) as response:
             raw = bytearray()
             for chunk in response.iter_bytes():
@@ -42,12 +51,12 @@ class NavigatorClient:
     @staticmethod
     def _error(status):
         if status in {401, 403}:
-            return OllamaError("NaviGator authentication or model access failed; check your Toolkit key and allowed models.")
+            return NavigatorError("NaviGator authentication or model access failed; check your Toolkit key and allowed models.", "navigator_authentication")
         if status == 404:
-            return OllamaError("NaviGator model or endpoint was not found; check NAVIGATOR_MODEL and NAVIGATOR_BASE_URL.")
+            return NavigatorError("NaviGator model or endpoint was not found; check NAVIGATOR_MODEL and NAVIGATOR_BASE_URL.", "navigator_model_unavailable")
         if status == 429:
-            return OllamaError("NaviGator rate limit or quota reached; retry later.")
-        return OllamaError(f"NaviGator request failed (HTTP {status}); local evidence was retained.")
+            return NavigatorError("NaviGator rate limit or quota reached; retry later.", "navigator_rate_limit")
+        return NavigatorError(f"NaviGator request failed (HTTP {status}); local evidence was retained.", "navigator_http_error")
 
     @staticmethod
     def _unsupported_format(status, raw):
@@ -70,6 +79,7 @@ class NavigatorClient:
         try:
             with httpx.Client(trust_env=False, follow_redirects=False) as client:
                 transient_retry = False
+                length_retry = False
                 for _ in range(4):
                     if mode == "json_schema":
                         payload["response_format"] = {"type": "json_schema", "json_schema": {"name": "analysis_result", "schema": response_format}}
@@ -85,18 +95,30 @@ class NavigatorClient:
                         transient_retry = True
                         continue
                     if status != 200:
+                        logger.warning("navigator http_status=%d", status)
                         raise self._error(status)
                     choice = json.loads(raw)["choices"][0]
                     message = choice["message"]
+                    if choice.get("finish_reason") == "length":
+                        if not length_retry and payload["max_tokens"] < 8192:
+                            length_retry = True
+                            payload["max_tokens"] = min(8192, payload["max_tokens"] * 2)
+                            logger.warning("navigator output_truncated retry_max_tokens=%d", payload["max_tokens"])
+                            continue
+                        raise NavigatorError("NaviGator reached its output limit; no incomplete assessment was accepted.", "navigator_output_limit")
                     if choice.get("finish_reason") != "stop" or message.get("tool_calls") or message.get("refusal") or message.get("function_call"):
-                        raise OllamaError("NaviGator returned incomplete or refused output; no assessment was accepted.")
+                        raise NavigatorError("NaviGator returned incomplete or refused output; no assessment was accepted.", "navigator_refused_output")
                     content = message["content"]
                     if not isinstance(content, str) or not content.strip():
                         raise OllamaError("NaviGator returned no answer text.")
                     return {"response": content}
                 raise OllamaError("NaviGator retry limit reached; local evidence was retained.")
-        except (httpx.HTTPError, ValueError, KeyError, IndexError, TypeError, AttributeError):
-            raise OllamaError("NaviGator returned an invalid response or could not be reached; local evidence was retained.") from None
+        except httpx.TimeoutException:
+            raise NavigatorError("NaviGator request timed out; local evidence was retained.", "navigator_timeout") from None
+        except httpx.HTTPError:
+            raise NavigatorError("NaviGator could not be reached; local evidence was retained.", "navigator_connection") from None
+        except (ValueError, KeyError, IndexError, TypeError, AttributeError):
+            raise NavigatorError("NaviGator returned an invalid response; local evidence was retained.", "navigator_invalid_response") from None
         finally:
             gate.release()
 

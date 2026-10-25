@@ -22,15 +22,50 @@
   const MAX_HISTORY = 30;
 
   const hasStorage = typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local;
+  let topicsRefreshGeneration = 0;
+
+  async function refreshDetectionTopics() {
+    const generation = ++topicsRefreshGeneration;
+    const list = document.getElementById('detection-topics-list');
+    const status = document.getElementById('detection-topics-status');
+    const section = list.closest('section');
+    section.setAttribute('aria-busy', 'true');
+    try {
+      const response = await fetch(`${API_BASE}/detection/topics`, { signal: AbortSignal.timeout(10000) });
+      if (!response.ok) throw new Error('Topics unavailable');
+      const data = await response.json();
+      if (!Array.isArray(data.topics)) throw new Error('Invalid topics');
+      if (generation !== topicsRefreshGeneration) return;
+      const checkedTopics = new Map();
+      for (const root of data.topics) {
+        for (const topic of [root, ...(root.descendants || [])]) checkedTopics.set(topic.id, topic);
+      }
+      const items = [...checkedTopics.values()].sort((a, b) => a.name.localeCompare(b.name)).map(topic => {
+        const item = document.createElement('li');
+        item.textContent = topic.name;
+        return item;
+      });
+      list.replaceChildren(...items);
+      document.getElementById('detection-topics-count').textContent = String(items.length);
+      status.textContent = items.length ? '' : 'No topics pruned yet.';
+      status.hidden = items.length > 0;
+    } catch {
+      if (generation !== topicsRefreshGeneration) return;
+      status.hidden = false;
+      status.textContent = list.children.length ? 'Could not refresh topics. Showing the last loaded list.' : 'Could not load pruned topics. Check that the backend is running.';
+    } finally {
+      if (generation === topicsRefreshGeneration) section.setAttribute('aria-busy', 'false');
+    }
+  }
 
   // ---------------------------------------------------------------------------
   // SAMPLE DATA
   // ---------------------------------------------------------------------------
   // October 2026, days 1 to 24. 1 = calm, 2 = some, 3 = heavy.
-  const SAMPLE_DAY_LEVELS = {};
-  [1, 1, 2, 1, 1, 3, 2, 1, 1, 1, 2, 3, 3, 1, 1, 2, 1, 1, 1, 2, 2, 3, 1, 2].forEach((lv, i) => {
-    SAMPLE_DAY_LEVELS[`2026-10-${String(i + 1).padStart(2, '0')}`] = lv;
-  });
+  // const SAMPLE_DAY_LEVELS = {};
+  // [1, 1, 2, 1, 1, 3, 2, 1, 1, 1, 2, 3, 3, 1, 1, 2, 1, 1, 1, 2, 2, 3, 1, 2].forEach((lv, i) => {
+  //   SAMPLE_DAY_LEVELS[`2026-10-${String(i + 1).padStart(2, '0')}`] = lv;
+  // });
 
   // ---------------------------------------------------------------------------
   // State
@@ -205,50 +240,239 @@
   let topicGarden;
 
   // ---------------------------------------------------------------------------
-  // Calendar
+  // Calendar — daily insights from the backend
   // ---------------------------------------------------------------------------
   const pad = (n) => String(n).padStart(2, '0');
   const dateKey = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
 
+  let selectedCalendarDate = null;
+  let calendarDetailRequestId = 0;
+
+  // Map of YYYY-MM-DD -> daily summary
+  let monthlyInsights = new Map();
+
+  // Prevent an older fetch from overwriting a newer month's data.
+  let calendarRequestId = 0;
+  let calendarLoading = false;
+  let calendarError = false;
+
+  async function loadCalendarInsights() {
+    const requestId = ++calendarRequestId;
+
+    const year = state.month.getFullYear();
+    const monthIndex = state.month.getMonth();
+
+    const month = `${year}-${pad(monthIndex + 1)}`;
+
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    // Clear stale data before loading another month.
+    monthlyInsights = new Map();
+    calendarLoading = true;
+    calendarError = false;
+    renderCalendar();
+
+    try {
+      const params = new URLSearchParams({month, timezone});
+
+      const response = await fetch(`${API_BASE}/local-sessions/daily?${params.toString()}`);
+
+      if (!response.ok) {throw new Error(`Calendar request failed: ${response.status}`);}
+
+      const data = await response.json();
+
+      // User may have navigated to another month while loading.
+      if (requestId !== calendarRequestId) return;
+
+      monthlyInsights = new Map((data.days || []).map(day => [day.date, day]));
+
+      calendarError = false;
+    } catch (error) {
+      if (requestId !== calendarRequestId) return;
+
+      monthlyInsights = new Map();
+      calendarError = true;
+
+      console.warn("Could not load daily insights:", error);
+    } finally {
+      if (requestId === calendarRequestId) {
+        calendarLoading = false;
+        renderCalendar();
+      }
+    }
+  }
+
+  async function showDaySummary(date) {
+    const requestId = ++calendarDetailRequestId;
+    selectedCalendarDate = date;
+
+    let container = document.querySelector('#prune-day-summary');
+
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'prune-day-summary';
+      container.className = 'prune-day-summary';
+
+      // Add to the existing calendar card, below its grid/legend.
+      const calendarGrid = document.querySelector('#cal-grid');
+      calendarGrid?.parentElement?.appendChild(container);
+    }
+
+    if (!container) return;
+
+    container.replaceChildren();
+
+    const heading = el('strong', '', `Daily insights · ${date}`);
+    const message = el('p', '', 'Loading daily activity…');
+    container.append(heading, message);
+
+    try {
+      const params = new URLSearchParams({timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,});
+
+      const response = await fetch(`${API_BASE}/local-sessions/daily/${date}?${params}`);
+
+      if (!response.ok) throw new Error('Could not load day');
+
+      const data = await response.json();
+      if (requestId !== calendarDetailRequestId) return;
+
+      container.replaceChildren(heading);
+
+      const summary = data.summary;
+
+      container.appendChild(
+        el('p', '', `${summary.videos_watched} videos · ${Math.round(summary.watch_seconds / 60)} min watched`)
+      );
+
+      container.appendChild(
+        el('p', '', `${summary.negative_count} potential warnings · ${summary.not_assessed_count} not assessed`)
+      );
+
+      const categoryHeading = el('strong', '', 'Top topics');
+      container.appendChild(categoryHeading);
+
+      if (!data.top_categories.length) {
+        container.appendChild(
+          el('p', '', 'No categories available for this day.')
+        );
+      } else {
+        const list = el('ul', 'prune-day-summary__topics');
+
+        data.top_categories.slice(0, 3).forEach(topic => {
+          list.appendChild(
+            el('li', '', `${topic.name} · ${topic.video_count} videos`)
+          );
+        });
+
+        container.appendChild(list);
+      }
+
+      const link = el('a', '', 'View full day →');
+      link.href = `${WEBSITE_URL}/calendar?date=${date}`;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      container.appendChild(link);
+    } catch {
+      if (requestId !== calendarDetailRequestId) return;
+      container.replaceChildren(heading, el('p', '', 'Daily insights are unavailable.'));
+    }
+  }
+
   function renderCalendar() {
     const year = state.month.getFullYear();
     const month = state.month.getMonth();
-    $('#cal-heading').textContent = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(state.month);
+
+    $('#cal-heading').textContent = new Intl.DateTimeFormat(
+      'en-US', {month: 'long', year: 'numeric',}).format(state.month);
 
     const grid = $('#cal-grid');
     grid.replaceChildren();
 
     const firstWeekday = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    for (let i = 0; i < firstWeekday; i++) grid.appendChild(el('span', 'cal__cell cal__cell--blank'));
+
+    for (let i = 0; i < firstWeekday; i++) {
+      grid.appendChild(el('span', 'cal__cell cal__cell--blank'));}
 
     const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
     const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(state.month);
 
     for (let d = 1; d <= daysInMonth; d++) {
       const date = new Date(year, month, d);
+
       const isFuture = date > todayStart;
       const isToday = date.getTime() === todayStart.getTime();
-      const level = SAMPLE_DAY_LEVELS[dateKey(year, month, d)];
-      const levelClass = level === 1 ? 'calm' : level === 2 ? 'some' : level === 3 ? 'heavy' : null;
+
+      const key = dateKey(year, month, d);
+      const activity = monthlyInsights.get(key);
 
       let cell;
-      if (!isFuture && levelClass) {
+
+      if (!isFuture && activity && activity.videos_watched > 0) {
+        const hasWarning = activity.negative_count > 0;
+        const hasUncertainty = activity.uncertain_count > 0;
+        const hasUnrated = activity.not_assessed_count > 0;
+
+        // Existing CSS already supports calm/some/heavy day colors.
+        // Here they represent assessment status, not a daily
+        // hostility score.
+        const levelClass = hasWarning ? 'heavy' : hasUncertainty || hasUnrated ? 'some' : 'calm';
+
         cell = el('a', `cal__cell cal__cell--${levelClass}`, String(d));
-        cell.href = `${WEBSITE_URL}/calendar`;
+
+        // Open the actual selected date in the dashboard.
+        cell.href = `${WEBSITE_URL}/calendar?date=${key}`;
         cell.target = '_blank';
         cell.rel = 'noopener';
-        cell.setAttribute('aria-label', `${monthName} ${d}: see details`);
+
+        cell.addEventListener('click', event => {event.preventDefault(); void showDaySummary(key);});
+
+        const warningDescription = hasWarning ? `, ${activity.negative_count} potential content warnings` : '';
+
+        const unknownDescription = hasUncertainty || hasUnrated ? ', some assessments incomplete or uncertain' : '';
+
+        cell.setAttribute(
+          'aria-label',
+          `${monthName} ${d}: ${activity.videos_watched} video encounters${warningDescription}${unknownDescription}. View details.`
+        );
+
+        cell.title =
+          `${activity.videos_watched} videos watched` +
+          (hasWarning
+            ? ` · ${activity.negative_count} potential warnings`
+            : '') +
+          (hasUncertainty || hasUnrated
+            ? ' · Some assessments uncertain or unavailable'
+            : '');
       } else {
-        cell = el('span', `cal__cell ${isFuture ? 'cal__cell--future' : 'cal__cell--none'}`, String(d));
-        cell.setAttribute('aria-label', `${monthName} ${d}${isFuture ? ' (upcoming)' : ' (no data)'}`);
+        cell = el(
+          'span',
+          `cal__cell ${
+            isFuture
+              ? 'cal__cell--future'
+              : 'cal__cell--none'
+          }`,
+          String(d)
+        );
+
+        let description = 'no recorded completed-session activity';
+
+        if (isFuture) {description = 'upcoming';
+        } else if (calendarLoading) {description = 'loading';
+        } else if (calendarError) {description = 'activity unavailable';}
+
+        cell.setAttribute('aria-label', `${monthName} ${d} (${description})`);
       }
-      if (isToday) cell.classList.add('cal__cell--today');
+
+      if (isToday) {cell.classList.add('cal__cell--today');}
+
       grid.appendChild(cell);
     }
 
-    const current = today.getFullYear() * 12 + today.getMonth();
-    $('#cal-next').disabled = year * 12 + month >= current;
+    const currentMonth = today.getFullYear() * 12 + today.getMonth();
+
+    $('#cal-next').disabled = year * 12 + month >= currentMonth;
   }
 
   // ---------------------------------------------------------------------------
@@ -273,7 +497,9 @@
 
   async function init() {
     setLinks();
+    void refreshDetectionTopics();
     renderCalendar();
+    void loadCalendarInsights();
     topicGarden = new window.TopicGarden(API_BASE);
     const showView = settings => {
       $('#garden-view').hidden = settings;
@@ -283,6 +509,23 @@
     };
     $('#settings-link').addEventListener('click', () => { showView(true); $('#settings-back').focus(); });
     $('#settings-back').addEventListener('click', () => { showView(false); $('#settings-link').focus(); });
+    const renderDetectionDelay = value => {
+      const seconds = globalThis.PruneDetection.delay(value);
+      $('#detection-delay').value = String(seconds);
+      $('#detection-delay-value').textContent = `${seconds} seconds`;
+      $('#detection-delay').setAttribute('aria-valuetext', `${seconds} seconds of visible playback`);
+    };
+    $('#detection-delay').addEventListener('input', event => renderDetectionDelay(Number(event.target.value)));
+    $('#detection-delay').addEventListener('change', async event => {
+      try {
+        await chrome.storage.local.set({ detectionDelaySeconds: globalThis.PruneDetection.delay(Number(event.target.value)) });
+        $('#detection-delay-error').hidden = true;
+        $('#detection-delay-saved').textContent = 'Saved. Applies immediately.';
+      } catch {
+        $('#detection-delay-error').textContent = 'Could not save detection delay. Please try again.';
+        $('#detection-delay-error').hidden = false;
+      }
+    });
     let minimum = 0, lastMinimum = 2;
     const renderMinimum = value => {
       minimum = globalThis.PruneCollection?.seconds(value) || 0;
@@ -307,7 +550,9 @@
     $('#skip-short-videos').addEventListener('change', event => { void saveMinimum(event.target.checked ? lastMinimum || 2 : 0); });
     $('#minimum-watch-seconds').addEventListener('input', event => renderMinimum(event.target.value));
     $('#minimum-watch-seconds').addEventListener('change', event => { void saveMinimum(event.target.value); });
-    const refreshVisibleTree = () => { if (document.visibilityState !== 'hidden') void topicGarden.refresh(); };
+    const refreshVisibleTree = () => {
+      if (document.visibilityState !== 'hidden') { void topicGarden.refresh(); void refreshDetectionTopics(); }
+    };
     document.addEventListener('visibilitychange', refreshVisibleTree);
     window.addEventListener('focus', refreshVisibleTree);
     window.addEventListener('pageshow', refreshVisibleTree);
@@ -351,17 +596,23 @@
       finally { button.disabled = false; }
     });
 
+    
     $('#cal-prev').addEventListener('click', () => {
       state.month = new Date(state.month.getFullYear(), state.month.getMonth() - 1, 1);
-      renderCalendar();
+      void loadCalendarInsights();
     });
+
     $('#cal-next').addEventListener('click', () => {
       state.month = new Date(state.month.getFullYear(), state.month.getMonth() + 1, 1);
-      renderCalendar();
+      void loadCalendarInsights();
     });
+
 
     if (hasStorage) {
       const stored = await chrome.storage.local.get(['scrollingSession', 'pruneTopicTree', 'lastSessionReview', 'audioCaptureEnabled', 'audioCaptureStatus', 'audioBackendStatus', 'minimumWatchSeconds', 'lastMinimumWatchSeconds', ...SESSION_KEYS]);
+      const detectionSettings = await chrome.storage.local.get('detectionDelaySeconds');
+      renderDetectionDelay(detectionSettings.detectionDelaySeconds);
+      $('#detection-delay').disabled = false;
       lastMinimum = globalThis.PruneCollection?.seconds(stored.lastMinimumWatchSeconds) || 2;
       renderMinimum(stored.minimumWatchSeconds);
       $('#skip-short-videos').disabled = false;
@@ -371,6 +622,15 @@
       void topicGarden.start(stored.pruneTopicTree || stored.lastSessionReview);
       chrome.storage.onChanged.addListener((changes, area) => {
         if (area !== 'local') return;
+        if (changes.detectionPreferencesPending?.newValue === true) {
+          topicsRefreshGeneration++;
+          $('#detection-topics-status').textContent = 'Updating saved topics…';
+          $('#detection-topics-status').hidden = false;
+          $('#detection-topics-list').closest('section').setAttribute('aria-busy', 'true');
+        } else if (changes.detectionBlacklistVersion || changes.detectionPreferencesPending?.newValue === false || changes.pruneTreeReset) {
+          void refreshDetectionTopics();
+        }
+        if (changes.detectionDelaySeconds) renderDetectionDelay(changes.detectionDelaySeconds.newValue);
         if (changes.minimumWatchSeconds) renderMinimum(changes.minimumWatchSeconds.newValue);
         if (changes.lastMinimumWatchSeconds) lastMinimum = globalThis.PruneCollection?.seconds(changes.lastMinimumWatchSeconds.newValue) || 2;
         if (changes.audioCaptureEnabled) { $('#audio-enabled').checked = changes.audioCaptureEnabled.newValue !== false; renderAudio(); }

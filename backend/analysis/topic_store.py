@@ -2,9 +2,11 @@
 
 from contextlib import contextmanager
 import json
+import hashlib
 from pathlib import Path
 import re
 import sqlite3
+import time
 from uuid import uuid4, uuid5, NAMESPACE_URL
 
 STORE_PATH = Path(__file__).resolve().parents[1] / ".cache" / "session_topics.sqlite3"
@@ -32,6 +34,12 @@ class TopicStore:
                     category_id TEXT NOT NULL, alias TEXT NOT NULL, PRIMARY KEY(category_id, alias));
                 CREATE TABLE IF NOT EXISTS topic_preferences (
                     user_id TEXT NOT NULL, category_id TEXT NOT NULL, PRIMARY KEY(user_id, category_id));
+                CREATE TABLE IF NOT EXISTS category_guards (
+                    user_id TEXT NOT NULL, category_id TEXT NOT NULL, pruned_id TEXT NOT NULL,
+                    PRIMARY KEY(user_id,category_id,pruned_id));
+                CREATE TABLE IF NOT EXISTS category_semantic_checks (
+                    user_id TEXT NOT NULL, fingerprint TEXT NOT NULL, result TEXT NOT NULL,
+                    expires REAL NOT NULL, PRIMARY KEY(user_id,fingerprint));
                 CREATE TABLE IF NOT EXISTS session_topics (
                     session_id TEXT PRIMARY KEY, user_id TEXT NOT NULL, result TEXT NOT NULL);
                 CREATE TABLE IF NOT EXISTS session_topic_batches (
@@ -86,6 +94,43 @@ class TopicStore:
             visited.add(node_id)
             pending.extend((child, height + 1) for child in children.get(node_id, []))
 
+    def blacklist(self, user_id, *, connection=None):
+        """Canonical selected roots plus descendants; never infer ownership from a request."""
+        if connection is None:
+            with self.connection() as current:
+                return self.blacklist(user_id, connection=current)
+        categories = [dict(row) for row in connection.execute(
+            "SELECT id,name,description,parent_id,merged_into FROM categories WHERE user_id=? ORDER BY id", (user_id,))]
+        selected = sorted({self._category(connection, user_id, row[0])["id"] for row in connection.execute(
+            "SELECT category_id FROM topic_preferences WHERE user_id=?", (user_id,))})
+        aliases = [list(row) for row in connection.execute(
+            "SELECT a.category_id,a.alias FROM category_aliases a JOIN categories c ON c.id=a.category_id WHERE c.user_id=? ORDER BY a.category_id,a.alias", (user_id,))]
+        version = hashlib.sha256(json.dumps([categories, selected, aliases], sort_keys=True).encode()).hexdigest()
+        by_id = {row["id"]: row for row in categories if not row["merged_into"]}
+        topics = []
+        for identity in selected:
+            root = by_id.get(identity)
+            if not root:
+                continue
+            descendants = []
+            for row in by_id.values():
+                node, seen = row, set()
+                while node and node["id"] not in seen:
+                    if node["id"] == identity:
+                        if row["id"] != identity:
+                            descendants.append({key: row[key] for key in ("id", "name", "description")})
+                        break
+                    seen.add(node["id"])
+                    node = by_id.get(node["parent_id"])
+            ancestors, parent = [], by_id.get(root["parent_id"])
+            while parent and parent["id"] not in {node["id"] for node in ancestors}:
+                ancestors.append({key: parent[key] for key in ("id", "name", "description")})
+                parent = by_id.get(parent["parent_id"])
+            topics.append({"id": identity, "name": root["name"], "description": root["description"],
+                           "aliases": [alias for category, alias in aliases if category == identity],
+                           "ancestors": ancestors, "descendants": descendants})
+        return {"version": version, "topics": topics}
+
     def candidates(self, user_id, text="", limit=24):
         """Lexical retrieval bounds the catalog; the model matches meanings semantically."""
         words = set(re.findall(r"\w+", text.casefold()))
@@ -123,13 +168,55 @@ class TopicStore:
     def apply_discovery(self, user_id, discovery):
         proposals = {node.key: node for node in discovery.topics}
         resolved = {}
+        # Semantic checks precede writes. Fail closed for unresolved new meanings,
+        # retaining a restorable record rather than deleting evidence.
+        blacklist = self.blacklist(user_id)
+        checks = {}
+        covered_names = {}
+        broader_names, broader_ids = set(), set()
+        for topic in blacklist["topics"]:
+            broader_names.update(normalized(node["name"]) for node in topic["ancestors"])
+            broader_ids.update(node["id"] for node in topic["ancestors"])
+            for covered in [topic, *topic["descendants"]]:
+                covered_names[normalized(covered["name"])] = covered["id"]
+            for alias in topic["aliases"]:
+                covered_names[alias] = topic["id"]
+        if blacklist["topics"]:
+            from .pruned_detection import category_guard, Match
+            for node in discovery.topics:
+                if normalized(node.name) in covered_names or normalized(node.name) in broader_names or node.existing_category_id in broader_ids:
+                    continue
+                evidence = {"name": node.name, "description": node.description}
+                signature = hashlib.sha256(json.dumps([evidence, blacklist["topics"]], sort_keys=True).encode()).hexdigest()
+                with self.connection() as current:
+                    cached = current.execute("SELECT result FROM category_semantic_checks WHERE user_id=? AND fingerprint=? AND expires>?", (user_id, signature, time.time())).fetchone()
+                check = Match.model_validate_json(cached[0]) if cached else category_guard(evidence, blacklist["topics"])
+                checks[node.key] = check
+                if not cached:
+                    with self.connection() as current:
+                        current.execute("DELETE FROM category_semantic_checks WHERE expires<?", (time.time(),))
+                        current.execute("INSERT OR REPLACE INTO category_semantic_checks VALUES (?,?,?,?)",
+                            (user_id, signature, check.model_dump_json(), time.time() + (15 if check.status == "UNCERTAIN" else 86400)))
         with self.connection() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            current_blacklist = self.blacklist(user_id, connection=connection)
             def resolve(key):
                 if key in resolved:
                     return resolved[key]
                 proposal = proposals[key]
                 parent_id = resolve(proposal.parent_key) if proposal.parent_key else None
                 category = self._category(connection, user_id, proposal.existing_category_id) if proposal.existing_category_id else None
+                if normalized(proposal.name) in covered_names and current_blacklist["version"] == blacklist["version"]:
+                    category = self._category(connection, user_id, covered_names[normalized(proposal.name)])
+                check = checks.get(key)
+                if check and check.status == "MATCH" and check.confidence >= 0.85 and current_blacklist["version"] == blacklist["version"]:
+                    # Suppress earlier equivalent records too, while preserving
+                    # their history and identity for explicit restoration.
+                    equivalents = connection.execute("SELECT id,name FROM categories WHERE user_id=? AND merged_into IS NULL", (user_id,)).fetchall()
+                    for previous in equivalents:
+                        if previous["id"] != check.matched_topic_id and (previous["id"] == proposal.existing_category_id or normalized(previous["name"]) == normalized(proposal.name)):
+                            connection.execute("INSERT OR IGNORE INTO category_guards VALUES (?,?,?)", (user_id, previous["id"], check.matched_topic_id))
+                    category = self._category(connection, user_id, check.matched_topic_id)
                 if normalized(proposal.name) == "generalother":
                     category = self._category(connection, user_id, self._fallback_category(connection, user_id))
                     parent_id = category["parent_id"]
@@ -145,6 +232,7 @@ class TopicStore:
                         if normalized(proposal.name) in aliases | {normalized(candidate["name"])}:
                             category = candidate
                             break
+                existed = category is not None
                 category_id = category["id"] if category else str(uuid4())
                 self._check_parent(connection, user_id, category_id, parent_id)
                 if category:
@@ -156,6 +244,12 @@ class TopicStore:
                     connection.execute("INSERT INTO categories (id,user_id,name,description,parent_id) VALUES (?,?,?,?,?)",
                                        (category_id, user_id, proposal.name, proposal.description, parent_id))
                 connection.execute("INSERT OR IGNORE INTO category_aliases VALUES (?,?)", (category_id, normalized(proposal.name)))
+                if check and check.status != "UNCERTAIN" and check.confidence >= 0.85:
+                    connection.execute("DELETE FROM category_guards WHERE user_id=? AND category_id=?", (user_id, category_id))
+                unresolved = not existed and ((check and (check.status == "UNCERTAIN" or check.confidence < 0.85)) or current_blacklist["version"] != blacklist["version"])
+                if unresolved:
+                    connection.executemany("INSERT OR IGNORE INTO category_guards VALUES (?,?,?)",
+                        [(user_id, category_id, topic["id"]) for topic in current_blacklist["topics"]])
                 resolved[key] = category_id
                 return category_id
 
@@ -199,6 +293,8 @@ class TopicStore:
                 return self.reset_tree(user_id, connection=connection)
         connection.execute("DELETE FROM category_aliases WHERE category_id IN (SELECT id FROM categories WHERE user_id=?)", (user_id,))
         connection.execute("DELETE FROM topic_preferences WHERE user_id=?", (user_id,))
+        connection.execute("DELETE FROM category_guards WHERE user_id=?", (user_id,))
+        connection.execute("DELETE FROM category_semantic_checks WHERE user_id=?", (user_id,))
         connection.execute("DELETE FROM video_category_overrides WHERE user_id=?", (user_id,))
         connection.execute("DELETE FROM category_positions WHERE user_id=?", (user_id,))
         connection.execute("DELETE FROM session_topic_batches WHERE user_id=?", (user_id,))
@@ -302,6 +398,9 @@ class TopicStore:
                 return positions.get(node["id"], 1000000), node["name"].casefold()
             preferences = {self._category(connection, user_id, item[0])["id"] for item in connection.execute(
                 "SELECT category_id FROM topic_preferences WHERE user_id=?", (user_id,))}
+            guarded = {self._category(connection, user_id, item[0])["id"] for item in connection.execute(
+                "SELECT category_id,pruned_id FROM category_guards WHERE user_id=?", (user_id,))
+                if self._category(connection, user_id, item[1])["id"] in preferences}
             nodes = {item["id"]: {"id": item["id"], "name": item["name"],
                 "description": item["description"], "parent_id": item["parent_id"], "video_ids": set(), "children": []}
                 for item in connection.execute("SELECT * FROM categories WHERE user_id=? AND merged_into IS NULL", (user_id,))}
@@ -330,7 +429,7 @@ class TopicStore:
 
             def inherited(node, reduced=False):
                 node["inherited"] = reduced
-                node["reduce"] = reduced or node["selected"]
+                node["reduce"] = reduced or node["selected"] or node["id"] in guarded
                 node["children"].sort(key=category_order)
                 for child in node["children"]:
                     inherited(child, node["reduce"])
@@ -345,6 +444,7 @@ class TopicStore:
             result["assignments"] = {video_id: sorted({self._category(connection, user_id, category_id)["id"]
                 for category_id in category_ids}) for video_id, category_ids in result.get("assignments", {}).items()}
             result["selected_category_ids"] = sorted(preferences)
+            result["blacklist_version"] = self.blacklist(user_id, connection=connection)["version"]
             for video in result.get("videos", []):
                 if video["video_id"] in overrides:
                     result["assignments"][video["video_id"]] = [self._category(connection, user_id, overrides[video["video_id"]])["id"]]

@@ -6,7 +6,9 @@ from uuid import UUID
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Request
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
+from app.services.daily_insights import get_day, get_month
 from app.models.session import VideoEvent
 from app.models.session_categories import CategoryEdit, TopicPreference, VideoCategoryMove
 from app.services.local_sessions import LocalSessions, LOCAL_USER, process_local_session, prefetch_occurrence
@@ -49,6 +51,7 @@ def global_tree():
     return LocalSessions().store.view("global-tree", LOCAL_USER) or {
         "tree": [], "tree_videos": [], "global_video_count": 0,
         "selected_category_ids": [], "tree_scope": "global",
+        "blacklist_version": LocalSessions().store.blacklist(LOCAL_USER)["version"],
     }
 
 
@@ -92,6 +95,30 @@ def require(jobs, session_id):
     if not result:
         raise HTTPException(404, "Local session not found")
     return result
+
+
+@router.get("/daily")
+def daily_month(month: str, timezone: str = "America/New_York"):
+    try:
+        ZoneInfo(timezone)
+        return get_month(month, timezone)
+    except (ValueError, ZoneInfoNotFoundError):
+        raise HTTPException(
+            status_code=422,
+            detail="Invalid month or timezone",
+        ) from None
+
+
+@router.get("/daily/{day}")
+def daily_detail(day: str, timezone: str = "America/New_York"):
+    try:
+        ZoneInfo(timezone)
+        return get_day(day, timezone)
+    except (ValueError, ZoneInfoNotFoundError):
+        raise HTTPException(
+            status_code=422,
+            detail="Invalid date or timezone",
+        ) from None
 
 
 @router.post("/{session_id}/occurrences", status_code=201)

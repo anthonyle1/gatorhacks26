@@ -24,6 +24,7 @@ from app.services.local_sessions import recover_local_sessions
 from app.services.audio_ingestion import recover_audio
 from app.routes.hostility import router as hostility_router
 from app.routes import demo_routes
+from app.routes.detection import router as detection_router
 
 # Load environment variables
 load_dotenv(ENV_FILE)
@@ -68,6 +69,7 @@ app.include_router(videos_router)
 app.include_router(dashboard_router)
 app.include_router(hostility_router)
 app.include_router(demo_routes.router)
+app.include_router(detection_router)
 
 @app.get("/")
 def root():
