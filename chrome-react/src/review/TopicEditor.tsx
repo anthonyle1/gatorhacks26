@@ -20,13 +20,12 @@ function CategoryEditor({ node, options, busy, edit }: { node: Topic; options: T
 
 interface Props {
   roots: Topic[]; videos: Map<string, Video>; assignments: Record<string, string[]>; busy: boolean
-  select: (id: string, reduce: boolean) => Promise<void>
   edit: (id: string, change: Change) => Promise<void>
   moveVideo: (id: string, category: string) => Promise<void>
 }
 type Dragged = { kind: 'category' | 'video'; id: string } | null
 
-export function TopicEditor({ roots, videos, assignments, busy, select, edit, moveVideo }: Props) {
+export function TopicEditor({ roots, videos, assignments, busy, edit, moveVideo }: Props) {
   const [dragged, setDragged] = useState<Dragged>(null)
   const dragging = useRef<Dragged>(null)
   const [over, setOver] = useState<string | null>(null)
@@ -76,7 +75,6 @@ export function TopicEditor({ roots, videos, assignments, busy, select, edit, mo
           <button className="category-drag-handle icon-control" type="button" draggable={!busy} disabled={busy} aria-label={`Drag category ${node.name}`}
             onClick={event => event.preventDefault()} onDragStart={event => begin(event, 'category', node.id)} onDragEnd={clear}><GripVertical size={15} aria-hidden="true" /></button>
           {node.children.length > 0 && <ChevronRight className="topic-chevron" size={15} aria-hidden="true" />}
-          <input type="checkbox" checked={node.reduce} disabled={busy || node.inherited} aria-label={`See less ${node.name}`} onClick={event => event.stopPropagation()} onChange={event => void select(node.id, event.target.checked)} />
           <strong className="topic-name">{node.name}</strong><span className="topic-count"><VideoIcon size={13} aria-hidden="true" />{node.video_count}</span>
           {node.inherited && <small>Parent pruned</small>}
           <span className="topic-order-actions">

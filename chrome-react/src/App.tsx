@@ -73,7 +73,6 @@ function App() {
   }
   async function finish() { await mutate(async () => { await request("FINISH_SESSION"); setPaused(true); setUnfinished(false); setReview(await request<Review>("SESSION_TAXONOMY")); }); }
   async function start() { await mutate(async () => { await request("START_SESSION"); setPaused(false); setUnfinished(true); setActivity(emptyActivity); }); }
-  async function select(id: string, reduce: boolean) { await mutate(async () => setReview(await request<Review>("TOPIC_PREFERENCE", { category_id: id, reduce }))); }
   async function edit(id: string, change: Change) { await mutate(async () => setReview(await request<Review>("EDIT_TOPIC_CATEGORY", { category_id: id, change }))); }
   async function moveVideo(id: string, category: string) { await mutate(async () => setReview(await request<Review>('MOVE_TOPIC_VIDEO', { video_id: id, category_id: category }))); }
   async function retry() { await mutate(async () => { await request("RETRY_SESSION_TAXONOMY"); setReview(current => current ? { ...current, status: "pending" } : current); }); }
@@ -115,8 +114,8 @@ function App() {
       {processing && <p role="status">Analyzed {review.analyzed_count ?? review.videos.length} of {review.video_count ?? review.videos.length} videos. Updating your saved tree. You can close this popup and come back.</p>}
       {review?.detail && <p className="analysis-note" role="status">{review.detail}</p>}
       {review?.fallback_used && <p className="fallback" role="status">Gemini fallback used for part or all of this classification.</p>}
-      {review && <><p>{review.global_video_count ?? review.videos.length} unique videos across sessions. Expand a category and select <strong>See less</strong> using its checkbox. Selecting a parent includes its descendants.</p>
-        {review.tree.length > 0 ? <TopicEditor roots={review.tree} videos={videos} assignments={assignments} busy={busy} select={select} edit={edit} moveVideo={moveVideo} /> : <p>No supported topic grouping is available yet.</p>}
+      {review && <><p>{review.global_video_count ?? review.videos.length} unique videos across sessions. Expand a category to explore its branches and videos.</p>
+        {review.tree.length > 0 ? <TopicEditor roots={review.tree} videos={videos} assignments={assignments} busy={busy} edit={edit} moveVideo={moveVideo} /> : <p>No supported topic grouping is available yet.</p>}
         {(review.fallback_video_ids?.length || 0) > 0 && <p className="analysis-note">{review.fallback_video_ids!.length} videos received a General / Other classification because a reliable topic was unavailable. Every video is included in the tree.</p>}
         {(review.unclassified_video_ids?.length || 0) > 0 && <details><summary>{review.unclassified_video_ids!.length} videos without a supported topic</summary><ul>{review.unclassified_video_ids!.map(id => <li key={id}>{videos.get(id)?.title || id}</li>)}</ul></details>}
         <p>{review.reduce_video_ids?.length || 0} videos match your saved see-less preferences. Preferences are saved for future matching; this does not change YouTube or Instagram recommendations directly.</p>
