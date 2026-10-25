@@ -11,8 +11,76 @@
 
   const hasStorage = typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local;
   let topicsRefreshGeneration = 0;
+  let restoringTopics = false, topicRestoreButtons = [], compostSignature = null;
+
+  function renderDetectionCompost(roots, count) {
+    const signature = JSON.stringify([roots.map(root => [root.id, root.name]), count]);
+    if (signature === compostSignature) return;
+    compostSignature = signature;
+    const pile = document.getElementById('detection-compost');
+    pile.replaceChildren();
+    pile.setAttribute('aria-label', `Compost pile with ${roots.length} pruned branches covering ${count} topics`);
+    const svgNode = (tag, attributes) => {
+      const node = document.createElementNS('http://www.w3.org/2000/svg', tag);
+      for (const [key, value] of Object.entries(attributes)) node.setAttribute(key, String(value));
+      return node;
+    };
+    const svg = svgNode('svg', { viewBox: '0 0 260 200', 'aria-hidden': 'true', focusable: 'false' });
+    svg.appendChild(svgNode('ellipse', { cx: 130, cy: 182, rx: 116, ry: 9, fill: '#dcdcca' }));
+    if (roots.length) svg.appendChild(svgNode('path', { d: 'M18 180C40 144 80 126 130 124C180 126 220 144 242 180Z', fill: '#7a5a3e' }));
+    const slots = [[40, 134, -8], [130, 138, 10], [86, 122, 4], [20, 114, -18], [150, 118, -6], [64, 102, 16], [118, 98, -12], [92, 82, 6]];
+    roots.slice(0, slots.length).forEach((topic, index) => {
+      const [x, y, rotation] = slots[index];
+      const position = svgNode('g', { transform: `translate(${x} ${y}) rotate(${rotation})` });
+      const branch = svgNode('g', { class: 'detection-compost__piece' });
+      branch.style.animationDelay = `${index * 30}ms`;
+      branch.appendChild(svgNode('path', { d: 'M4 20C20 16 40 14 66 10M30 15C34 9 38 6 44 4', stroke: '#6b4a33', 'stroke-width': 4, fill: 'none', 'stroke-linecap': 'round' }));
+      for (const [cx, cy, rx, ry, fill] of [[66, 9, 6, 3.5, '#8a5a3b'], [46, 4, 5, 3, '#8a5a3b'], [20, 22, 5, 3, '#a9784f']]) {
+        branch.appendChild(svgNode('ellipse', { cx, cy, rx, ry, fill }));
+      }
+      const title = svgNode('title', {}); title.textContent = topic.name; branch.appendChild(title);
+      position.appendChild(branch); svg.appendChild(position);
+    });
+    const caption = svgNode('text', { x: 130, y: roots.length ? 198 : 160, 'text-anchor': 'middle', class: 'detection-compost__caption' });
+    caption.textContent = roots.length ? `${roots.length} pruned ${roots.length === 1 ? 'branch' : 'branches'} · ${count} topics` : 'Room to grow. No topics pruned.';
+    svg.appendChild(caption); pile.appendChild(svg);
+  }
+
+  async function unpruneDetectionTopics(roots, name) {
+    if (restoringTopics) return;
+    restoringTopics = true; topicsRefreshGeneration++;
+    topicRestoreButtons.forEach(button => { button.disabled = true; });
+    const feedback = document.getElementById('detection-topics-feedback');
+    feedback.hidden = false; feedback.textContent = `Unpruning ${name}…`;
+    try {
+      if (hasStorage) await chrome.storage.local.set({ detectionPreferencesPending: true,
+        detectionPreferencesPendingUntil: Date.now() + roots.length * 15000 + 5000, detectionMutation: crypto.randomUUID() });
+      for (const root of roots) {
+        const response = await fetch(`${API_BASE}/local-sessions/taxonomy/preferences`, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ category_id: root.id, reduce: false }), signal: AbortSignal.timeout(15000),
+        });
+        if (!response.ok) throw new Error('Could not save topic preference');
+        const result = await response.json();
+        if (hasStorage && result.blacklist_version) await chrome.storage.local.set({ detectionBlacklistVersion: result.blacklist_version });
+      }
+      feedback.textContent = `${name} unpruned.`;
+    } catch {
+      feedback.textContent = `Could not finish unpruning ${name}. Please try again. The list shows the latest saved topics.`;
+    } finally {
+      if (hasStorage) {
+        await chrome.storage.local.set({ detectionPreferencesPending: false }).catch(() => {});
+        void chrome.runtime.sendMessage({ type: 'DETECTION_REFRESH' }).catch(() => {});
+      }
+      restoringTopics = false;
+      topicRestoreButtons.forEach(button => { button.disabled = false; });
+      await refreshDetectionTopics();
+      void topicGarden?.refresh();
+    }
+  }
 
   async function refreshDetectionTopics() {
+    if (restoringTopics) return;
     const generation = ++topicsRefreshGeneration;
     const list = document.getElementById('detection-topics-list');
     const status = document.getElementById('detection-topics-status');
@@ -24,16 +92,32 @@
       const data = await response.json();
       if (!Array.isArray(data.topics)) throw new Error('Invalid topics');
       if (generation !== topicsRefreshGeneration) return;
-      const checkedTopics = new Map();
+      const checkedTopics = new Map(), coverage = new Map();
       for (const root of data.topics) {
-        for (const topic of [root, ...(root.descendants || [])]) checkedTopics.set(topic.id, topic);
+        for (const topic of [root, ...(root.descendants || [])]) {
+          checkedTopics.set(topic.id, topic);
+          if (!coverage.has(topic.id)) coverage.set(topic.id, []);
+          coverage.get(topic.id).push(root);
+        }
       }
+      topicRestoreButtons = [];
       const items = [...checkedTopics.values()].sort((a, b) => a.name.localeCompare(b.name)).map(topic => {
         const item = document.createElement('li');
-        item.textContent = topic.name;
+        const label = el('span', 'detection-topic__label', topic.name);
+        const roots = coverage.get(topic.id);
+        const parents = roots.filter(root => root.id !== topic.id);
+        if (parents.length) label.appendChild(el('small', 'detection-topic__parent', `Pruned with ${parents.map(root => root.name).join(', ')}`));
+        const restore = el('button', 'detection-topic__restore', parents.length > 1 ? 'Unprune parents' : parents.length ? 'Unprune parent' : 'Unprune');
+        restore.type = 'button';
+        restore.title = `Unprune ${roots.map(root => root.name).join(', ')} to restore ${topic.name}`;
+        restore.setAttribute('aria-label', restore.title);
+        restore.addEventListener('click', () => unpruneDetectionTopics(roots, topic.name));
+        topicRestoreButtons.push(restore);
+        item.appendChild(label); item.appendChild(restore);
         return item;
       });
       list.replaceChildren(...items);
+      renderDetectionCompost(data.topics, items.length);
       document.getElementById('detection-topics-count').textContent = String(items.length);
       status.textContent = items.length ? '' : 'No topics pruned yet.';
       status.hidden = items.length > 0;

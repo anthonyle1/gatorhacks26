@@ -448,6 +448,18 @@ a.cal__cell:hover {
 /* ---------- Footer ---------- */
 .detection-topics__list { list-style: none; padding: 0; margin: 0; max-height: 280px; overflow-y: auto; }
 .detection-topics__list li { padding: 8px 0; border-top: 1px solid #d9e2dc; overflow-wrap: anywhere; font-size: 13px; color: var(--ink); }
+.detection-topics__list li { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+.detection-topic__label { flex: 1; min-width: 0; }
+.detection-topic__parent { display: block; color: var(--muted); font-size: 11px; margin-top: 3px; }
+.detection-topic__restore { flex-shrink: 0; padding: 6px 9px; border: 1px solid #a8c394; border-radius: 9px; color: #35573c; background: #edf3e7; font: 600 11px var(--font-body); cursor: pointer; }
+.detection-topic__restore:hover { background: #dce8d2; }
+.detection-topic__restore:disabled { opacity: .5; cursor: wait; }
+.detection-compost { display: flex; justify-content: center; margin: 8px 0 12px; border-radius: 14px; background: linear-gradient(#faf8ee, #f0eddd); }
+.detection-compost svg { display: block; width: min(100%, 260px); height: 155px; }
+.detection-compost__piece { animation: compostDrop 400ms ease-out both; }
+.detection-compost__caption { font: 12px var(--font-body); fill: #6b775b; }
+@keyframes compostDrop { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .detection-compost__piece { animation: none; } }
 .audio-monitor { margin: 12px 0; padding: 12px; border: 1px solid #d9e2dc; border-radius: 10px; background: #f5f8f6; }
 .audio-monitor p { margin: 7px 0; line-height: 1.5; }
 #audio-state { font-size: 11px; padding: 4px 7px; border-radius: 5px; background: #e4e8e5; }

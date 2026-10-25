@@ -4,7 +4,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-async function panel() {
+async function panel({ topics = [] } = {}) {
+  let savedTopics = structuredClone(topics), restoreFailure = false;
+  const restores = [];
   const nodes = new Map();
   function element() {
     return { textContent: '', hidden: false, style: {}, dataset: {}, listeners: {}, children: [],
@@ -24,13 +26,22 @@ async function panel() {
   let refreshes = 0;
   const context = vm.createContext({
     URLSearchParams, AbortSignal,
-    fetch: async () => ({ ok: true, json: async () => ({ topics: [], days: [], videos: [] }) }),
+    crypto: { randomUUID: () => 'preference-mutation' },
+    fetch: async (url, options) => {
+      if (options?.method === 'PATCH') {
+        const body = JSON.parse(options.body); restores.push(body);
+        if (restoreFailure) return { ok: false };
+        savedTopics = savedTopics.filter(topic => topic.id !== body.category_id);
+        return { ok: true, json: async () => ({ blacklist_version: `version-${restores.length}` }) };
+      }
+      return { ok: true, json: async () => ({ topics: savedTopics, days: [], videos: [] }) };
+    },
     window: { addEventListener(name, listener) { windowEvents[name] = listener; }, confirm() { return confirmed; }, TopicGarden: class {
       start() {}
       refresh() { refreshes++; }
       clear() { node('#tree-health').textContent = 'Empty'; }
     } },
-    document: { querySelector: node, getElementById: id => node(`#${id}`), createElement: element, createTextNode: element,
+    document: { querySelector: node, getElementById: id => node(`#${id}`), createElement: element, createElementNS: () => element(), createTextNode: element,
       addEventListener(name, listener) { documentEvents[name] = listener; } },
     setInterval() {},
     chrome: {
@@ -53,7 +64,7 @@ async function panel() {
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/daily-activity.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/sidepanel.js'), 'utf8'), context);
   await new Promise(resolve => setImmediate(resolve));
-  return { node, stored, messages, context, windowEvents, documentEvents, refreshCount() { return refreshes; },
+  return { node, stored, messages, context, windowEvents, documentEvents, restores, failRestore() { restoreFailure = true; }, refreshCount() { return refreshes; },
     confirm(value) { confirmed = value; }, fail(message) { failure = message; },
     update(values) { Object.assign(stored, values); storageListener(Object.fromEntries(Object.entries(values).map(([key, value]) => [key, { newValue: value }])), 'local'); } };
 }
@@ -75,6 +86,42 @@ test('side panel starts and finishes tracking, shows live counters, and offers t
   assert.equal(ui.messages[1], 'FINISH_SESSION');
   assert.equal(ui.node('#session-toggle-label').textContent, 'Start session');
   assert.equal(ui.node('#session-review').hidden, false);
+});
+
+test('topics checked keeps the full sorted list, draws a pile, and unprunes a topic', async () => {
+  const ui = await panel({ topics: [{ id: 'cooking', name: 'Cooking', descendants: [] },
+    { id: 'arts', name: 'Arts', descendants: [{ id: 'painting', name: 'Painting' }] }] });
+  const list = ui.node('#detection-topics-list');
+  assert.deepEqual(list.children.map(row => row.children[0].textContent), ['Arts', 'Cooking', 'Painting']);
+  assert.equal(ui.node('#detection-topics-count').textContent, '3');
+  assert.equal(ui.node('#detection-compost').children.length, 1);
+  await list.children[1].children[1].listeners.click();
+  assert.deepEqual(ui.restores, [{ category_id: 'cooking', reduce: false }]);
+  assert.deepEqual(list.children.map(row => row.children[0].textContent), ['Arts', 'Painting']);
+  assert.equal(ui.stored.detectionBlacklistVersion, 'version-1');
+  assert.equal(ui.stored.detectionPreferencesPending, false);
+});
+
+test('restoring an inherited topic names and restores all selected covering branches', async () => {
+  const ui = await panel({ topics: [{ id: 'arts', name: 'Arts', descendants: [{ id: 'painting', name: 'Painting' }] },
+    { id: 'painting', name: 'Painting', descendants: [] }] });
+  const row = ui.node('#detection-topics-list').children[1];
+  assert.equal(row.children[1].textContent, 'Unprune parent');
+  assert.match(row.children[1].title, /Arts.*Painting/);
+  await row.children[1].listeners.click();
+  assert.deepEqual(ui.restores, [{ category_id: 'arts', reduce: false }, { category_id: 'painting', reduce: false }]);
+  assert.equal(ui.node('#detection-topics-list').children.length, 0);
+  assert.equal(ui.node('#detection-topics-count').textContent, '0');
+});
+
+test('failed unprune preserves the saved list and offers retry', async () => {
+  const ui = await panel({ topics: [{ id: 'arts', name: 'Arts', descendants: [] }] });
+  ui.failRestore();
+  await ui.node('#detection-topics-list').children[0].children[1].listeners.click();
+  assert.equal(ui.node('#detection-topics-list').children.length, 1);
+  assert.match(ui.node('#detection-topics-feedback').textContent, /Could not finish unpruning/);
+  assert.equal(Boolean(ui.node('#detection-topics-list').children[0].children[1].disabled), false);
+  assert.equal(ui.stored.detectionPreferencesPending, false);
 });
 
 test('automatic skipping defaults off, persists when toggled, and restores state on save failure', async () => {
