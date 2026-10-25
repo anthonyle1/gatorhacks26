@@ -210,6 +210,9 @@
   const pad = (n) => String(n).padStart(2, '0');
   const dateKey = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
 
+  let selectedCalendarDate = null;
+  let calendarDetailRequestId = 0;
+
   // Map of YYYY-MM-DD -> daily summary
   let monthlyInsights = new Map();
 
@@ -264,6 +267,82 @@
     }
   }
 
+  async function showDaySummary(date) {
+    const requestId = ++calendarDetailRequestId;
+    selectedCalendarDate = date;
+
+    let container = document.querySelector('#prune-day-summary');
+
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'prune-day-summary';
+      container.className = 'prune-day-summary';
+
+      // Add to the existing calendar card, below its grid/legend.
+      const calendarGrid = document.querySelector('#cal-grid');
+      calendarGrid?.parentElement?.appendChild(container);
+    }
+
+    if (!container) return;
+
+    container.replaceChildren();
+
+    const heading = el('strong', '', `Daily insights · ${date}`);
+    const message = el('p', '', 'Loading daily activity…');
+    container.append(heading, message);
+
+    try {
+      const params = new URLSearchParams({timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,});
+
+      const response = await fetch(`${API_BASE}/local-sessions/daily/${date}?${params}`);
+
+      if (!response.ok) throw new Error('Could not load day');
+
+      const data = await response.json();
+      if (requestId !== calendarDetailRequestId) return;
+
+      container.replaceChildren(heading);
+
+      const summary = data.summary;
+
+      container.appendChild(
+        el('p', '', `${summary.videos_watched} videos · ${Math.round(summary.watch_seconds / 60)} min watched`)
+      );
+
+      container.appendChild(
+        el('p', '', `${summary.negative_count} potential warnings · ${summary.not_assessed_count} not assessed`)
+      );
+
+      const categoryHeading = el('strong', '', 'Top topics');
+      container.appendChild(categoryHeading);
+
+      if (!data.top_categories.length) {
+        container.appendChild(
+          el('p', '', 'No categories available for this day.')
+        );
+      } else {
+        const list = el('ul', 'prune-day-summary__topics');
+
+        data.top_categories.slice(0, 3).forEach(topic => {
+          list.appendChild(
+            el('li', '', `${topic.name} · ${topic.video_count} videos`)
+          );
+        });
+
+        container.appendChild(list);
+      }
+
+      const link = el('a', '', 'View full day →');
+      link.href = `${WEBSITE_URL}/calendar?date=${date}`;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      container.appendChild(link);
+    } catch {
+      if (requestId !== calendarDetailRequestId) return;
+      container.replaceChildren(heading, el('p', '', 'Daily insights are unavailable.'));
+    }
+  }
+
   function renderCalendar() {
     const year = state.month.getFullYear();
     const month = state.month.getMonth();
@@ -311,6 +390,8 @@
         cell.href = `${WEBSITE_URL}/calendar?date=${key}`;
         cell.target = '_blank';
         cell.rel = 'noopener';
+
+        cell.addEventListener('click', event => {event.preventDefault(); void showDaySummary(key);});
 
         const warningDescription = hasWarning ? `, ${activity.negative_count} potential content warnings` : '';
 
