@@ -15,36 +15,41 @@ class Element {
   get scrollHeight() { return (this.children[0]?.children.length || 0) * 70; }
 }
 
-function fixture({ reducedMotion = false, storage = new Map(), initialSession = 'session-1', paused = false } = {}) {
+function fixture({ reducedMotion = false, storage = new Map(), initialSession = 'session-1', paused = false, navigationAvailable = false } = {}) {
   const root = new Element('html');
   const head = new Element('head');
   const timers = new Map();
   let id = 0;
+  let skips = 0;
+  const nextButton = { getBoundingClientRect: () => ({ width: 40, height: 40, top: 100, bottom: 140 }),
+    getAttribute: () => null, click() { skips++; } };
   const context = {
     chrome: { runtime: { getURL: path => `chrome-extension://test/${path}` } },
     sessionStorage: { getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value), removeItem: key => storage.delete(key) },
     window: { matchMedia: () => ({ matches: reducedMotion }) },
-    document: { documentElement: root, head, createElement: tag => new Element(tag), createElementNS: (_, tag) => new Element(tag), querySelector: () => null },
+    innerHeight: 900, getCurrentVideo: () => ({ platform: 'youtube', videoId: '1' }),
+    document: { documentElement: root, head, createElement: tag => new Element(tag), createElementNS: (_, tag) => new Element(tag), querySelector: () => null,
+      querySelectorAll: selector => navigationAvailable && selector.includes('button') ? [nextButton] : [] },
     setTimeout(fn) { timers.set(++id, fn); return id; }, clearTimeout(id) { timers.delete(id); },
   };
   const source = fs.readFileSync(require.resolve('../public/detection.js'), 'utf8');
   vm.runInNewContext(source.replace('  const lifecycle =', `
     tracking = ${!paused};
     restoreReminders(${JSON.stringify(initialSession)});
-    globalThis.alerts = { showReminder, removeReminder, resetReminders, updateReminderSession,
+    globalThis.alerts = { showReminder, removeReminder, resetReminders, updateReminderSession, cancelReminderForNavigation,
       pause() { tracking = false; removeReminder(); renderReminders(); },
       resume() { tracking = true; renderReminders(); } };
     return;
     const lifecycle =`), context);
   return {
-    ...context.alerts, root, head, storage,
+    ...context.alerts, root, head, storage, skips: () => skips,
     toggle() {
       root.children[0].shadow.children.find(node => node.className === 'toggle').events.click();
       const callbacks = [...timers.values()]; timers.clear(); callbacks.forEach(fn => fn());
     },
-    show(index) {
+    show(index, options) {
       context.alerts.showReminder(`Category ${index}`, { platform: 'youtube', videoId: String(index),
-        media: { closest: () => ({ querySelector: selector => selector.includes('video-title') ? { textContent: `Title ${index}` } : null }) } });
+        media: { closest: () => ({ querySelector: selector => selector.includes('video-title') ? { textContent: `Title ${index}` } : null }) } }, options);
     },
     stack: () => root.children[0]?.shadow.children.find(node => node.tag === 'section'),
     expire() { const callbacks = [...timers.values()]; timers.clear(); callbacks.forEach(fn => fn()); },
@@ -60,6 +65,28 @@ test('new alerts stack below compact title/category history without duplicate ho
   const row = history.children[0].children[0];
   assert.deepEqual(row.children.map(node => node.textContent), ['Title 1', 'Category 1']);
   assert.equal(row.children.length, 2);
+});
+
+test('automatic skipping is off by default and names the matched topic when enabled', () => {
+  const f = fixture({ navigationAvailable: true }); f.show(1);
+  assert.equal(f.skips(), 0);
+  f.show(1, { autoSkip: true }); assert.equal(f.skips(), 1);
+  const alert = f.stack().children[0];
+  assert.equal(alert.children[0].textContent, 'Video automatically skipped');
+  assert.match(alert.children[1].textContent, /Category 1/);
+  assert.equal(alert.children.some(node => node.className === 'next'), false);
+  f.cancelReminderForNavigation();
+  assert.equal(f.stack().hidden, false);
+  f.expire(); f.expire();
+  assert.equal(f.stack().hidden, true);
+});
+
+test('automatic skip failure retains the reminder and manual next action', () => {
+  const f = fixture(); f.show(1, { autoSkip: true });
+  const alert = f.stack().children[0];
+  assert.match(alert.children[1].textContent, /Category 1/);
+  assert.match(alert.children[1].textContent, /couldn't find the next video/);
+  assert.equal(alert.children.some(node => node.className === 'next'), true);
 });
 
 test('history loads only three rows initially and reveals three more on upward input', () => {

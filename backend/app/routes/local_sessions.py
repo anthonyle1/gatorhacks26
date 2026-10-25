@@ -8,7 +8,7 @@ from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from app.services.daily_insights import get_day, get_month
+from app.services.daily_insights import get_day, get_month, get_recent, record_activity
 from app.models.session import VideoEvent
 from app.models.session_categories import CategoryEdit, TopicPreference, VideoCategoryMove
 from app.services.local_sessions import LocalSessions, LOCAL_USER, process_local_session, prefetch_occurrence
@@ -107,6 +107,24 @@ def daily_month(month: str, timezone: str = "America/New_York"):
             status_code=422,
             detail="Invalid month or timezone",
         ) from None
+
+
+class LiveActivity(BaseModel):
+    session_id: UUID
+    events: list[VideoEvent] = Field(max_length=5000)
+
+
+@router.put("/activity")
+def save_activity(body: LiveActivity):
+    return record_activity(str(body.session_id), [event.model_dump(mode="json") for event in body.events])
+
+
+@router.get("/activity/recent")
+def recent_activity(timezone: str = "America/New_York"):
+    try:
+        return get_recent(timezone)
+    except (ValueError, ZoneInfoNotFoundError):
+        raise HTTPException(422, "Invalid timezone") from None
 
 
 @router.get("/daily/{day}")

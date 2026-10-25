@@ -1,7 +1,7 @@
-"""Read-only daily insights from saved local session reviews."""
+"""Daily and rolling activity, including encounters awaiting session review."""
 
-from collections import Counter, defaultdict
-from datetime import date, datetime
+from collections import Counter
+from datetime import date, datetime, timedelta, timezone as utc_timezone
 import json
 from zoneinfo import ZoneInfo
 
@@ -19,21 +19,45 @@ def _assessment(video):
     return (video.get("analysis") or {}).get("assessment") or {}
 
 
+def record_activity(session_id, events, store=None):
+    jobs = LocalSessions(store=store)
+    with jobs.store.connection() as connection:
+        for event in events:
+            connection.execute("""INSERT INTO local_activity_events(session_id,event_id,payload)
+                VALUES (?,?,?) ON CONFLICT(session_id,event_id) DO UPDATE SET payload=excluded.payload""",
+                (session_id, event["event_id"], json.dumps(event)))
+    return {"recorded": len(events)}
+
+
+def _insights(video):
+    analysis = video.get("analysis") or {}
+    assessment = analysis.get("assessment")
+    signals = (assessment or {}).get("content_signals") or []
+    polarities = (assessment or {}).get("signal_polarities") or {}
+    return {
+        "warning_count": sum(polarities.get(s["id"]) == "negative" for s in signals) if assessment else None,
+        "positive_insight_count": sum(polarities.get(s["id"]) == "positive" for s in signals) if assessment else None,
+        "unrated_signal_count": sum(polarities.get(s["id"]) not in ("negative", "positive") for s in signals) if assessment else None,
+        "comment_counts": (analysis.get("sentiment") or {}).get("counts"),
+        "analysis_status": analysis.get("status", "pending"),
+    }
+
+
 def daily_records(timezone_name="America/New_York", store=None):
-    """Collect completed review events, preserving repeated watches."""
+    """Merge live encounters with review checkpoints, preserving repeated watches."""
     timezone = ZoneInfo(timezone_name)
     jobs = LocalSessions(store=store)
-    records = []
+    records = {}
 
     with jobs.store.connection() as connection:
         reviews = connection.execute(
             """
             SELECT id, payload, videos
             FROM local_review_jobs
-            WHERE status IN ('complete', 'partial', 'failed')
             ORDER BY updated_at
             """
         ).fetchall()
+        live = connection.execute("SELECT session_id,event_id,payload FROM local_activity_events").fetchall()
 
         category_rows = connection.execute(
             """
@@ -59,16 +83,18 @@ def daily_records(timezone_name="America/New_York", store=None):
         for row in topic_rows
     }
 
-    for review in reviews:
-        payload = json.loads(review["payload"])
-        videos = json.loads(review["videos"])
+    # A saved review replaces its matching live event, including while analysis is running.
+    inputs = [(row["session_id"], {"events": [json.loads(row["payload"])]}, []) for row in live]
+    inputs.extend((row["id"], json.loads(row["payload"]), json.loads(row["videos"])) for row in reviews)
+
+    for session_id, payload, videos in inputs:
 
         video_map = {
             (video.get("platform"), video.get("source_id")): video
             for video in videos
         }
 
-        assignments = session_topics.get(review["id"], {}).get(
+        assignments = session_topics.get(session_id, {}).get(
             "assignments", {}
         )
 
@@ -88,7 +114,10 @@ def daily_records(timezone_name="America/New_York", store=None):
             # Limit each encounter to one category for daily totals.
             category_id = category_ids[0] if category_ids else None
 
-            records.append({
+            identity = (session_id, event["event_id"])
+            records[identity] = {
+                "event_id": event["event_id"],
+                "session_id": session_id,
                 "date": day,
                 "video_id": source_id,
                 "platform": platform,
@@ -103,6 +132,7 @@ def daily_records(timezone_name="America/New_York", store=None):
                 "category_name": category_names.get(
                     category_id, "Uncategorized"
                 ),
+                **_insights(video),
                 "assessment": {
                     "negative_for_user": assessment.get(
                         "negative_for_user", "unavailable"
@@ -114,14 +144,15 @@ def daily_records(timezone_name="America/New_York", store=None):
                     "content_signals": assessment.get(
                         "content_signals", []
                     ),
+                    "signal_polarities": assessment.get("signal_polarities", {}),
                 } if assessment else None,
-            })
+            }
 
-    return records
+    return list(records.values())
 
 
 def summarize_day(day, records, timezone_name):
-    videos = [item for item in records if item["date"] == day]
+    videos = [item for item in records if day is None or item["date"] == day]
     total = len(videos)
     categories = Counter(item["category_name"] for item in videos)
     negative = 0
@@ -164,6 +195,10 @@ def summarize_day(day, records, timezone_name):
             "watch_seconds": round(sum(v["dwell_seconds"] for v in videos), 1),
             "assessed_videos": assessed,
             "negative_count": negative,
+            "warning_count": sum(v.get("warning_count") or 0 for v in videos),
+            "positive_insight_count": sum(v.get("positive_insight_count") or 0 for v in videos),
+            "comment_counts": {label: sum((v.get("comment_counts") or {}).get(label, 0) for v in videos)
+                               for label in ("positive", "neutral", "negative")},
             "uncertain_count": uncertain,
             "not_assessed_count": total - assessed,
             "warning_rate": round(negative / assessed, 3) if assessed else None,
@@ -173,6 +208,17 @@ def summarize_day(day, records, timezone_name):
             videos, key=lambda v: v["watched_at"]
         ),
     }
+
+
+def get_recent(timezone_name="America/New_York", store=None, now=None):
+    now = now or datetime.now(utc_timezone.utc)
+    since = now - timedelta(hours=24)
+    records = [item for item in daily_records(timezone_name, store)
+               if since <= datetime.fromisoformat(item["watched_at"].replace("Z", "+00:00")) <= now]
+    result = summarize_day(None, records, timezone_name)
+    result.update(date=now.astimezone(ZoneInfo(timezone_name)).date().isoformat(),
+                  window_start=since.isoformat(), window_end=now.isoformat())
+    return result
 
 
 def get_day(day, timezone_name="America/New_York", store=None):
@@ -197,6 +243,8 @@ def get_month(month, timezone_name="America/New_York", store=None):
             "date": day,
             "videos_watched": summary["videos_watched"],
             "negative_count": summary["negative_count"],
+            "warning_count": summary["warning_count"],
+            "positive_insight_count": summary["positive_insight_count"],
             "uncertain_count": summary["uncertain_count"],
             "not_assessed_count": summary["not_assessed_count"],
         })

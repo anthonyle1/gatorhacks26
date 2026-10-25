@@ -7,6 +7,7 @@
   let alertsOpen = false, alertToggle = null, railStyle = null;
   let slideTimer = null, motionElement = null, restoreToggleFocus = false;
   let historyElement = null, lastRenderedEntry = null;
+  let skipToastTimer = null;
   const reminderHistory = [];
   const HISTORY_BATCH = 3;
   let pendingRecoveryTimer = null;
@@ -27,6 +28,10 @@
     renderAfterExit();
   }
 
+  function cancelReminderForNavigation() {
+    if (!activeReminder?.autoSkipped) removeReminder();
+  }
+
   function renderAfterExit(target = motionElement) {
     clearTimeout(slideTimer);
     if (!target || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -44,6 +49,7 @@
   }
 
   function resetReminders() {
+    clearTimeout(skipToastTimer);
     clearTimeout(slideTimer); motionElement = null; restoreToggleFocus = false;
     activeReminder = null; reminderHistory.length = 0;
     lastRenderedEntry = null;
@@ -133,14 +139,44 @@
     return true;
   }
 
-  function showReminder(name, video) {
+  function nextVideo(video) {
+    if (video.platform === 'youtube') return nextShort(video);
+    const current = getCurrentVideo();
+    if (current?.platform !== 'instagram' || current.videoId !== video.videoId) return false;
+    const button = [...document.querySelectorAll('button[aria-label="Next reel"], [role="button"][aria-label="Next reel"]')].find(node => {
+      const rect = node.getBoundingClientRect();
+      return !node.disabled && node.getAttribute('aria-disabled') !== 'true' &&
+        rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < innerHeight;
+    });
+    if (button) { button.click(); return true; }
+    const videos = [...document.querySelectorAll('video')];
+    const index = videos.indexOf(video.media);
+    const next = index >= 0 ? videos[index + 1] : null;
+    if (!next) return false;
+    next.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'center' });
+    return true;
+  }
+
+  function showReminder(name, video, { autoSkip = false } = {}) {
+    clearTimeout(skipToastTimer);
     const details = metadata(video);
     const entry = { title: details.title || details.caption.split('\n')[0].slice(0, 160) || 'Untitled video', category: name };
     reminderHistory.push(entry);
     if (reminderHistory.length > 50) reminderHistory.shift();
+    const reminder = { entry, video, autoSkipped: autoSkip, skipFailed: false };
+    activeReminder = reminder;
+    // Protect the skip notification from navigation events fired synchronously by click().
+    if (autoSkip) {
+      try { reminder.autoSkipped = nextVideo(video); }
+      catch { reminder.autoSkipped = false; }
+      reminder.skipFailed = !reminder.autoSkipped;
+      entry.auto_skipped = reminder.autoSkipped;
+    }
     saveReminders();
-    activeReminder = { entry, video };
     renderReminders();
+    if (reminder.autoSkipped) skipToastTimer = setTimeout(() => {
+      if (activeReminder === reminder) removeReminder();
+    }, 8000);
   }
 
   // Lucide Sprout and Sparkle paths, distributed under the ISC license in vendor/LUCIDE-LICENSE.
@@ -272,19 +308,22 @@
     }
     focusToggle();
     if (!activeReminder) return;
-    const { entry, video } = activeReminder;
+    const { entry, video, autoSkipped, skipFailed } = activeReminder;
     const box = document.createElement('aside'); box.setAttribute('role', 'status');
     if (lastRenderedEntry !== entry) box.className = 'arriving';
     lastRenderedEntry = entry;
-    const heading = document.createElement('strong'); heading.textContent = "A topic you've pruned";
-    const text = document.createElement('p'); text.textContent = `This video may relate to ${entry.category}, a topic you previously removed from your tree.`;
+    const heading = document.createElement('strong'); heading.textContent = autoSkipped ? 'Video automatically skipped' : "A topic you've pruned";
+    const text = document.createElement('p'); text.textContent = autoSkipped ?
+      `Skipped a video about ${entry.category}, a topic you've pruned.` : skipFailed ?
+      `This video may relate to ${entry.category}. Automatic skipping couldn't find the next video. You can scroll to continue.` :
+      `This video may relate to ${entry.category}, a topic you previously removed from your tree.`;
     const dismiss = document.createElement('button'); dismiss.type = 'button'; dismiss.className = 'dismiss'; dismiss.textContent = '\u00d7';
     dismiss.setAttribute('aria-label', 'Dismiss topic reminder'); dismiss.addEventListener('click', removeReminder);
     box.append(heading, text, dismiss);
-    if (video.platform === 'youtube') {
+    if (!autoSkipped) {
       const next = document.createElement('button'); next.type = 'button'; next.className = 'next'; next.textContent = 'Next video';
       next.addEventListener('click', () => {
-        if (nextShort(video)) removeReminder();
+        if (nextVideo(video)) removeReminder();
         else text.textContent = "The next video isn't available yet. Scroll down in the Shorts feed to continue.";
       });
       box.append(next);
@@ -297,7 +336,8 @@
     cancel() {
       clearTimeout(retryTimer); retryTimer = null;
       if (requestId) void send({ type: 'DETECTION_CANCEL', request_id: requestId });
-      requestId = null; removeReminder();
+      requestId = null;
+      cancelReminderForNavigation();
     },
     async analyze(video, generation) {
       const id = crypto.randomUUID(); requestId = id;
@@ -318,7 +358,7 @@
         blacklist_version: capturedVersion, ...metadata(video), comments,
       } });
       if (!lifecycle.current(generation, video.key) || requestId !== id || version !== capturedVersion) return;
-      const latest = await chrome.storage.local.get(['detectionBlacklistVersion', 'detectionPreferencesPending', 'detectionDelaySeconds', 'trackingPaused', 'localSessionId']).catch(() => ({}));
+      const latest = await chrome.storage.local.get(['detectionBlacklistVersion', 'detectionPreferencesPending', 'detectionDelaySeconds', 'detectionAutoSkip', 'trackingPaused', 'localSessionId']).catch(() => ({}));
       if (!lifecycle.current(generation, video.key) || requestId !== id || latest.trackingPaused !== false || latest.localSessionId !== state.localSessionId || latest.detectionPreferencesPending || latest.detectionBlacklistVersion !== capturedVersion || PruneDetection.delay(latest.detectionDelaySeconds) !== lifecycle.delay) return;
       lifecycle.complete(generation, video.key); requestId = null;
       const result = response?.data;
@@ -335,7 +375,7 @@
       // Store only reminder identity/time; no collected text.
       const recent = Object.entries(detectionNotified).filter(([, time]) => time > Date.now() - 86400000).slice(-499);
       void storage.set({ detectionNotified: { ...Object.fromEntries(recent), [reminderKey]: Date.now() } });
-      showReminder(result.matched_topic_name, video);
+      showReminder(result.matched_topic_name, video, { autoSkip: latest.detectionAutoSkip === true });
     },
   });
 
@@ -376,7 +416,7 @@
   observer.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['video-id', 'is-active'] });
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local') return;
-    if (changes.trackingPaused) { tracking = changes.trackingPaused.newValue === false; lifecycle.invalidate(); renderReminders(); if (tracking) void refresh(); }
+    if (changes.trackingPaused) { tracking = changes.trackingPaused.newValue === false; lifecycle.invalidate(); if (!tracking) removeReminder(); renderReminders(); if (tracking) void refresh(); }
     if (changes.localSessionId) { updateReminderSession(changes.localSessionId.newValue); lifecycle.invalidate(); }
     if (changes.detectionPreferencesPending) { pending = changes.detectionPreferencesPending.newValue === true; lifecycle.invalidate(); if (!pending) void refresh(); }
     if (changes.detectionPreferencesPending || changes.detectionPreferencesPendingUntil) {

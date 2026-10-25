@@ -7,8 +7,8 @@ const vm = require('node:vm');
 async function panel() {
   const nodes = new Map();
   function element() {
-    return { textContent: '', hidden: false, style: {}, dataset: {}, listeners: {},
-      classList: { add() {} }, appendChild() {}, replaceChildren() {}, setAttribute() {},
+    return { textContent: '', hidden: false, style: {}, dataset: {}, listeners: {}, children: [],
+      classList: { add() {} }, appendChild(child) { this.children.push(child); }, replaceChildren(...children) { this.children = children; }, setAttribute() {}, closest: () => element(),
       addEventListener(name, callback) { this.listeners[name] = callback; } };
   }
   const node = selector => {
@@ -23,18 +23,21 @@ async function panel() {
   const windowEvents = {}, documentEvents = {};
   let refreshes = 0;
   const context = vm.createContext({
+    URLSearchParams, AbortSignal,
+    fetch: async () => ({ ok: true, json: async () => ({ topics: [], days: [], videos: [] }) }),
     window: { addEventListener(name, listener) { windowEvents[name] = listener; }, confirm() { return confirmed; }, TopicGarden: class {
       start() {}
       refresh() { refreshes++; }
       clear() { node('#tree-health').textContent = 'Empty'; }
     } },
-    document: { querySelector: node, createElement: element, createTextNode: element,
+    document: { querySelector: node, getElementById: id => node(`#${id}`), createElement: element, createTextNode: element,
       addEventListener(name, listener) { documentEvents[name] = listener; } },
     setInterval() {},
     chrome: {
-      storage: { local: { async get() { return structuredClone(stored); } },
+      storage: { local: { async get() { return structuredClone(stored); }, async set(values) { if (failure) throw new Error(failure); Object.assign(stored, values); } },
         onChanged: { addListener(callback) { storageListener = callback; } } },
       runtime: { async sendMessage(message) {
+        if (message.type === 'SYNC_DAILY_ACTIVITY') return { success: true };
         if (message.type === 'AUDIO_DIAGNOSTICS') return { success: true, data: { reachable: true, asr: { model: 'base.en', state: 'installed' } } };
         messages.push(message.type);
         if (failure) return { success: false, error: failure };
@@ -45,6 +48,9 @@ async function panel() {
     },
   });
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/audio-status.js'), 'utf8'), context);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/detection-core.js'), 'utf8'), context);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/collection-policy.js'), 'utf8'), context);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/daily-activity.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/sidepanel.js'), 'utf8'), context);
   await new Promise(resolve => setImmediate(resolve));
   return { node, stored, messages, context, windowEvents, documentEvents, refreshCount() { return refreshes; },
@@ -71,6 +77,17 @@ test('side panel starts and finishes tracking, shows live counters, and offers t
   assert.equal(ui.node('#session-review').hidden, false);
 });
 
+test('automatic skipping defaults off, persists when toggled, and restores state on save failure', async () => {
+  const ui = await panel(); const setting = ui.node('#auto-skip-topics');
+  assert.equal(setting.checked, false); assert.equal(setting.disabled, false);
+  await setting.listeners.change({ target: { checked: true } });
+  assert.equal(ui.stored.detectionAutoSkip, true); assert.equal(setting.checked, true);
+  ui.fail('Storage unavailable');
+  await setting.listeners.change({ target: { checked: false } });
+  assert.equal(setting.checked, true);
+  assert.equal(ui.node('#auto-skip-error').hidden, false);
+});
+
 test('side panel shows a failed Finish and keeps the session available for retry', async () => {
   const ui = await panel();
   const button = ui.node('#session-toggle');
@@ -81,6 +98,16 @@ test('side panel shows a failed Finish and keeps the session available for retry
   assert.equal(ui.node('#session-error').textContent, 'Backend unavailable');
   assert.equal(ui.node('#session-toggle-label').textContent, 'Finish & review');
   assert.equal(button.disabled, false);
+});
+
+test('new qualified reels update the rolling count immediately without relying on session totals', async () => {
+  const ui = await panel();
+  ui.update({ dailyActivityEvents: [{ session_id: 'session-1', event: {
+    event_id: 'live', video_id: 'reel', platform: 'instagram', title: 'New reel',
+    started_at: new Date().toISOString(), dwell_seconds: 3 } }] });
+  assert.equal(ui.node('#today-count').textContent, '1 video');
+  assert.match(ui.node('#today-summary').textContent, /1 videos awaiting assessment/);
+  assert.equal(ui.node('#today-video-list').children[0].children[0].textContent, 'New reel');
 });
 
 test('reset requires confirmation and empties the tree after success', async () => {

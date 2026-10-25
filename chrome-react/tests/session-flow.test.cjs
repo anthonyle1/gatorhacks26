@@ -55,6 +55,22 @@ test('recording videos and Instagram comments never requires the backend or Mong
   assert.equal(state.localReelEvidence.abc.comments[0], 'A useful comment');
 });
 
+test('daily activity survives offline and syncs updates idempotently without ending the session', async () => {
+  const setup = background(true);
+  const event = { event_id: 'live', video_id: 'reel', platform: 'instagram',
+    started_at: new Date().toISOString(), sequence_number: 1, dwell_seconds: 2 };
+  await setup.context.recordDailyActivity(event);
+  await assert.rejects(setup.context.syncDailyActivity());
+  assert.equal(setup.state.dailyActivityEvents[0].synced, false);
+  await setup.context.recordDailyActivity({ ...event, dwell_seconds: 12 });
+  setup.fail(false); await setup.context.syncDailyActivity();
+  assert.equal(setup.state.dailyActivityEvents.length, 1);
+  assert.equal(setup.state.dailyActivityEvents[0].event.dwell_seconds, 12);
+  assert.equal(setup.state.dailyActivityEvents[0].synced, true);
+  assert.equal(setup.state.pendingEvents, undefined);
+  assert.equal(setup.calls.at(-1).url.endsWith('/local-sessions/activity'), true);
+});
+
 test('finish captures the last video and submits one MongoDB-free session snapshot', async () => {
   const { context, state, calls } = background();
   await context.finishScrollingSession();
@@ -209,11 +225,18 @@ test('filtered live counters wait for actual playback eligibility', async () => 
   assert.equal(vm.runInContext('session.videoCount',setup.context),0);
   for(let i=0;i<7;i++) { setup.advance(250); setup.context.mediaClock(); }
   assert.equal(vm.runInContext('session.videoCount',setup.context),0);
+  assert.equal(setup.messages.filter(message => message.type === 'ACTIVITY_EVENT').length, 0);
   setup.advance(250); setup.context.mediaClock();
   assert.equal(vm.runInContext('session.videoCount',setup.context),1);
   assert.equal(setup.messages.filter(message => message.type === 'VIDEO_QUALIFIED').length,1);
   assert.equal(setup.messages.find(message => message.type === 'VIDEO_QUALIFIED').played_seconds,2);
   assert.equal(vm.runInContext('session.videoHistory.length',setup.context),1);
+  const live = setup.messages.find(message => message.type === 'ACTIVITY_EVENT').event;
+  setup.context.window.location.pathname = '/shorts/second';
+  await setup.context.trackScrolling();
+  const final = setup.messages.find(message => message.type === 'VIDEO_EVENT').event;
+  assert.equal(final.event_id, live.event_id);
+  assert.equal(final.video_id, live.video_id);
 });
 
 test('paused playback and short visits do not contribute to filtered counters', async () => {

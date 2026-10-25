@@ -12,8 +12,9 @@ function fixture({ buttons = [], renderers = [], current = { platform: 'youtube'
     getCurrentVideo: () => current,
   };
   // Expose navigation without starting extension tracking or backend requests.
-  vm.runInNewContext(source.replace('  const lifecycle =', '  globalThis.nextShort = nextShort; return;\n  const lifecycle ='), context);
-  return renderer => context.nextShort({ platform: 'youtube', videoId: 'A', media: { closest: () => renderer } });
+  vm.runInNewContext(source.replace('  const lifecycle =', '  globalThis.nextVideo = nextVideo; return;\n  const lifecycle ='), context);
+  return renderer => context.nextVideo({ platform: current?.platform || 'youtube', videoId: 'A',
+    media: current?.platform === 'instagram' ? renderer : { closest: () => renderer } });
 }
 
 function button(overrides = {}) {
@@ -49,4 +50,16 @@ test('an old warning cannot skip a different video', () => {
 
 test('missing feed target fails without navigation or reload', () => {
   assert.equal(fixture()({}), false);
+});
+
+test('Instagram uses its next-reel control when available', () => {
+  const next = button();
+  assert.equal(fixture({ buttons: [next], current: { platform: 'instagram', videoId: 'A' } })({}), true);
+  assert.equal(next.clicked, true);
+});
+
+test('Instagram falls back to scrolling the following reel', () => {
+  const active = {}, next = { scrollIntoView(options) { this.options = options; } };
+  assert.equal(fixture({ renderers: [active, next], current: { platform: 'instagram', videoId: 'A' } })(active), true);
+  assert.equal(next.options.block, 'center');
 });

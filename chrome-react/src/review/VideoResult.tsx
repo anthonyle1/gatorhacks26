@@ -37,7 +37,7 @@ export function VideoResult({ video, categories, assignments, busy, move }: {
       </div>
       {insights.ratios ? <div className="comment-ratios">
         <div className="sentiment-bar" aria-hidden="true"><i className="sentiment-positive" style={{ width: percent(insights.ratios.positive) }} /><i className="sentiment-neutral" style={{ width: percent(insights.ratios.neutral) }} /><i className="sentiment-negative" style={{ width: percent(insights.ratios.negative) }} /></div>
-        <span>Comments: Positive {percent(insights.ratios.positive)} · Neutral {percent(insights.ratios.neutral)} · Negative {percent(insights.ratios.negative)}</span>
+        <span>Comments: {sentiment?.counts.positive} positive ({percent(insights.ratios.positive)}) · {sentiment?.counts.neutral} neutral ({percent(insights.ratios.neutral)}) · {sentiment?.counts.negative} negative ({percent(insights.ratios.negative)})</span>
       </div> : <p className="analysis-note">Comment ratios unavailable{sentiment ? ' — no rated comments' : ''}.</p>}
     </summary>
     <div className="video-result__body">

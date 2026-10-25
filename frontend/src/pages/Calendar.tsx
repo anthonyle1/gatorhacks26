@@ -292,6 +292,13 @@ export default function Calendar() {
   const [dayError, setDayError] = useState('')
 
   const monthValue = monthKey(month)
+  const [refreshVersion, setRefreshVersion] = useState(0)
+  useEffect(() => {
+    const refresh = () => setRefreshVersion(value => value + 1)
+    const timer = window.setInterval(refresh, 15000)
+    window.addEventListener('focus', refresh)
+    return () => { window.clearInterval(timer); window.removeEventListener('focus', refresh) }
+  }, [])
 
   useEffect(() => {
     let active = true
@@ -316,7 +323,7 @@ export default function Calendar() {
     return () => {
       active = false
     }
-  }, [monthValue])
+  }, [monthValue, refreshVersion])
 
   useEffect(() => {
     if (!selectedDate) {
@@ -346,7 +353,7 @@ export default function Calendar() {
     return () => {
       active = false
     }
-  }, [selectedDate])
+  }, [selectedDate, refreshVersion])
 
   const calendarDays = useMemo(() => {
     const year = month.getFullYear()
@@ -481,7 +488,7 @@ export default function Calendar() {
                 className={`journal-date${
                   selected ? ' journal-date--selected' : ''
                 }${
-                  activity?.negative_count
+                  activity?.warning_count
                     ? ' journal-date--warning'
                     : activity?.videos_watched
                       ? ' journal-date--active'
@@ -547,8 +554,12 @@ export default function Calendar() {
               </div>
 
               <div className="daily-insights__stat">
-                <strong>{daily.summary.negative_count}</strong>
-                <span>Potential warnings</span>
+                <strong>{daily.summary.warning_count}</strong>
+                <span>Warnings</span>
+              </div>
+              <div className="daily-insights__stat">
+                <strong>{daily.summary.positive_insight_count}</strong>
+                <span>Positive insights</span>
               </div>
             </div>
 
@@ -591,7 +602,7 @@ export default function Calendar() {
             <h3>Videos watched</h3>
 
             {daily.videos.length === 0 && (
-              <p>No completed-session activity for this date.</p>
+              <p>No recorded activity for this date.</p>
             )}
 
             {daily.videos.map((video, index) => (
@@ -612,6 +623,10 @@ export default function Calendar() {
                   {video.category_name} ·{' '}
                   {duration(video.dwell_seconds)}
                 </p>
+                <p>{video.warning_count === null ? 'Content insights pending or unavailable' :
+                  `${video.warning_count} warnings · ${video.positive_insight_count} positive insights`}</p>
+                <p>{video.comment_counts ? `Comments: ${video.comment_counts.positive} positive · ${video.comment_counts.neutral} neutral · ${video.comment_counts.negative} negative` :
+                  'Comment analysis pending or unavailable'}</p>
 
                 <details>
                   <summary>View assessment</summary>
