@@ -1,7 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&family=DM+Serif+Display:ital@0;1&display=swap');
 
-
-
 /* ==========================================
 
    PRUNE — BOTANICAL DESIGN
@@ -9,8 +7,6 @@
    Inspired by warm garden journals
 
    ========================================== */
-
-
 
 :root {
 
@@ -40,8 +36,6 @@
 
 }
 
-
-
 :root[data-prune-theme="olive"] {
 
   --botanical-accent: #798044;
@@ -49,8 +43,6 @@
   --botanical-accent-soft: #e8e8cc;
 
 }
-
-
 
 :root[data-prune-theme="rose"] {
 
@@ -60,8 +52,6 @@
 
 }
 
-
-
 :root[data-prune-theme="honey"] {
 
   --botanical-accent: #94712e;
@@ -70,15 +60,11 @@
 
 }
 
-
-
 html {
 
   scroll-behavior: smooth;
 
 }
-
-
 
 body {
 
@@ -88,8 +74,6 @@ body {
 
 }
 
-
-
 ::selection {
 
   color: var(--botanical-accent);
@@ -98,11 +82,7 @@ body {
 
 }
 
-
-
 /* Application shell */
-
-
 
 .botanical-app {
 
@@ -122,8 +102,6 @@ body {
 
 }
 
-
-
 .botanical-header {
 
   position: sticky;
@@ -139,8 +117,6 @@ body {
   backdrop-filter: blur(14px);
 
 }
-
-
 
 .botanical-header__inner {
 
@@ -161,8 +137,6 @@ body {
   gap: 24px;
 
 }
-
-
 
 .botanical-brand {
 
@@ -186,15 +160,11 @@ body {
 
 }
 
-
-
 .botanical-brand:hover {
 
   color: var(--botanical-accent);
 
 }
-
-
 
 .botanical-brand svg {
 
@@ -204,15 +174,11 @@ body {
 
 }
 
-
-
 .botanical-brand:hover svg {
 
   transform: rotate(-9deg);
 
 }
-
-
 
 .botanical-brand__period {
 
@@ -220,11 +186,7 @@ body {
 
 }
 
-
-
 /* Navigation */
-
-
 
 .botanical-nav {
 
@@ -239,8 +201,6 @@ body {
   gap: 7px;
 
 }
-
-
 
 .botanical-nav__link {
 
@@ -276,8 +236,6 @@ body {
 
 }
 
-
-
 .botanical-nav__link:hover:not(.botanical-nav__link--active) {
 
   background: rgba(194, 207, 172, .35);
@@ -288,8 +246,6 @@ body {
 
 }
 
-
-
 .botanical-nav__link--active,
 
 .botanical-nav__link--active:hover {
@@ -299,8 +255,6 @@ body {
   background: var(--botanical-accent);
 
 }
-
-
 
 .botanical-page {
 
@@ -313,8 +267,6 @@ body {
   padding-bottom: 76px;
 
 }
-
-
 
 .botanical-footer {
 
@@ -342,11 +294,7 @@ body {
 
 }
 
-
-
 /* Common botanical components */
-
-
 
 .botanical-eyebrow {
 
@@ -363,8 +311,6 @@ body {
   margin-bottom: 14px;
 
 }
-
-
 
 .botanical-primary-btn {
 
@@ -400,8 +346,6 @@ body {
 
 }
 
-
-
 .botanical-primary-btn:hover {
 
   transform: translateY(-3px);
@@ -409,8 +353,6 @@ body {
   box-shadow: 0 15px 23px -13px rgba(38, 65, 42, .75);
 
 }
-
-
 
 .botanical-text-link,
 
@@ -426,8 +368,6 @@ body {
 
 }
 
-
-
 .botanical-text-link:hover,
 
 .botanical-inline-link:hover {
@@ -436,23 +376,17 @@ body {
 
 }
 
-
-
 /* ==========================================
 
    GARDEN HERO
 
    ========================================== */
 
-
-
 .botanical-garden {
 
   gap: 32px;
 
 }
-
-
 
 .botanical-hero {
 
@@ -472,8 +406,6 @@ body {
 
 }
 
-
-
 .botanical-hero__copy {
 
   position: relative;
@@ -483,8 +415,6 @@ body {
   animation: botanicalRise .7s ease both;
 
 }
-
-
 
 .botanical-hero__title {
 
@@ -506,8 +436,6 @@ body {
 
 }
 
-
-
 .botanical-hero__title span {
 
   display: block;
@@ -519,8 +447,6 @@ body {
   letter-spacing: -.015em;
 
 }
-
-
 
 .botanical-hero__description {
 
@@ -536,8 +462,6 @@ body {
 
 }
 
-
-
 .botanical-hero__actions {
 
   display: flex;
@@ -549,8 +473,6 @@ body {
   gap: 24px;
 
 }
-
-
 
 .botanical-hero__illustration {
 
@@ -569,8 +491,6 @@ body {
   place-items: center;
 
 }
-
-
 
 .botanical-sun {
 
@@ -592,8 +512,6 @@ body {
 
 }
 
-
-
 .botanical-hero-tree {
 
   width: 100%;
@@ -610,8 +528,6 @@ body {
 
 }
 
-
-
 .botanical-tree-crown {
 
   transform-origin: 180px 170px;
@@ -619,8 +535,6 @@ body {
   animation: botanicalSway 7s ease-in-out infinite;
 
 }
-
-
 
 .botanical-hero__floating-leaf {
 
@@ -636,8 +550,6 @@ body {
 
 }
 
-
-
 .botanical-hero__floating-leaf--one {
 
   top: 8%;
@@ -645,8 +557,6 @@ body {
   right: 11%;
 
 }
-
-
 
 .botanical-hero__floating-leaf--two {
 
@@ -658,11 +568,7 @@ body {
 
 }
 
-
-
 /* The existing interactive Garden */
-
-
 
 .botanical-garden__content {
 
@@ -675,8 +581,6 @@ body {
   scroll-margin-top: 100px;
 
 }
-
-
 
 .botanical-section-title {
 
@@ -692,8 +596,6 @@ body {
 
 }
 
-
-
 .botanical-section-title h2 {
 
   margin: 0;
@@ -708,8 +610,6 @@ body {
 
 }
 
-
-
 .botanical-section-title p {
 
   margin: 8px 0 0;
@@ -722,8 +622,6 @@ body {
 
 }
 
-
-
 .botanical-sprig {
 
   width: 146px;
@@ -733,8 +631,6 @@ body {
   opacity: .9;
 
 }
-
-
 
 .botanical-garden__content .card,
 
@@ -748,8 +644,6 @@ body {
 
 }
 
-
-
 .botanical-garden__content .card {
 
   border-radius: 26px;
@@ -758,15 +652,11 @@ body {
 
 }
 
-
-
 .botanical-garden__content .card:hover {
 
   box-shadow: 0 20px 38px -19px rgba(53, 65, 43, .30);
 
 }
-
-
 
 .botanical-garden__content .stat {
 
@@ -775,8 +665,6 @@ body {
   padding: 14px 19px;
 
 }
-
-
 
 .botanical-garden__content .stat__value {
 
@@ -787,8 +675,6 @@ body {
   font-weight: 400;
 
 }
-
-
 
 .botanical-garden__content .h2,
 
@@ -802,8 +688,6 @@ body {
 
 }
 
-
-
 .botanical-garden__content .branch-tile,
 
 .botanical-garden__content .twig,
@@ -814,23 +698,17 @@ body {
 
 }
 
-
-
 .botanical-garden__content .branch-tile:hover {
 
   transform: translateY(-2px);
 
 }
 
-
-
 /* ==========================================
 
    SETTINGS
 
    ========================================== */
-
-
 
 .botanical-settings {
 
@@ -846,15 +724,11 @@ body {
 
 }
 
-
-
 .botanical-page-heading {
 
   padding: 15px 4px 5px;
 
 }
-
-
 
 .botanical-page-heading h1 {
 
@@ -872,8 +746,6 @@ body {
 
 }
 
-
-
 .botanical-page-heading h1 em {
 
   color: var(--botanical-olive);
@@ -881,8 +753,6 @@ body {
   font-weight: 400;
 
 }
-
-
 
 .botanical-page-heading > p {
 
@@ -895,8 +765,6 @@ body {
   line-height: 1.7;
 
 }
-
-
 
 .botanical-panel {
 
@@ -918,8 +786,6 @@ body {
 
 }
 
-
-
 .botanical-panel h2 {
 
   margin: 0 0 10px;
@@ -934,8 +800,6 @@ body {
 
 }
 
-
-
 .botanical-panel > p {
 
   margin: 0 0 16px;
@@ -949,8 +813,6 @@ body {
   line-height: 1.8;
 
 }
-
-
 
 .botanical-panel__decoration {
 
@@ -970,8 +832,6 @@ body {
 
 }
 
-
-
 .botanical-setting-row {
 
   display: flex;
@@ -988,8 +848,6 @@ body {
 
 }
 
-
-
 .botanical-setting-row--column {
 
   align-items: stretch;
@@ -999,8 +857,6 @@ body {
   gap: 14px;
 
 }
-
-
 
 .botanical-setting-row h3 {
 
@@ -1016,8 +872,6 @@ body {
 
 }
 
-
-
 .botanical-setting-row p {
 
   margin: 0;
@@ -1032,11 +886,7 @@ body {
 
 }
 
-
-
 /* Settings switches */
-
-
 
 .botanical-toggle {
 
@@ -1060,8 +910,6 @@ body {
 
 }
 
-
-
 .botanical-toggle__thumb {
 
   display: block;
@@ -1080,23 +928,17 @@ body {
 
 }
 
-
-
 .botanical-toggle--on {
 
   background: var(--botanical-accent);
 
 }
 
-
-
 .botanical-toggle--on .botanical-toggle__thumb {
 
   transform: translateX(22px);
 
 }
-
-
 
 .botanical-theme-options {
 
@@ -1107,8 +949,6 @@ body {
   gap: 10px;
 
 }
-
-
 
 .botanical-theme-option {
 
@@ -1140,15 +980,11 @@ body {
 
 }
 
-
-
 .botanical-theme-option:hover {
 
   background: #f2f2e8;
 
 }
-
-
 
 .botanical-theme-option--selected {
 
@@ -1157,8 +993,6 @@ body {
   box-shadow: inset 0 0 0 1px var(--botanical-accent);
 
 }
-
-
 
 .botanical-theme-option__swatch {
 
@@ -1171,8 +1005,6 @@ body {
   border-radius: 50%;
 
 }
-
-
 
 .botanical-saved {
 
@@ -1192,19 +1024,13 @@ body {
 
 }
 
-
-
 /* Optional user text scaling */
-
-
 
 .prune-larger-text .botanical-page {
 
   font-size: 1.12rem;
 
 }
-
-
 
 .prune-larger-text .botanical-page p,
 
@@ -1222,15 +1048,11 @@ body {
 
 }
 
-
-
 /* ==========================================
 
    ANIMATION
 
    ========================================== */
-
-
 
 @keyframes botanicalRise {
 
@@ -1240,8 +1062,6 @@ body {
 
 }
 
-
-
 @keyframes botanicalFloat {
 
   0%, 100% { transform: translateY(0); }
@@ -1249,8 +1069,6 @@ body {
   50% { transform: translateY(-9px); }
 
 }
-
-
 
 @keyframes botanicalSway {
 
@@ -1260,15 +1078,11 @@ body {
 
 }
 
-
-
 /* ==========================================
 
    RESPONSIVE
 
    ========================================== */
-
-
 
 @media (max-width: 900px) {
 
@@ -1282,15 +1096,11 @@ body {
 
   }
 
-
-
   .botanical-hero__illustration {
 
     max-width: 310px;
 
   }
-
-
 
   .botanical-header__inner {
 
@@ -1300,8 +1110,6 @@ body {
 
   }
 
-
-
   .botanical-nav__link {
 
     padding: 0 12px;
@@ -1309,8 +1117,6 @@ body {
   }
 
 }
-
-
 
 @media (max-width: 650px) {
 
@@ -1324,15 +1130,11 @@ body {
 
   }
 
-
-
   .botanical-brand {
 
     font-size: 25px;
 
   }
-
-
 
   .botanical-nav {
 
@@ -1348,8 +1150,6 @@ body {
 
   }
 
-
-
   .botanical-nav__link {
 
     font-size: 12px;
@@ -1360,15 +1160,11 @@ body {
 
   }
 
-
-
   .botanical-page {
 
     padding: 20px 16px 48px;
 
   }
-
-
 
   .botanical-hero__title {
 
@@ -1376,15 +1172,11 @@ body {
 
   }
 
-
-
   .botanical-hero__description {
 
     font-size: 14px;
 
   }
-
-
 
   .botanical-hero__illustration {
 
@@ -1392,15 +1184,11 @@ body {
 
   }
 
-
-
   .botanical-section-title {
 
     align-items: flex-start;
 
   }
-
-
 
   .botanical-sprig {
 
@@ -1408,15 +1196,11 @@ body {
 
   }
 
-
-
   .botanical-panel {
 
     padding: 23px 20px;
 
   }
-
-
 
   .botanical-footer {
 
@@ -1426,11 +1210,7 @@ body {
 
 }
 
-
-
 /* Accessibility */
-
-
 
 :focus-visible {
 
@@ -1440,15 +1220,11 @@ body {
 
 }
 
-
-
 @media (prefers-reduced-motion: reduce) {
 
   html { scroll-behavior: auto; }
 
 }
-
-
 
 @media (prefers-reduced-motion: reduce) {
 
@@ -1468,15 +1244,11 @@ body {
 
 }
 
-
-
 .prune-reduce-motion {
 
   scroll-behavior: auto;
 
 }
-
-
 
 .prune-reduce-motion *,
 
@@ -1492,17 +1264,11 @@ body {
 
 }
 
-
-
-
-
 /* ==========================================
 
    GROWTH JOURNEY
 
    ========================================== */
-
-
 
 .journal-page,
 
@@ -1520,15 +1286,11 @@ body {
 
 }
 
-
-
 .journal-heading {
 
   padding: 16px 4px 7px;
 
 }
-
-
 
 .journal-heading h1 {
 
@@ -1548,8 +1310,6 @@ body {
 
 }
 
-
-
 .journal-heading h1 em,
 
 .insights-section__heading h2 em {
@@ -1559,8 +1319,6 @@ body {
   font-weight: 400;
 
 }
-
-
 
 .journal-heading p {
 
@@ -1576,8 +1334,6 @@ body {
 
 }
 
-
-
 .journal-card {
 
   background: var(--botanical-cream);
@@ -1591,8 +1347,6 @@ body {
   padding: 27px 29px;
 
 }
-
-
 
 .journal-calendar-head {
 
@@ -1608,15 +1362,11 @@ body {
 
 }
 
-
-
 .journal-month-title {
 
   text-align: center;
 
 }
-
-
 
 .journal-month-title h2 {
 
@@ -1632,8 +1382,6 @@ body {
 
 }
 
-
-
 .journal-month-title span {
 
   color: var(--botanical-text);
@@ -1641,8 +1389,6 @@ body {
   font-size: 12px;
 
 }
-
-
 
 .journal-arrow {
 
@@ -1670,8 +1416,6 @@ body {
 
 }
 
-
-
 .journal-arrow:hover {
 
   background: var(--botanical-accent-soft);
@@ -1679,8 +1423,6 @@ body {
   transform: scale(1.07);
 
 }
-
-
 
 .journal-calendar-grid {
 
@@ -1691,8 +1433,6 @@ body {
   gap: 5px;
 
 }
-
-
 
 .journal-weekday {
 
@@ -1710,8 +1450,6 @@ body {
 
 }
 
-
-
 .journal-date,
 
 .journal-day-spacer {
@@ -1721,8 +1459,6 @@ body {
   aspect-ratio: 1.08;
 
 }
-
-
 
 .journal-date {
 
@@ -1762,8 +1498,6 @@ body {
 
 }
 
-
-
 .journal-date:hover {
 
   background: #e8eddf;
@@ -1772,15 +1506,11 @@ body {
 
 }
 
-
-
 .journal-date--today {
 
   border-color: #d5ad65;
 
 }
-
-
 
 .journal-date--selected {
 
@@ -1789,8 +1519,6 @@ body {
   background: var(--botanical-accent-soft);
 
 }
-
-
 
 .journal-date__leaf {
 
@@ -1801,8 +1529,6 @@ body {
   font-size: 24px;
 
 }
-
-
 
 .journal-detail h2,
 
@@ -1824,8 +1550,6 @@ body {
 
 }
 
-
-
 .journal-detail > p,
 
 .journal-summary p,
@@ -1840,8 +1564,6 @@ body {
 
 }
 
-
-
 .journal-note {
 
   font-size: 12px !important;
@@ -1850,8 +1572,6 @@ body {
 
 }
 
-
-
 .journal-detail .botanical-inline-link {
 
   display: inline-block;
@@ -1859,8 +1579,6 @@ body {
   margin-top: 18px;
 
 }
-
-
 
 .journal-day-details {
 
@@ -1872,8 +1590,6 @@ body {
 
 }
 
-
-
 .journal-summary {
 
   background: #f2f3e8;
@@ -1883,8 +1599,6 @@ body {
   border-radius: 17px;
 
 }
-
-
 
 .journal-summary h3,
 
@@ -1902,8 +1616,6 @@ body {
 
 }
 
-
-
 .journal-summary > span:last-child {
 
   font-size: 12px;
@@ -1911,8 +1623,6 @@ body {
   color: var(--botanical-text);
 
 }
-
-
 
 .journal-demo-tag {
 
@@ -1928,8 +1638,6 @@ body {
 
 }
 
-
-
 .journal-category {
 
   display: flex;
@@ -1944,8 +1652,6 @@ body {
 
 }
 
-
-
 .journal-category__top {
 
   display: flex;
@@ -1958,8 +1664,6 @@ body {
 
 }
 
-
-
 .journal-category__top > div {
 
   display: flex;
@@ -1970,8 +1674,6 @@ body {
 
 }
 
-
-
 .journal-category__top strong {
 
   color: var(--botanical-ink);
@@ -1980,8 +1682,6 @@ body {
 
 }
 
-
-
 .journal-category__top span {
 
   font-size: 12px;
@@ -1989,8 +1689,6 @@ body {
   color: var(--botanical-text);
 
 }
-
-
 
 .journal-prune-button {
 
@@ -2022,23 +1720,17 @@ body {
 
 }
 
-
-
 .journal-prune-button:hover {
 
   background: var(--botanical-accent-soft);
 
 }
 
-
-
 /* ==========================================
 
    INSIGHTS
 
    ========================================== */
-
-
 
 .insights-intro {
 
@@ -2047,8 +1739,6 @@ body {
   overflow: hidden;
 
 }
-
-
 
 .insights-intro > p {
 
@@ -2061,8 +1751,6 @@ body {
   line-height: 1.8;
 
 }
-
-
 
 .insights-sprig {
 
@@ -2080,8 +1768,6 @@ body {
 
 }
 
-
-
 .insights-section {
 
   display: flex;
@@ -2091,8 +1777,6 @@ body {
   gap: 20px;
 
 }
-
-
 
 .insights-section__heading h2 {
 
@@ -2108,8 +1792,6 @@ body {
 
 }
 
-
-
 .insights-section__heading p {
 
   margin: 0;
@@ -2119,8 +1801,6 @@ body {
   font-size: 14px;
 
 }
-
-
 
 .insights-steps,
 
@@ -2133,8 +1813,6 @@ body {
   gap: 17px;
 
 }
-
-
 
 .insights-step {
 
@@ -2156,8 +1834,6 @@ body {
 
 }
 
-
-
 .insights-step:hover {
 
   transform: translateY(-4px);
@@ -2165,8 +1841,6 @@ body {
   box-shadow: 0 18px 32px -18px rgba(53, 65, 43, .34);
 
 }
-
-
 
 .insights-step__number {
 
@@ -2190,8 +1864,6 @@ body {
 
 }
 
-
-
 .insights-step__decoration {
 
   position: absolute;
@@ -2207,8 +1879,6 @@ body {
   opacity: .55;
 
 }
-
-
 
 .insights-step h3,
 
@@ -2226,8 +1896,6 @@ body {
 
 }
 
-
-
 .insights-step p,
 
 .insights-info p {
@@ -2242,8 +1910,6 @@ body {
 
 }
 
-
-
 .insights-info__icon {
 
   font-size: 30px;
@@ -2252,15 +1918,11 @@ body {
 
 }
 
-
-
 .insights-info h3 {
 
   margin: 12px 0 10px;
 
 }
-
-
 
 .insights-limits__grid {
 
@@ -2272,8 +1934,6 @@ body {
 
 }
 
-
-
 .insights-limit {
 
   display: flex;
@@ -2284,8 +1944,6 @@ body {
 
 }
 
-
-
 .insights-limit span {
 
   color: var(--botanical-olive);
@@ -2293,8 +1951,6 @@ body {
   font-size: 20px;
 
 }
-
-
 
 .insights-limit p {
 
@@ -2308,8 +1964,6 @@ body {
 
 }
 
-
-
 .insights-cta {
 
   padding: 45px 24px;
@@ -2322,8 +1976,6 @@ body {
 
 }
 
-
-
 .insights-cta > span {
 
   color: var(--botanical-accent);
@@ -2331,8 +1983,6 @@ body {
   font-size: 32px;
 
 }
-
-
 
 .insights-cta h2 {
 
@@ -2348,8 +1998,6 @@ body {
 
 }
 
-
-
 .insights-cta p {
 
   color: var(--botanical-text);
@@ -2358,15 +2006,11 @@ body {
 
 }
 
-
-
 /* ==========================================
 
    GARDEN — START SESSION ENTRY POINT
 
    ========================================== */
-
-
 
 .garden-start-card {
 
@@ -2379,8 +2023,6 @@ body {
   scroll-margin-top: 110px;
 
 }
-
-
 
 .garden-start-card__symbol {
 
@@ -2404,8 +2046,6 @@ body {
 
 }
 
-
-
 .garden-start-card__body {
 
   flex: 1;
@@ -2414,15 +2054,11 @@ body {
 
 }
 
-
-
 .garden-start-card__body p {
 
   max-width: 720px;
 
 }
-
-
 
 .garden-start-card__steps {
 
@@ -2435,8 +2071,6 @@ body {
   margin-top: 20px;
 
 }
-
-
 
 .garden-start-card__steps span {
 
@@ -2454,8 +2088,6 @@ body {
 
 }
 
-
-
 .garden-start-card__help {
 
   margin-top: 20px;
@@ -2465,8 +2097,6 @@ body {
   font-size: 13px;
 
 }
-
-
 
 .garden-start-card__help summary {
 
@@ -2480,23 +2110,17 @@ body {
 
 }
 
-
-
 .garden-start-card__help p {
 
   font-size: 13px;
 
 }
 
-
-
 /* ==========================================
 
    RESPONSIVE
 
    ========================================== */
-
-
 
 @media (max-width: 650px) {
 
@@ -2506,15 +2130,11 @@ body {
 
   }
 
-
-
   .journal-calendar-grid {
 
     gap: 3px;
 
   }
-
-
 
   .journal-date {
 
@@ -2526,15 +2146,11 @@ body {
 
   }
 
-
-
   .journal-weekday {
 
     font-size: 9px;
 
   }
-
-
 
   .insights-steps,
 
@@ -2546,8 +2162,6 @@ body {
 
   }
 
-
-
   .garden-start-card {
 
     flex-direction: column;
@@ -2555,8 +2169,6 @@ body {
     gap: 14px;
 
   }
-
-
 
   .journal-heading h1 {
 
@@ -2566,29 +2178,19 @@ body {
 
 }
 
-
-
-
-
 /* ==========================================
 
    FEED GARDEN — BOTANICAL REFINEMENT
 
    ========================================== */
 
-
-
 /* Consistent friendly typography */
-
-
 
 .botanical-app {
 
   font-family: var(--botanical-sans);
 
 }
-
-
 
 .botanical-app button,
 
@@ -2602,15 +2204,11 @@ body {
 
 }
 
-
-
 .botanical-garden__content {
 
   gap: 28px;
 
 }
-
-
 
 .botanical-section-title {
 
@@ -2620,8 +2218,6 @@ body {
 
 }
 
-
-
 .botanical-section-title h2 {
 
   font-size: clamp(34px, 4vw, 47px);
@@ -2629,8 +2225,6 @@ body {
   letter-spacing: -.025em;
 
 }
-
-
 
 .botanical-section-title p {
 
@@ -2642,19 +2236,13 @@ body {
 
 }
 
-
-
 /* Stat cards */
-
-
 
 .botanical-garden__content .stats {
 
   gap: 14px;
 
 }
-
-
 
 .botanical-garden__content .stat {
 
@@ -2674,8 +2262,6 @@ body {
 
 }
 
-
-
 .botanical-garden__content .stat__label {
 
   color: #777E69;
@@ -2683,8 +2269,6 @@ body {
   font-size: 12px;
 
 }
-
-
 
 .botanical-garden__content .stat__value {
 
@@ -2698,11 +2282,7 @@ body {
 
 }
 
-
-
 /* Main garden layout */
-
-
 
 .botanical-garden__content .columns {
 
@@ -2716,15 +2296,11 @@ body {
 
 }
 
-
-
 .botanical-garden__content .columns > .tree-card {
 
   min-width: 0;
 
 }
-
-
 
 .botanical-garden__content .side {
 
@@ -2734,11 +2310,7 @@ body {
 
 }
 
-
-
 /* Tree container */
-
-
 
 .botanical-garden__content .feed-tree-card {
 
@@ -2756,8 +2328,6 @@ body {
 
 }
 
-
-
 .feed-tree-card__heading {
 
   display: flex;
@@ -2769,8 +2339,6 @@ body {
   gap: 18px;
 
 }
-
-
 
 .feed-tree-card__heading h2 {
 
@@ -2788,8 +2356,6 @@ body {
 
 }
 
-
-
 .feed-tree-card__heading p {
 
   max-width: 410px;
@@ -2804,8 +2370,6 @@ body {
 
 }
 
-
-
 .feed-tree-card__flourish {
 
   color: #A0B38E;
@@ -2817,8 +2381,6 @@ body {
   line-height: 1;
 
 }
-
-
 
 .feed-tree-card__scene {
 
@@ -2864,8 +2426,6 @@ body {
 
 }
 
-
-
 .feed-tree-card__sun {
 
   position: absolute;
@@ -2900,8 +2460,6 @@ body {
 
 }
 
-
-
 .feed-tree-card__scene .tree-wrap {
 
   position: relative;
@@ -2920,8 +2478,6 @@ body {
 
 }
 
-
-
 .feed-tree-card__scene .organic-tree {
 
   overflow: visible;
@@ -2929,8 +2485,6 @@ body {
   filter: drop-shadow(0 9px 9px rgba(76, 78, 52, .07));
 
 }
-
-
 
 .feed-tree-card__scene-note {
 
@@ -2952,11 +2506,7 @@ body {
 
 }
 
-
-
 /* Organic branch motion */
-
-
 
 .organic-tree__branch {
 
@@ -2965,8 +2515,6 @@ body {
   animation: organicBranchAppear .65s ease-out both;
 
 }
-
-
 
 .organic-tree__foliage {
 
@@ -2978,15 +2526,11 @@ body {
 
 }
 
-
-
 .organic-tree__branch:nth-of-type(even) .organic-tree__foliage {
 
   animation-delay: -2.5s;
 
 }
-
-
 
 @keyframes organicBranchAppear {
 
@@ -3008,8 +2552,6 @@ body {
 
 }
 
-
-
 @keyframes organicLeafSway {
 
   0%, 100% { transform: rotate(-1deg); }
@@ -3018,11 +2560,7 @@ body {
 
 }
 
-
-
 /* Organic legend */
-
-
 
 .feed-tree-card__legend {
 
@@ -3042,8 +2580,6 @@ body {
 
 }
 
-
-
 .feed-tree-card__legend li {
 
   display: inline-flex;
@@ -3060,8 +2596,6 @@ body {
 
 }
 
-
-
 .feed-tree-card__legend-leaf {
 
   width: 10px;
@@ -3076,11 +2610,7 @@ body {
 
 }
 
-
-
 /* Explore branches section */
-
-
 
 .feed-tree-card__categories {
 
@@ -3096,8 +2626,6 @@ body {
 
 }
 
-
-
 .feed-tree-card__category-heading {
 
   display: flex;
@@ -3111,8 +2639,6 @@ body {
   gap: 10px;
 
 }
-
-
 
 .feed-tree-card__category-heading h3 {
 
@@ -3128,8 +2654,6 @@ body {
 
 }
 
-
-
 .feed-tree-card__category-heading > span {
 
   font-size: 11px;
@@ -3138,11 +2662,7 @@ body {
 
 }
 
-
-
 /* Category list */
-
-
 
 .botanical-garden__content .branch-grid {
 
@@ -3153,8 +2673,6 @@ body {
   gap: 10px;
 
 }
-
-
 
 .botanical-garden__content .feed-branch-tile {
 
@@ -3194,8 +2712,6 @@ body {
 
 }
 
-
-
 .botanical-garden__content .feed-branch-tile:hover {
 
   background: #EFF1E3;
@@ -3208,8 +2724,6 @@ body {
 
 }
 
-
-
 .botanical-garden__content .feed-branch-tile.branch-tile--selected {
 
   background: #E8EFDF;
@@ -3219,8 +2733,6 @@ body {
   box-shadow: 0 0 0 2px rgba(65, 103, 60, .10);
 
 }
-
-
 
 .feed-branch-tile__dot {
 
@@ -3238,23 +2750,17 @@ body {
 
 }
 
-
-
 .feed-branch-tile__dot--some {
 
   background: #D5B16B;
 
 }
 
-
-
 .feed-branch-tile__dot--heavy {
 
   background: #AF8463;
 
 }
-
-
 
 .feed-branch-tile__text {
 
@@ -3270,8 +2776,6 @@ body {
 
 }
 
-
-
 .feed-branch-tile__text .branch-tile__name {
 
   font-size: 13px;
@@ -3281,8 +2785,6 @@ body {
   font-weight: 700;
 
 }
-
-
 
 .feed-branch-tile__text .branch-tile__meta {
 
@@ -3294,8 +2796,6 @@ body {
 
 }
 
-
-
 .feed-branch-tile__arrow {
 
   font-size: 15px;
@@ -3305,8 +2805,6 @@ body {
   align-self: flex-start;
 
 }
-
-
 
 .feed-tree-card__footnote {
 
@@ -3324,15 +2822,11 @@ body {
 
 }
 
-
-
 /* ==========================================
 
    PRUNING STATION — MATCH THE BOTANICAL UI
 
    ========================================== */
-
-
 
 .botanical-garden__content .station {
 
@@ -3352,15 +2846,11 @@ body {
 
 }
 
-
-
 .botanical-garden__content .station__title {
 
   gap: 11px;
 
 }
-
-
 
 .botanical-garden__content .station__title h2 {
 
@@ -3374,8 +2864,6 @@ body {
 
 }
 
-
-
 .botanical-garden__content .station__title svg {
 
   /* Original scissors icon is white for the old dark panel */
@@ -3383,8 +2871,6 @@ body {
   filter: brightness(0) saturate(100%) opacity(.65);
 
 }
-
-
 
 .botanical-garden__content .station__intro {
 
@@ -3395,8 +2881,6 @@ body {
   line-height: 1.8;
 
 }
-
-
 
 .botanical-garden__content .station__row {
 
@@ -3412,8 +2896,6 @@ body {
 
 }
 
-
-
 .botanical-garden__content .station__name {
 
   color: var(--botanical-ink);
@@ -3424,8 +2906,6 @@ body {
 
 }
 
-
-
 .botanical-garden__content .station__actions {
 
   flex-wrap: wrap;
@@ -3434,8 +2914,6 @@ body {
 
 }
 
-
-
 .botanical-garden__content .station__actions .btn {
 
   border-radius: 999px;
@@ -3443,8 +2921,6 @@ body {
   font-size: 12px;
 
 }
-
-
 
 .botanical-garden__content .station .btn--ghost-dark {
 
@@ -3456,8 +2932,6 @@ body {
 
 }
 
-
-
 .botanical-garden__content .station .btn--light {
 
   background: var(--botanical-accent);
@@ -3465,8 +2939,6 @@ body {
   color: white;
 
 }
-
-
 
 .botanical-garden__content .station .btn--dashed-dark {
 
@@ -3477,8 +2949,6 @@ body {
   background: #F7F8EF;
 
 }
-
-
 
 .botanical-garden__content .station__footer {
 
@@ -3494,8 +2964,6 @@ body {
 
 }
 
-
-
 .botanical-garden__content .station__footer .btn--gold {
 
   color: white;
@@ -3506,23 +2974,17 @@ body {
 
 }
 
-
-
 /* ==========================================
 
    INSPECTOR + COMPOST — MATCHING FINISH
 
    ========================================== */
 
-
-
 .botanical-garden__content .inspector {
 
   padding: 25px;
 
 }
-
-
 
 .botanical-garden__content .inspector > .eyebrow {
 
@@ -3531,8 +2993,6 @@ body {
   font-size: 11px;
 
 }
-
-
 
 .botanical-garden__content .inspector__head h3 {
 
@@ -3544,8 +3004,6 @@ body {
 
 }
 
-
-
 .botanical-garden__content .inspector__why {
 
   color: var(--botanical-text);
@@ -3553,8 +3011,6 @@ body {
   line-height: 1.8;
 
 }
-
-
 
 .botanical-garden__content .twig {
 
@@ -3568,15 +3024,11 @@ body {
 
 }
 
-
-
 .botanical-garden__content .twig .btn {
 
   border-radius: 999px;
 
 }
-
-
 
 .botanical-garden__content .pile {
 
@@ -3585,8 +3037,6 @@ body {
   border: 1px solid #EBE4D6;
 
 }
-
-
 
 .botanical-garden__content .compost__item {
 
@@ -3598,8 +3048,6 @@ body {
 
 }
 
-
-
 .botanical-garden__content .change__cell {
 
   background: #F6F3E9;
@@ -3610,8 +3058,6 @@ body {
 
 }
 
-
-
 .botanical-garden__content .change__cell--after {
 
   background: #E8EFDF;
@@ -3620,15 +3066,11 @@ body {
 
 }
 
-
-
 /* ==========================================
 
    RESPONSIVE + REDUCED MOTION
 
    ========================================== */
-
-
 
 @media (max-width: 1050px) {
 
@@ -3637,8 +3079,6 @@ body {
     grid-template-columns: minmax(0, 1fr);
 
   }
-
-
 
   .botanical-garden__content .side {
 
@@ -3652,8 +3092,6 @@ body {
 
 }
 
-
-
 @media (max-width: 700px) {
 
   .botanical-garden__content .side {
@@ -3662,23 +3100,17 @@ body {
 
   }
 
-
-
   .botanical-garden__content .feed-tree-card {
 
     padding: 17px;
 
   }
 
-
-
   .botanical-garden__content .branch-grid {
 
     grid-template-columns: 1fr;
 
   }
-
-
 
   .feed-tree-card__scene {
 
@@ -3688,15 +3120,11 @@ body {
 
   }
 
-
-
   .feed-tree-card__scene-note {
 
     font-size: 11px;
 
   }
-
-
 
   .botanical-garden__content .station,
 
@@ -3706,8 +3134,6 @@ body {
 
   }
 
-
-
   .botanical-garden__content .stat {
 
     min-height: 84px;
@@ -3715,8 +3141,6 @@ body {
   }
 
 }
-
-
 
 @media (prefers-reduced-motion: reduce) {
 
@@ -3730,8 +3154,6 @@ body {
 
 }
 
-
-
 .prune-reduce-motion .organic-tree__branch,
 
 .prune-reduce-motion .organic-tree__foliage {
@@ -3739,10 +3161,6 @@ body {
   animation: none !important;
 
 }
-
-
-
-
 
 /* ==========================================
 
@@ -3752,11 +3170,7 @@ body {
 
    ========================================== */
 
-
-
 /* Hero preview */
-
-
 
 .botanical-hero__tree-preview {
 
@@ -3772,8 +3186,6 @@ body {
 
 }
 
-
-
 .botanical-hero__tree-preview .storybook-tree {
 
   display: block;
@@ -3786,11 +3198,7 @@ body {
 
 }
 
-
-
 /* Feed Garden */
-
-
 
 .feed-tree-card__scene .storybook-tree {
 
@@ -3806,11 +3214,7 @@ body {
 
 }
 
-
-
 /* Gently animated foliage rather than swinging branches */
-
-
 
 .storybook-tree__foliage {
 
@@ -3822,15 +3226,11 @@ body {
 
 }
 
-
-
 .storybook-tree__foliage:nth-of-type(2n) {
 
   animation-delay: -2s;
 
 }
-
-
 
 @keyframes storybookBreathe {
 
@@ -3848,11 +3248,7 @@ body {
 
 }
 
-
-
 /* A softer garden stage */
-
-
 
 .feed-tree-card__scene {
 
@@ -3880,15 +3276,11 @@ body {
 
 }
 
-
-
 .feed-tree-card__sun {
 
   opacity: .58;
 
 }
-
-
 
 /* Avoid old organic-tree animation rules */
 
@@ -3897,8 +3289,6 @@ body {
   transform-origin: center;
 
 }
-
-
 
 @media (prefers-reduced-motion: reduce) {
 
@@ -3912,8 +3302,6 @@ body {
 
 }
 
-
-
 .prune-reduce-motion .botanical-hero__tree-preview,
 
 .prune-reduce-motion .storybook-tree__foliage {
@@ -3922,17 +3310,11 @@ body {
 
 }
 
-
-
-
-
 /* ==========================================
 
    CHROME EXTENSION TREE — WEBSITE INTEGRATION
 
    ========================================== */
-
-
 
 .website-tree-toolbar {
 
@@ -3956,8 +3338,6 @@ body {
 
 }
 
-
-
 .website-tree-zoom {
 
   display: flex;
@@ -3967,8 +3347,6 @@ body {
   gap: 8px;
 
 }
-
-
 
 .website-tree-zoom button {
 
@@ -3992,15 +3370,11 @@ body {
 
 }
 
-
-
 .website-tree-zoom button:hover {
 
   background: var(--botanical-accent-soft);
 
 }
-
-
 
 .website-tree-zoom span {
 
@@ -4009,8 +3383,6 @@ body {
   text-align: center;
 
 }
-
-
 
 .website-tree-layout {
 
@@ -4023,8 +3395,6 @@ body {
   min-width: 0;
 
 }
-
-
 
 .website-tree-viewport {
 
@@ -4052,8 +3422,6 @@ body {
 
 }
 
-
-
 .website-tree-details {
 
   display: grid;
@@ -4064,8 +3432,6 @@ body {
 
 }
 
-
-
 #topic-inspector,
 
 #branches {
@@ -4074,8 +3440,6 @@ body {
 
 }
 
-
-
 @media (max-width: 768px) {
 
   .website-tree-viewport {
@@ -4083,8 +3447,6 @@ body {
     height: 420px;
 
   }
-
-
 
 }
 
@@ -4096,15 +3458,11 @@ body {
 
 }
 
-
-
 .journal-date--warning {
 
   background: #f4e7d5;
 
 }
-
-
 
 .journal-date__count {
 
@@ -4118,8 +3476,6 @@ body {
 
 }
 
-
-
 .daily-insights__stats {
 
   display: grid;
@@ -4129,8 +3485,6 @@ body {
   gap: 12px;
 
 }
-
-
 
 .daily-insights__stat {
 
@@ -4150,8 +3504,6 @@ body {
 
 }
 
-
-
 .daily-insights__stat strong {
 
   color: var(--botanical-ink);
@@ -4164,8 +3516,6 @@ body {
 
 }
 
-
-
 .daily-insights__stat span {
 
   color: var(--botanical-text);
@@ -4174,15 +3524,11 @@ body {
 
 }
 
-
-
 .daily-insights__category {
 
   margin: 15px 0;
 
 }
-
-
 
 .daily-insights__category-label {
 
@@ -4198,15 +3544,11 @@ body {
 
 }
 
-
-
 .daily-insights__category-label span {
 
   color: var(--botanical-text);
 
 }
-
-
 
 .daily-insights__bar {
 
@@ -4220,8 +3562,6 @@ body {
 
 }
 
-
-
 .daily-insights__bar > div {
 
   height: 100%;
@@ -4231,8 +3571,6 @@ body {
   border-radius: inherit;
 
 }
-
-
 
 .daily-insights__video {
 
@@ -4248,8 +3586,6 @@ body {
 
 }
 
-
-
 .daily-insights__video-head {
 
   display: flex;
@@ -4262,15 +3598,11 @@ body {
 
 }
 
-
-
 .daily-insights__video-head strong {
 
   color: var(--botanical-ink);
 
 }
-
-
 
 .daily-insights__video-head > span {
 
@@ -4282,8 +3614,6 @@ body {
 
 }
 
-
-
 .daily-insights__video p {
 
   color: var(--botanical-text);
@@ -4294,8 +3624,6 @@ body {
 
 }
 
-
-
 .daily-insights__video details {
 
   margin-top: 12px;
@@ -4303,8 +3631,6 @@ body {
   font-size: 13px;
 
 }
-
-
 
 .daily-insights__video summary {
 
@@ -4316,8 +3642,6 @@ body {
 
 }
 
-
-
 @media (max-width: 650px) {
 
   .daily-insights__stats {
@@ -4325,8 +3649,6 @@ body {
     grid-template-columns: 1fr;
 
   }
-
-
 
   .daily-insights__video-head {
 
@@ -4337,8 +3659,6 @@ body {
   }
 
 }
-
-
 
 /* Full-width Explore & Manage Topics panel */
 
@@ -4352,8 +3672,6 @@ body {
 
 }
 
-
-
 .garden-topic-editor-section .inspector--topic-editor {
 
   width: 100%;
@@ -4367,8 +3685,6 @@ body {
   padding: 28px;
 
 }
-
-
 
 .garden-topic-editor-section .website-topic-editor {
 
@@ -4386,8 +3702,6 @@ body {
 
 }
 
-
-
 .garden-topic-editor-section
 
 .website-topic-editor__categories {
@@ -4397,10 +3711,6 @@ body {
   min-width: 0;
 
 }
-
-
-
-
 
 /* Wide Explore & Manage Topics panel */
 
@@ -4414,8 +3724,6 @@ body {
 
 }
 
-
-
 .garden-topic-editor-section .inspector--topic-editor {
 
   width: 100%;
@@ -4430,8 +3738,6 @@ body {
 
 }
 
-
-
 .garden-topic-editor-section .website-topic-editor {
 
   width: 100%;
@@ -4445,8 +3751,6 @@ body {
   box-sizing: border-box;
 
 }
-
-
 
 /* Category lists */
 
@@ -4466,8 +3770,6 @@ body {
 
 }
 
-
-
 .website-topic-editor__children {
 
   margin-left: 22px;
@@ -4478,8 +3780,6 @@ body {
 
 }
 
-
-
 .website-topic-editor__category {
 
   min-width: 0;
@@ -4487,8 +3787,6 @@ body {
   margin: 8px 0;
 
 }
-
-
 
 .website-topic-editor__category-row {
 
@@ -4508,8 +3806,6 @@ body {
 
 }
 
-
-
 .website-topic-editor__category-row .website-topic-editor__name {
 
   flex: 1 1 180px;
@@ -4520,23 +3816,17 @@ body {
 
 }
 
-
-
 .website-topic-editor__content {
 
   padding: 8px 12px 12px;
 
 }
 
-
-
 .website-topic-description {
 
   margin: 8px 0;
 
 }
-
-
 
 /* Drag-and-drop controls */
 
@@ -4554,15 +3844,11 @@ body {
 
 }
 
-
-
 .website-topic-drag:active {
 
   cursor: grabbing;
 
 }
-
-
 
 .website-topic-order {
 
@@ -4572,15 +3858,11 @@ body {
 
 }
 
-
-
 .website-topic-order button {
 
   min-width: 28px;
 
 }
-
-
 
 .website-topic-drop-gap {
 
@@ -4589,8 +3871,6 @@ body {
   border-radius: 5px;
 
 }
-
-
 
 .website-topic-editor__category-row.is-over,
 
@@ -4604,8 +3884,6 @@ body {
 
 }
 
-
-
 .website-topic-editor__organizer.is-dragging
 
 .website-topic-drop-gap {
@@ -4613,8 +3891,6 @@ body {
   background: rgba(116, 145, 91, 0.16);
 
 }
-
-
 
 .website-topic-root-drop {
 
@@ -4629,8 +3905,6 @@ body {
   color: #65775b;
 
 }
-
-
 
 /* Video rows */
 
@@ -4650,8 +3924,6 @@ body {
 
 }
 
-
-
 .website-topic-video .website-topic-editor__video {
 
   flex: 1 1 200px;
@@ -4664,15 +3936,11 @@ body {
 
 }
 
-
-
 .website-topic-video select {
 
   max-width: 100%;
 
 }
-
-
 
 /* Category management */
 
@@ -4687,8 +3955,6 @@ body {
   border-radius: 10px;
 
 }
-
-
 
 .website-topic-category-manager form,
 
@@ -4706,8 +3972,6 @@ body {
 
 }
 
-
-
 .website-topic-category-manager label {
 
   display: flex;
@@ -4719,8 +3983,6 @@ body {
   flex: 1 1 220px;
 
 }
-
-
 
 .website-topic-category-manager input,
 
@@ -4734,8 +3996,6 @@ body {
 
 }
 
-
-
 /* Video detail panel */
 
 .website-topic-editor__details {
@@ -4746,8 +4006,6 @@ body {
 
 }
 
-
-
 /* Mobile layout */
 
 @media (max-width: 640px) {
@@ -4757,8 +4015,6 @@ body {
     padding: 16px;
 
   }
-
-
 
   .website-topic-editor__children {
 
@@ -5387,4 +4643,352 @@ body {
     flex-direction: column;
     gap: 4px;
   }
+}
+/* Combined garden management panel */
+
+.botanical-garden__content .side {
+
+  min-width: 0;
+
+  min-height: 0;
+
+  display: block;
+
+}
+
+
+/* =====================================================
+   GARDEN MANAGEMENT — natural height, accessible lists
+   ===================================================== */
+.garden-management-box {
+  width: 100%;
+  height: auto;
+  max-height: none;
+  box-sizing: border-box;
+  padding: 20px 18px;
+  overflow: visible;
+  border-radius: 26px;
+  background: #f3f2e5;
+  display: block;
+}
+
+.garden-management-box__content {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  min-height: 0;
+  gap: 0;
+}
+
+.botanical-garden__content .garden-management-box .station,
+.botanical-garden__content .garden-management-box .compost,
+.botanical-garden__content .garden-management-box .garden-management-summary {
+  width: 100%;
+  min-width: 0;
+  flex: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.botanical-garden__content .garden-management-box .station {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+/* Keep the heading and actions visible while topic rows scroll. */
+.botanical-garden__content .garden-management-box .station__scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: 320px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 5px;
+  scrollbar-width: thin;
+  scrollbar-color: #b6bea7 transparent;
+}
+
+.botanical-garden__content .garden-management-box .station__row {
+  flex-shrink: 0;
+}
+
+.botanical-garden__content .garden-management-box .compost,
+.botanical-garden__content .garden-management-box .garden-management-summary {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--botanical-border);
+}
+
+/* Preserve every Restore action, without letting the compost pile
+   push the pruning station out of view. */
+.botanical-garden__content .garden-management-box .compost__list {
+  max-height: 210px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  padding-right: 4px;
+}
+
+.garden-management-box .pile,
+.garden-management-box .compost__intro,
+.garden-management-box .station__intro,
+.garden-management-box .change__intro {
+  display: none;
+}
+
+.garden-management-box .garden-management-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.garden-management-box .garden-management-summary .change__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+/* Prevent the olive selection tint inside the video inspector. */
+.website-topic-editor__details ::selection {
+  color: inherit;
+  background: transparent;
+}
+
+@media (max-width: 650px) {
+  .garden-management-box { padding: 16px 13px; }
+  .botanical-garden__content .garden-management-box .station__scroll {
+    max-height: 280px;
+  }
+}
+
+/* Match the management panel height to the tree card */
+.botanical-garden__content .columns {
+  align-items: stretch;
+}
+
+.botanical-garden__content .columns > .side {
+  min-height: 0;
+  height: 0;
+  min-width: 0;
+  align-self: stretch;
+}
+
+.botanical-garden__content .garden-management-box {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.botanical-garden__content .garden-management-box__content {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Pruning station fills only the remaining space */
+.botanical-garden__content .garden-management-box .station {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Only the pruning topic list scrolls */
+.botanical-garden__content .garden-management-box .station__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #b7bea5 transparent;
+}
+
+/* Keep pruning heading and footer stationary */
+.botanical-garden__content .station__title,
+.botanical-garden__content .station__footer {
+  flex-shrink: 0;
+}
+
+/* Keep compost pile and summary stationary */
+.botanical-garden__content .garden-management-box .compost,
+.botanical-garden__content .garden-management-summary {
+  flex: 0 0 auto;
+  min-height: 0;
+}
+
+/* FIX: Restore the right-hand management panel */
+.botanical-garden__content .columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr);
+  align-items: stretch;
+  gap: 20px;
+}
+
+/* Match the height of the tree card */
+.botanical-garden__content .columns > .side {
+  height: auto;
+  min-height: 0;
+  min-width: 0;
+  align-self: stretch;
+  position: relative;
+}
+
+/* Management box fills the available height */
+.botanical-garden__content .garden-management-box {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+}
+
+/* Stack all three sections */
+.botanical-garden__content .garden-management-box__content {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  gap: 12px;
+}
+
+/* Pruning station uses remaining space */
+.botanical-garden__content .garden-management-box .station {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Only the topic list scrolls */
+.botanical-garden__content .garden-management-box .station__scroll {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  gap: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #b7bea5 transparent;
+}
+
+/* Keep the header and footer visible */
+.botanical-garden__content .station__title,
+.botanical-garden__content .station__footer {
+  flex-shrink: 0;
+}
+
+/* Keep Compost Pile and Your Garden Now fixed */
+.botanical-garden__content .garden-management-box .compost,
+.botanical-garden__content .garden-management-summary {
+  flex: 0 0 auto;
+}
+
+/* Restore the compost pile illustration */
+.botanical-garden__content .garden-management-box .pile {
+  display: block;
+  width: 100%;
+  max-width: 230px;
+  height: 105px;
+  min-height: 0;
+  margin: 8px auto;
+  overflow: hidden;
+}
+
+/* Keep the illustration properly sized */
+.botanical-garden__content .garden-management-box .pile svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Keep compost section compact */
+.botanical-garden__content .garden-management-box .compost {
+  flex: 0 0 auto;
+  padding-top: 10px;
+}
+
+/* Allow pruning station to shrink to make room */
+.botanical-garden__content .garden-management-box .station {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Keep only the pruning topic list scrollable */
+.botanical-garden__content .garden-management-box .station__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Stack compost visual and empty message vertically */
+.garden-management-box .compost__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Center the compost illustration */
+.garden-management-box .pile {
+  margin: 0 auto;
+}
+
+/* Move empty message underneath the illustration */
+.garden-management-box .compost__empty {
+  width: 100%;
+  max-width: none;
+  text-align: center;
+  white-space: nowrap;
+  font-size: 11px;
+  padding: 4px 0;
+}
+
+/* Position compost illustration on the right */
+.garden-management-box .compost__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+/* Move the circle illustration to the right */
+.garden-management-box .pile {
+  margin: 0 0 0 auto;
+}
+
+/* Keep the message below the illustration */
+.garden-management-box .compost__empty {
+  width: 100%;
+  max-width: none;
+  text-align: right;
+  white-space: nowrap;
+  font-size: 11px;
+  padding: 4px 0;
 }

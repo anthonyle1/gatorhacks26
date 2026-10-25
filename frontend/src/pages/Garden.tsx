@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom'
 import CompostPile from '../components/garden/CompostPile'
 import Inspector from '../components/garden/Inspector'
@@ -152,7 +153,6 @@ export default function Garden() {
           aria-hidden="true"
         >
           <div className="botanical-sun" />
-
           <HeroTree />
 
           <div className="botanical-hero__floating-leaf botanical-hero__floating-leaf--one">
@@ -246,7 +246,7 @@ export default function Garden() {
           <BotanicalSprig />
         </div>
 
-        {/* REAL STATS FROM MAIN */}
+        {/* REAL STATS */}
         <div className="stats">
           <div className="stat">
             <span className="stat__label">
@@ -276,62 +276,69 @@ export default function Garden() {
           </div>
         </div>
 
-        {/* ANIMATED TREE AND PRUNING CONTROLS */}
-<div className="columns">
-  <TreeCard />
+        {/* TREE + COMBINED MANAGEMENT PANEL */}
+        <div className="columns">
+          <TreeCard />
 
-  <div className="side">
-    <PruningStation />
-  </div>
-</div>
+          <div className="side">
+            <div className="garden-management-box">
+              <div className="garden-management-box__content">
 
-{/* FULL-WIDTH TOPIC EDITOR */}
-<div className="garden-topic-editor-section">
-  <Inspector />
-</div>
+                {/* PRUNING STATION */}
+                <PruningStation />
 
-        {/* COMPOST AND GARDEN SUMMARY */}
-        <div className="row">
-          <CompostPile />
+                {/* COMPOST PILE - FIXED */}
+                <CompostPile />
 
-          <section
-            className="card card--lg change"
-            aria-labelledby="change-heading"
-          >
-            <h2 id="change-heading" className="h3">
-              Your garden now
-            </h2>
+                {/* YOUR GARDEN NOW - FIXED */}
+                <section
+                  className="garden-management-summary"
+                  aria-labelledby="change-heading"
+                >
+                  <h2 id="change-heading" className="h3">
+                    Your garden now
+                  </h2>
 
-            <p className="compost__intro">
-              A cut removes every topic below it.
-              Restore a branch from the compost pile.
-            </p>
+                  <div className="change__grid">
+                    <div className="change__cell">
+                      <span className="change__label">
+                        Growing topics
+                      </span>
 
-            <div className="change__grid">
-              <div className="change__cell">
-                <span className="change__label">
-                  Growing topics
-                </span>
-                <span className="change__value">
-                  {total - prunedCount}
-                </span>
-              </div>
+                      <span className="change__value">
+                        {total - prunedCount}
+                      </span>
+                    </div>
 
-              <div className="change__cell change__cell--after">
-                <span className="change__label">
-                  Removed topics
-                </span>
-                <span className="change__value">
-                  {prunedCount}
-                </span>
+                    <div className="change__cell change__cell--after">
+                      <span className="change__label">
+                        Removed topics
+                      </span>
+
+                      <span className="change__value">
+                        {prunedCount}
+                      </span>
+                    </div>
+                  </div>
+
+                  <Link
+                    to="/calendar"
+                    className="link-strong"
+                  >
+                    Explore your growth journey →
+                  </Link>
+                </section>
+
               </div>
             </div>
-
-            <Link to="/calendar" className="link-strong">
-              Explore your growth journey →
-            </Link>
-          </section>
+          </div>
         </div>
+
+        {/* TOPIC EDITOR - OPENS ONLY WHEN INSPECTING */}
+        <div className="garden-topic-editor-section">
+          <Inspector />
+        </div>
+
       </section>
     </div>
   )
