@@ -82,6 +82,7 @@ import { Link } from 'react-router-dom'
 import CompostPile from '../components/garden/CompostPile'
 import Inspector from '../components/garden/Inspector'
 import PruningStation from '../components/garden/PruningStation'
+import Tree from '../components/Tree'
 import TreeCard from '../components/garden/TreeCard'
 import {
   PRUNABLE_BRANCHES,
@@ -164,35 +165,20 @@ export default function Garden() {
             </a>
           </div>
         </div>
-
         <div className="botanical-hero__illustration" aria-hidden="true">
           <div className="botanical-sun" />
-          <svg viewBox="0 0 360 330" className="botanical-hero-tree">
-            <ellipse cx="180" cy="302" rx="129" ry="13" fill="#D9DBC4" opacity=".55" />
-            <path d="M180 300c4-43 4-93-3-152" stroke="#80604A" strokeWidth="19" strokeLinecap="round" fill="none" />
-            <path d="M180 221c-25-32-51-54-89-74M179 195c25-42 56-66 99-80M178 162c-15-41-32-58-46-73"
-              stroke="#80604A" strokeWidth="10" strokeLinecap="round" fill="none" />
 
-            <g className="botanical-tree-crown">
-              <ellipse cx="114" cy="126" rx="62" ry="51" fill="#ADC6A0" />
-              <ellipse cx="169" cy="89" rx="74" ry="67" fill="#8BAD87" />
-              <ellipse cx="244" cy="116" rx="67" ry="55" fill="#BBD0A6" />
-              <ellipse cx="179" cy="147" rx="80" ry="61" fill="#9BBB90" />
-              <ellipse cx="213" cy="89" rx="51" ry="49" fill="#C7D7A8" />
-              <ellipse cx="97" cy="143" rx="40" ry="35" fill="#C7D7A8" />
-            </g>
+          <div className="botanical-hero__tree-preview">
+            <Tree decorative />
+          </div>
 
-            <g fill="#ECDFBA" opacity=".9">
-              <circle cx="125" cy="86" r="5" />
-              <circle cx="215" cy="50" r="4" />
-              <circle cx="250" cy="143" r="5" />
-              <circle cx="154" cy="166" r="3" />
-            </g>
+          <div className="botanical-hero__floating-leaf botanical-hero__floating-leaf--one">
+            ✦
+          </div>
 
-            <path d="M50 301q15-29 30 0m196 0q15-34 32 0" stroke="#93AD83" strokeWidth="3" fill="none" strokeLinecap="round" />
-          </svg>
-          <div className="botanical-hero__floating-leaf botanical-hero__floating-leaf--one">✦</div>
-          <div className="botanical-hero__floating-leaf botanical-hero__floating-leaf--two">❧</div>
+          <div className="botanical-hero__floating-leaf botanical-hero__floating-leaf--two">
+            ❧
+          </div>
         </div>
       </section>
 

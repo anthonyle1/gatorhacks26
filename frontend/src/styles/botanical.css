@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&family=DM+Serif+Display:ital@0;1&display=swap');
 
 /* ==========================================
    PRUNE — BOTANICAL DESIGN
@@ -17,7 +17,7 @@
   --botanical-shadow: 0 14px 28px -18px rgba(53, 65, 43, .30),
                        0 5px 16px -10px rgba(53, 65, 43, .16);
   --botanical-serif: 'DM Serif Display', Georgia, serif;
-  --botanical-sans: 'DM Sans', sans-serif;
+  --botanical-sans: 'Balsamiq Sans', sans-serif;
 }
 
 :root[data-prune-theme="olive"] {
@@ -1281,4 +1281,682 @@ body {
   .journal-heading h1 {
     font-size: 39px;
   }
+}
+
+
+/* ==========================================
+   FEED GARDEN — BOTANICAL REFINEMENT
+   ========================================== */
+
+/* Consistent friendly typography */
+
+.botanical-app {
+  font-family: var(--botanical-sans);
+}
+
+.botanical-app button,
+.botanical-app input,
+.botanical-app select,
+.botanical-app textarea {
+  font-family: var(--botanical-sans);
+}
+
+.botanical-garden__content {
+  gap: 28px;
+}
+
+.botanical-section-title {
+  margin-top: 12px;
+  padding: 0 8px 8px;
+}
+
+.botanical-section-title h2 {
+  font-size: clamp(34px, 4vw, 47px);
+  letter-spacing: -.025em;
+}
+
+.botanical-section-title p {
+  max-width: 580px;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+/* Stat cards */
+
+.botanical-garden__content .stats {
+  gap: 14px;
+}
+
+.botanical-garden__content .stat {
+  flex: 1 1 170px;
+  min-height: 103px;
+  gap: 8px;
+  padding: 19px 21px;
+  border-radius: 20px;
+  background: #FFFBF2;
+  border: 1px solid var(--botanical-border);
+}
+
+.botanical-garden__content .stat__label {
+  color: #777E69;
+  font-size: 12px;
+}
+
+.botanical-garden__content .stat__value {
+  color: var(--botanical-accent);
+  font-family: var(--botanical-serif);
+  font-size: 27px;
+  line-height: 1.2;
+}
+
+/* Main garden layout */
+
+.botanical-garden__content .columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.botanical-garden__content .columns > .tree-card {
+  min-width: 0;
+}
+
+.botanical-garden__content .side {
+  min-width: 0;
+  gap: 20px;
+}
+
+/* Tree container */
+
+.botanical-garden__content .feed-tree-card {
+  padding: 27px;
+  gap: 23px;
+  overflow: hidden;
+  background: #FFFCF4;
+  border: 1px solid #E1DFCD;
+  border-radius: 28px;
+}
+
+.feed-tree-card__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.feed-tree-card__heading h2 {
+  margin: 0 0 10px;
+  color: var(--botanical-ink);
+  font-family: var(--botanical-serif);
+  font-weight: 400;
+  font-size: clamp(25px, 3vw, 33px);
+  line-height: 1.2;
+}
+
+.feed-tree-card__heading p {
+  max-width: 410px;
+  margin: 0;
+  color: var(--botanical-text);
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.feed-tree-card__flourish {
+  color: #A0B38E;
+  font-size: 42px;
+  opacity: .7;
+  line-height: 1;
+}
+
+.feed-tree-card__scene {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  min-height: 355px;
+  padding: 10px 0 20px;
+  border: 1px solid #E9E7D6;
+  border-radius: 24px;
+  background:
+    radial-gradient(
+      ellipse at 50% 50%,
+      rgba(246, 231, 187, .63),
+      transparent 63%
+    ),
+    linear-gradient(
+      180deg,
+      #F8F4E9 0%,
+      #F3F1E5 73%,
+      #EBEBD9 100%
+    );
+}
+
+.feed-tree-card__sun {
+  position: absolute;
+  width: 62%;
+  max-width: 310px;
+  aspect-ratio: 1;
+  top: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 248, 220, .88),
+    rgba(233, 223, 178, .28) 70%,
+    transparent 78%
+  );
+  pointer-events: none;
+}
+
+.feed-tree-card__scene .tree-wrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 610px;
+  height: auto;
+  aspect-ratio: 640 / 520;
+  margin: 0 auto;
+}
+
+.feed-tree-card__scene .organic-tree {
+  overflow: visible;
+  filter: drop-shadow(0 9px 9px rgba(76, 78, 52, .07));
+}
+
+.feed-tree-card__scene-note {
+  position: absolute;
+  right: 18px;
+  bottom: 14px;
+  font-family: var(--botanical-serif);
+  font-style: italic;
+  font-size: 13px;
+  color: #8A9272;
+  pointer-events: none;
+}
+
+/* Organic branch motion */
+
+.organic-tree__branch {
+  transform-origin: 320px 390px;
+  animation: organicBranchAppear .65s ease-out both;
+}
+
+.organic-tree__foliage {
+  transform-box: fill-box;
+  transform-origin: center 80%;
+  animation: organicLeafSway 6s ease-in-out infinite;
+}
+
+.organic-tree__branch:nth-of-type(even) .organic-tree__foliage {
+  animation-delay: -2.5s;
+}
+
+@keyframes organicBranchAppear {
+  from {
+    opacity: 0;
+    transform: scale(.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes organicLeafSway {
+  0%, 100% { transform: rotate(-1deg); }
+  50% { transform: rotate(1.5deg); }
+}
+
+/* Organic legend */
+
+.feed-tree-card__legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 11px 18px;
+  list-style: none;
+  padding: 0 2px;
+  margin: 0;
+}
+
+.feed-tree-card__legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #69745F;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.feed-tree-card__legend-leaf {
+  width: 10px;
+  height: 17px;
+  border-radius: 100% 0 100% 0;
+  transform: rotate(-28deg);
+  flex-shrink: 0;
+}
+
+/* Explore branches section */
+
+.feed-tree-card__categories {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px solid #E7E6D8;
+  padding-top: 23px;
+}
+
+.feed-tree-card__category-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.feed-tree-card__category-heading h3 {
+  margin: 0;
+  font-family: var(--botanical-serif);
+  font-size: 23px;
+  font-weight: 400;
+  color: var(--botanical-ink);
+}
+
+.feed-tree-card__category-heading > span {
+  font-size: 11px;
+  color: #8A907D;
+}
+
+/* Category list */
+
+.botanical-garden__content .branch-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.botanical-garden__content .feed-branch-tile {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-align: left;
+  gap: 11px;
+  min-height: 74px;
+  padding: 13px;
+  background: #F6F4E9;
+  border: 1px solid #E4E4D5;
+  border-radius: 15px;
+  box-shadow: none;
+  color: var(--botanical-ink);
+  transition:
+    transform .22s ease,
+    border-color .22s ease,
+    background-color .22s ease,
+    box-shadow .22s ease;
+}
+
+.botanical-garden__content .feed-branch-tile:hover {
+  background: #EFF1E3;
+  border-color: #B7C7A9;
+  transform: translateY(-2px);
+  box-shadow: 0 7px 15px rgba(58, 69, 46, .07);
+}
+
+.botanical-garden__content .feed-branch-tile.branch-tile--selected {
+  background: #E8EFDF;
+  border: 1px solid var(--botanical-accent);
+  box-shadow: 0 0 0 2px rgba(65, 103, 60, .10);
+}
+
+.feed-branch-tile__dot {
+  width: 13px;
+  height: 19px;
+  flex-shrink: 0;
+  border-radius: 100% 0 100% 0;
+  transform: rotate(-30deg);
+  background: #7FA67A;
+}
+
+.feed-branch-tile__dot--some {
+  background: #D5B16B;
+}
+
+.feed-branch-tile__dot--heavy {
+  background: #AF8463;
+}
+
+.feed-branch-tile__text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.feed-branch-tile__text .branch-tile__name {
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.feed-branch-tile__text .branch-tile__meta {
+  color: #73806F;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.feed-branch-tile__arrow {
+  font-size: 15px;
+  color: #8A9C7D;
+  align-self: flex-start;
+}
+
+.feed-tree-card__footnote {
+  margin: 0;
+  padding-top: 13px;
+  border-top: 1px solid #E7E6D8;
+  color: #7D8574;
+  font-size: 11px;
+  line-height: 1.75;
+}
+
+/* ==========================================
+   PRUNING STATION — MATCH THE BOTANICAL UI
+   ========================================== */
+
+.botanical-garden__content .station {
+  padding: 25px;
+  gap: 17px;
+  border: 1px solid #DCDCCA;
+  border-radius: 26px;
+  background: #F3F2E5;
+  color: var(--botanical-ink);
+  box-shadow: var(--botanical-shadow);
+}
+
+.botanical-garden__content .station__title {
+  gap: 11px;
+}
+
+.botanical-garden__content .station__title h2 {
+  color: var(--botanical-ink);
+  font-family: var(--botanical-serif);
+  font-size: 27px;
+  font-weight: 400;
+}
+
+.botanical-garden__content .station__title svg {
+  /* Original scissors icon is white for the old dark panel */
+  filter: brightness(0) saturate(100%) opacity(.65);
+}
+
+.botanical-garden__content .station__intro {
+  color: var(--botanical-text);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.botanical-garden__content .station__row {
+  padding: 14px;
+  background: #FFFCF4;
+  border: 1px solid #E3E1D0;
+  border-radius: 16px;
+  gap: 13px;
+}
+
+.botanical-garden__content .station__name {
+  color: var(--botanical-ink);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.botanical-garden__content .station__actions {
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.botanical-garden__content .station__actions .btn {
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.botanical-garden__content .station .btn--ghost-dark {
+  color: var(--botanical-accent);
+  border: 1px solid #C9D6BE;
+  background: #F7F8EF;
+}
+
+.botanical-garden__content .station .btn--light {
+  background: var(--botanical-accent);
+  color: white;
+}
+
+.botanical-garden__content .station .btn--dashed-dark {
+  color: var(--botanical-accent);
+  border: 1px dashed #AFC0A4;
+  background: #F7F8EF;
+}
+
+.botanical-garden__content .station__footer {
+  color: #6C765F;
+  font-size: 12px;
+  line-height: 1.7;
+  border-top: 1px solid #DDDFCD;
+  gap: 12px;
+}
+
+.botanical-garden__content .station__footer .btn--gold {
+  color: white;
+  background: var(--botanical-accent);
+  border-radius: 999px;
+}
+
+/* ==========================================
+   INSPECTOR + COMPOST — MATCHING FINISH
+   ========================================== */
+
+.botanical-garden__content .inspector {
+  padding: 25px;
+}
+
+.botanical-garden__content .inspector > .eyebrow {
+  color: var(--botanical-olive);
+  font-size: 11px;
+}
+
+.botanical-garden__content .inspector__head h3 {
+  color: var(--botanical-ink);
+  font-family: var(--botanical-serif);
+  font-size: 25px;
+}
+
+.botanical-garden__content .inspector__why {
+  color: var(--botanical-text);
+  line-height: 1.8;
+}
+
+.botanical-garden__content .twig {
+  background: #F7F5EC;
+  border: 1px solid #ECE8DA;
+  border-radius: 13px;
+  padding: 12px;
+}
+
+.botanical-garden__content .twig .btn {
+  border-radius: 999px;
+}
+
+.botanical-garden__content .pile {
+  background: #F4EFE2;
+  border: 1px solid #EBE4D6;
+}
+
+.botanical-garden__content .compost__item {
+  background: #F7F5EC;
+  border: 1px solid #EBE7D9;
+  border-radius: 13px;
+}
+
+.botanical-garden__content .change__cell {
+  background: #F6F3E9;
+  border: 1px solid #E9E5D7;
+  border-radius: 14px;
+}
+
+.botanical-garden__content .change__cell--after {
+  background: #E8EFDF;
+  border-color: #D6E2CD;
+}
+
+/* ==========================================
+   RESPONSIVE + REDUCED MOTION
+   ========================================== */
+
+@media (max-width: 1050px) {
+  .botanical-garden__content .columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .botanical-garden__content .side {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
+@media (max-width: 700px) {
+  .botanical-garden__content .side {
+    grid-template-columns: 1fr;
+  }
+
+  .botanical-garden__content .feed-tree-card {
+    padding: 17px;
+  }
+
+  .botanical-garden__content .branch-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .feed-tree-card__scene {
+    min-height: 260px;
+    padding-bottom: 18px;
+  }
+
+  .feed-tree-card__scene-note {
+    font-size: 11px;
+  }
+
+  .botanical-garden__content .station,
+  .botanical-garden__content .inspector {
+    padding: 20px;
+  }
+
+  .botanical-garden__content .stat {
+    min-height: 84px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .organic-tree__branch,
+  .organic-tree__foliage {
+    animation: none !important;
+  }
+}
+
+.prune-reduce-motion .organic-tree__branch,
+.prune-reduce-motion .organic-tree__foliage {
+  animation: none !important;
+}
+
+
+/* ==========================================
+   UNIFIED STORYBOOK TREE
+   Shared by hero and feed garden
+   ========================================== */
+
+/* Hero preview */
+
+.botanical-hero__tree-preview {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 410px;
+  animation: botanicalFloat 7s ease-in-out infinite;
+}
+
+.botanical-hero__tree-preview .storybook-tree {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 10px 12px rgba(66, 86, 51, .09));
+}
+
+/* Feed Garden */
+
+.feed-tree-card__scene .storybook-tree {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 8px 10px rgba(66, 86, 51, .07));
+}
+
+/* Gently animated foliage rather than swinging branches */
+
+.storybook-tree__foliage {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: storybookBreathe 6s ease-in-out infinite;
+}
+
+.storybook-tree__foliage:nth-of-type(2n) {
+  animation-delay: -2s;
+}
+
+@keyframes storybookBreathe {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .94;
+  }
+}
+
+/* A softer garden stage */
+
+.feed-tree-card__scene {
+  background:
+    radial-gradient(
+      circle at 50% 43%,
+      rgba(244, 233, 194, .55),
+      transparent 53%
+    ),
+    linear-gradient(
+      180deg,
+      #F9F6EB 0%,
+      #F0F1E4 100%
+    );
+}
+
+.feed-tree-card__sun {
+  opacity: .58;
+}
+
+/* Avoid old organic-tree animation rules */
+.feed-tree-card__scene .storybook-tree g {
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .botanical-hero__tree-preview,
+  .storybook-tree__foliage {
+    animation: none !important;
+  }
+}
+
+.prune-reduce-motion .botanical-hero__tree-preview,
+.prune-reduce-motion .storybook-tree__foliage {
+  animation: none !important;
 }
