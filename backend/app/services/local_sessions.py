@@ -4,9 +4,11 @@ import asyncio
 from contextlib import suppress
 from datetime import datetime, timezone, timedelta
 import json
-import hashlib
 import logging
+import re
 from uuid import uuid4
+from concurrent.futures import ThreadPoolExecutor
+from threading import Lock
 
 from fastapi.concurrency import run_in_threadpool
 
@@ -14,9 +16,13 @@ from analysis.analyzer import get_analyzer, ModelUnavailableError
 from analysis.ollama_client import OllamaError
 from analysis.session_review import classify_session_data
 from analysis.topic_store import TopicStore
-from analysis.video_assessment import assess_video, AssessmentComment
+from analysis.video_assessment import assess_video, AssessmentComment, assessment_identity
 from app.config import settings
 from app.youtube import fetch_video_metadata, fetch_video_comments, Comment, YouTubeError
+from app.services.audio_ingestion import AudioIngestion, video_evidence
+from analysis.versions import versions, fingerprint
+from analysis.cache import get_cache
+from analysis.metrics import measure
 
 logger = logging.getLogger(__name__)
 LOCAL_USER = "local_extension"
@@ -26,9 +32,32 @@ def now():
     return datetime.now(timezone.utc).isoformat()
 
 
+def cached_metadata(source_id):
+    with measure("metadata_fetch"):
+        return get_cache().get_or_compute({"scope": LOCAL_USER, "platform": "youtube", "source": source_id,
+            "kind": "metadata", "version": "1"}, lambda: fetch_video_metadata(source_id, settings.youtube_api_key), ttl=300)
+
+
+def cached_comments(source_id):
+    with measure("comments_fetch"):
+        return get_cache().get_or_compute({"scope": LOCAL_USER, "platform": "youtube", "source": source_id,
+            "query": {"limit": 20}, "version": "1"}, lambda: fetch_video_comments(source_id, settings.youtube_api_key, 20), ttl=300)
+
+
+def prefetch_occurrence(occurrence):
+    """Warm bounded evidence caches during playback; no final assessment or topics."""
+    if occurrence.platform == "youtube" and settings.youtube_api_key:
+        for fetch in (cached_metadata, cached_comments):
+            try:
+                fetch(occurrence.source_id)
+            except YouTubeError:
+                pass
+
+
 class LocalSessions:
     def __init__(self, store=None):
         self.store = store or TopicStore()
+        self.audio = AudioIngestion(self.store)
         with self.store.connection() as connection:
             connection.execute("""CREATE TABLE IF NOT EXISTS local_review_jobs (
                 id TEXT PRIMARY KEY, payload TEXT NOT NULL, status TEXT NOT NULL,
@@ -50,9 +79,11 @@ class LocalSessions:
     def enqueue(self, session_id, payload):
         encoded = json.dumps(payload, sort_keys=True)
         with self.store.connection() as connection:
+            connection.execute("BEGIN IMMEDIATE")
             row = connection.execute("SELECT payload FROM local_review_jobs WHERE id=?", (session_id,)).fetchone()
             if row and row[0] != encoded:
                 raise ValueError("This session already has a different snapshot")
+            self.audio.freeze(session_id, payload.get("evidence_manifest", []), connection=connection)
             connection.execute("INSERT OR IGNORE INTO local_review_jobs(id,payload,status,updated_at) VALUES (?,?,'pending',?)",
                                (session_id, encoded, now()))
 
@@ -89,7 +120,12 @@ class LocalSessions:
             return None
         result = self.store.view(session_id, LOCAL_USER) or {"session_id": session_id, "tree": [], "assignments": {}, "errors": [], "fallback_used": False}
         result.update(status=job["status"], videos=json.loads(job["videos"]), storage="local", detail=job["detail"])
-        result["analyzed_count"] = len(result["videos"])
+        audio = self.audio.evidence(session_id)
+        result["evidence_version"] = audio.get("evidence_version")
+        result["evidence_cutoff"] = audio.get("cutoff")
+        result["audio"] = self.audio.audio_status(session_id)
+        result["analyzed_count"] = sum(video.get("analysis", {}).get("status") != "processing" for video in result["videos"])
+        result["local_analysis_count"] = len(result["videos"])
         events = json.loads(job["payload"])["events"]
         result["video_count"] = len({(event["platform"], event["video_id"]) for event in events})
         result["fallback_used"] = result["fallback_used"] or any(video.get("analysis", {}).get("assessment", {}).get("fallback_used", False) for video in result["videos"])
@@ -103,6 +139,7 @@ def aggregate(payload):
         if key not in unique:
             unique[key] = {"video_id": key, "source_id": event["video_id"], "platform": event["platform"],
                            "title": event["title"], "caption": event["caption"], "dwell_seconds": 0, "watch_count": 0}
+            unique[key]["video_session_id"] = ("yt_" if event["platform"] == "youtube" else "ig_") + event["video_id"]
         video = unique[key]
         video["dwell_seconds"] += event.get("dwell_seconds") or 0
         video["watch_count"] += 1
@@ -117,52 +154,103 @@ def aggregate(payload):
     return list(unique.values())
 
 
-def analyze_video(video, previous=None):
+def analyze_video(video, previous=None, *, publish=None):
     errors = []
+    captured_key = fingerprint([video["title"], video["caption"], video.get("comments", [])])
+    accepted = (previous or {}).get("accepted_text_evidence", {})
     comments = [Comment(id=None, text=text) for text in video.get("comments", [])]
-    if video["platform"] == "youtube":
+    if accepted.get("version") == "1" and accepted.get("captured_key") == captured_key:
+        video.update(title=accepted["title"], caption=accepted["caption"])
+        comments = [Comment(id=row["id"], text=row["text"]) for row in accepted["comments"]]
+        errors.extend(accepted.get("errors", []))
+    elif video["platform"] == "youtube":
         if settings.youtube_api_key:
             try:
-                video.update(fetch_video_metadata(video["source_id"], settings.youtube_api_key))
+                video.update(cached_metadata(video["source_id"]))
             except YouTubeError:
                 errors.append("YouTube metadata unavailable; using the captured page metadata.")
             try:
                 from app.youtube import parse_comments
-                comments = parse_comments(fetch_video_comments(video["source_id"], settings.youtube_api_key, 20))
+                response = cached_comments(video["source_id"])
+                comments = parse_comments(response)
             except YouTubeError:
                 errors.append("YouTube comments unavailable; metadata can still support classification.")
         else:
             errors.append("YOUTUBE_API_KEY is not configured; using captured metadata without YouTube comments.")
+    # Persist the first accepted text snapshot in each video checkpoint; retries never
+    # refresh comments underneath an immutable finalized review.
+    video["accepted_text_evidence"] = {"version": "1", "prompt": None, "captured_key": captured_key,
+        "title": video["title"], "caption": video["caption"],
+        "comments": [{"id": comment.id, "text": comment.text} for comment in comments], "errors": list(errors)}
     if video["title"].strip().casefold() in {"youtube", "youtube shorts", "instagram", "instagram reels"}:
         video["title"] = ""
     analysis = {"status": "complete", "errors": errors, "sentiment": None, "comments": []}
+    analysis["versions"] = versions()
+    transcripts = video.get("transcripts", [])
+    analysis["transcript_sentiment"] = None
+    analysis["analysis_by_id"] = {}
     try:
         sentiment = get_analyzer().analyze(comments)
         analysis["sentiment"] = sentiment["summary"]
         analysis["comments"] = [{**row, "text": row["text"][:300]} for row in sentiment["comments"][:12]]
+        for index, row in enumerate(sentiment["comments"]):
+            evidence_id = "comment:" + str(row.get("id") or index)
+            analysis["analysis_by_id"][evidence_id] = {**row, "id": evidence_id, "source_type": "comment"}
+        if transcripts:
+            speech = get_analyzer().analyze([Comment(row["id"], row["text"]) for row in transcripts])
+            analysis["transcript_sentiment"] = speech["summary"]
+            for row in speech["comments"]:
+                analysis["analysis_by_id"][row["id"]] = {**row, "source_type": "transcript"}
     except (ModelUnavailableError, RuntimeError):
         errors.append("Comment sentiment is unavailable; no sentiment score was invented.")
     video["sentiment_balance"] = (analysis["sentiment"] or {}).get("sentiment_balance")
-    video["comments"] = [comment.text[:300] for comment in comments[:12]]
+    video["comments"] = [comment.text[:300] for comment in comments]
     video["metadata_status"] = "available" if video["title"].strip() or video["caption"].strip() else "insufficient"
-    if video["metadata_status"] == "available":
+    if publish:
+        analysis["status"] = "processing"
+        video["analysis"] = analysis
+        publish(video)
+    if video["metadata_status"] == "available" or transcripts or any(text.strip() for text in video["comments"]):
         try:
-            evidence = [AssessmentComment(text=text) for text in video["comments"] if text.strip()]
-            evidence_key = hashlib.sha256(json.dumps([video["title"], video["caption"][:4000], video["sentiment_balance"], video["comments"]]).encode()).hexdigest()
+            # Round-robin sentiment buckets preserve positive and neutral context.
+            buckets = {label: [] for label in ("negative", "neutral", "positive", None)}
+            seen = set()
+            for index, text in enumerate(video["comments"]):
+                if not text.strip() or text.casefold() in seen:
+                    continue
+                seen.add(text.casefold())
+                row = next((row for row in analysis["analysis_by_id"].values() if row["source_type"] == "comment" and row["text"][:300] == text), {})
+                buckets[row.get("sentiment")].append(AssessmentComment(id=row.get("id", f"comment:{index}"), text=text,
+                    sentiment=row.get("sentiment"), confidence=row.get("confidence"), scores=row.get("scores")))
+            keywords = set(re.findall(r"\w{4,}", (video["title"] + " " + video["caption"]).casefold()))
+            for bucket in buckets.values():
+                bucket.sort(key=lambda item: len(keywords & set(re.findall(r"\w{4,}", item.text.casefold()))), reverse=True)
+            evidence = []
+            while any(buckets.values()) and len(evidence) < 12:
+                for bucket in buckets.values():
+                    if bucket and len(evidence) < 12:
+                        evidence.append(bucket.pop(0))
+            video["comments"] = [item.text for item in evidence]
+            evidence_key = fingerprint([assessment_identity(), video["title"], video["caption"][:4000], video["sentiment_balance"],
+                [row.model_dump() for row in evidence], transcripts, video.get("coverage"), video.get("evidence_version"),
+                video.get("missing_evidence", []), video.get("excluded_evidence", []), analysis["transcript_sentiment"]])
             old = (previous or {}).get("analysis", {})
-            if old.get("evidence_key") == evidence_key and old.get("assessment"):
+            if old.get("versions") == versions() and old.get("evidence_key") == evidence_key and old.get("assessment"):
                 analysis["assessment"] = old["assessment"]
             else:
-                assessment = assess_video(video["title"] or "Video with caption only", video["caption"][:4000], video["sentiment_balance"], comments=evidence)
+                with measure("individual_assessment"):
+                    assessment = assess_video(video["title"], video["caption"][:4000], video["sentiment_balance"], comments=evidence,
+                        transcripts=transcripts, coverage=video.get("coverage", {}),
+                        missing_evidence=video.get("missing_evidence", []), excluded_evidence=video.get("excluded_evidence", []),
+                        transcript_sentiment=analysis["transcript_sentiment"])
                 analysis["assessment"] = assessment.model_dump()
             analysis["evidence_key"] = evidence_key
             video["context_summary"] = analysis["assessment"]["context_summary"]
         except (OllamaError, ValueError):
             errors.append("Content assessment unavailable; session topics will still be attempted from metadata.")
     else:
-        errors.append("No usable title or caption was captured for this video.")
-    if errors:
-        analysis["status"] = "partial"
+        errors.append("No usable metadata, transcript, or comments were captured for this video.")
+    analysis["status"] = "partial" if errors else "complete"
     video["analysis"] = analysis
     return video
 
@@ -171,18 +259,31 @@ def build_review(jobs, job, token):
     session_id = job["id"]
     previous = {video["video_id"]: video for video in json.loads(job["videos"])}
     videos = []
-    for video in aggregate(json.loads(job["payload"])):
-        cached = previous.get(video["video_id"])
+    checkpoints, checkpoint_lock = {}, Lock()
+    candidates = aggregate(json.loads(job["payload"]))
+    for video in candidates:
+        video.update(video_evidence(jobs.audio.evidence(session_id), video["video_session_id"]))
+    def publish(video):
+        with checkpoint_lock:
+            checkpoints[video["video_id"]] = json.loads(json.dumps(video))
+            jobs.update(session_id, token, videos=[checkpoints[item["video_id"]] for item in candidates if item["video_id"] in checkpoints])
+    def process(video):
         try:
-            analyzed = cached if cached and cached.get("analysis", {}).get("status") == "complete" else analyze_video(video, cached)
+            # Re-fetch current evidence before any reuse; status alone is insufficient.
+            analyzed = analyze_video(video, previous.get(video["video_id"]), publish=publish)
         except Exception as error:
             logger.warning("Individual video analysis unavailable (%s)", type(error).__name__)
             analyzed = video
             analyzed["analysis"] = {"status": "failed", "sentiment": None, "comments": [],
                 "errors": ["Individual analysis could not complete; the video is retained for session classification."]}
-        videos.append(analyzed)
-        jobs.update(session_id, token, videos=videos)
-    result = classify_session_data(session_id, LOCAL_USER, videos, store=jobs.store)
+        return analyzed
+    # I/O overlaps with capture/ASR, while each CPU model keeps its own serialized boundary.
+    with ThreadPoolExecutor(max_workers=settings.review_video_workers) as pool:
+        for analyzed in pool.map(process, candidates):
+            videos.append(analyzed)
+            publish(analyzed)
+    with measure("session_topic_discovery"):
+        result = classify_session_data(session_id, LOCAL_USER, videos, store=jobs.store)
     status = result["status"]
     if status == "complete" and any(video["analysis"]["status"] != "complete" for video in videos):
         status = "partial"

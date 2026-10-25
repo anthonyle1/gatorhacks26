@@ -42,7 +42,10 @@ class PromptRequest(BaseModel):
 def assess_video_metadata(body: VideoEvidence):
     """Return the same validated assessment used by the console command."""
     try:
-        return assess_video(body.title, body.caption, body.sentiment_balance, comments=body.comments)
+        return assess_video(body.title, body.caption, body.sentiment_balance, comments=body.comments,
+            transcripts=[row.model_dump() for row in body.transcripts], coverage=body.coverage,
+            missing_evidence=body.missing_evidence, excluded_evidence=body.excluded_evidence,
+            transcript_sentiment=body.transcript_sentiment)
     except OllamaError as exc:
         # Log the sanitized application error, never metadata or model output.
         logger.warning("Video assessment unavailable: %s", exc)

@@ -353,6 +353,12 @@ a.cal__cell:hover {
 .swatch--heavy { background: #8a5a3b; }
 
 /* ---------- Footer ---------- */
+.audio-monitor { margin: 12px 0; padding: 12px; border: 1px solid #d9e2dc; border-radius: 10px; background: #f5f8f6; }
+.audio-monitor p { margin: 7px 0; line-height: 1.5; }
+#audio-state { font-size: 11px; padding: 4px 7px; border-radius: 5px; background: #e4e8e5; }
+#audio-state[data-tone="recording"] { color: #fff; background: #24643d; }
+#audio-state[data-tone="waiting"] { color: #624800; background: #fff0bd; }
+#audio-state[data-tone="error"] { color: #8a2424; background: #fce3e3; }
 .foot {
   display: flex;
   gap: 10px;

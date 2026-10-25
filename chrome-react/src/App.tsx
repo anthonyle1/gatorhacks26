@@ -4,8 +4,11 @@ import "./App.css";
 
 type Topic = { id: string; name: string; description: string; parent_id: string | null; video_count: number; video_ids: string[]; children: Topic[]; selected: boolean; inherited: boolean; reduce: boolean };
 type Sentiment = { total_comments: number; counts: { positive: number; neutral: number; negative: number }; sentiment_balance: number | null };
-type Assessment = { negative_for_user: string; reason: string; context_summary: string; content_signals: { id: string; evidence: string }[]; provider: string; model: string | null; fallback_used: boolean };
-type Video = { video_id: string; title: string; caption?: string; platform: string; source_id: string; dwell_seconds?: number; watch_count?: number; analysis?: { status: string; sentiment: Sentiment | null; assessment?: Assessment; comments: { text: string; sentiment: string; confidence: number }[]; errors: string[] } };
+type Assessment = { negative_for_user: string; reason: string; context_summary: string; content_signals: { id: string; evidence: string }[]; provider: string; model: string | null; fallback_used: boolean; evidence_summary?: { transcript_excerpts?: number; transcript_characters?: number } };
+type AudioCapture = { recording?: boolean; capturing?: boolean; permission_required?: boolean; pending?: number; detail?: string; incomplete?: boolean; signal_level?: number; last_media_at?: number; captured_seconds?: number; capture_reason?: string };
+type AudioBackend = { reachable?: boolean; enabled?: boolean; uploaded_segments?: number; usable_transcript_excerpts?: number; processing_states?: Record<string, number>; excluded_segments?: Record<string, number>; asr?: { model: string; state: string } };
+declare function describeAudioStatus(capture: AudioCapture, backend: AudioBackend, enabled: boolean): { label: string; tone: string; detail: string; model: string; counts: string; transcript: string };
+type Video = { video_id: string; title: string; caption?: string; platform: string; source_id: string; dwell_seconds?: number; watch_count?: number; coverage?: { captured: { unique_seconds: number; repeat_seconds: number }; transcribed: { unique_seconds: number; repeat_seconds: number } }; missing_evidence?: unknown[]; excluded_evidence?: unknown[]; analysis?: { status: string; sentiment: Sentiment | null; assessment?: Assessment; comments: { text: string; sentiment: string; confidence: number }[]; errors: string[] } };
 function videoUrl(video: Video) { return video.platform === "youtube" ? `https://www.youtube.com/watch?v=${encodeURIComponent(video.source_id)}` : `https://www.instagram.com/reel/${encodeURIComponent(video.source_id)}/`; }
 function VideoLink({ video, id }: { video?: Video; id: string }) { return video ? <a href={videoUrl(video)} target="_blank" rel="noreferrer">{video.title || video.source_id}</a> : <span>{id}</span>; }
 function VideoResult({ video }: { video: Video }) {
@@ -14,7 +17,11 @@ function VideoResult({ video }: { video: Video }) {
   const sentiment = analysis?.sentiment;
   return <li className="video-result"><h3><VideoLink video={video} id={video.video_id} /></h3>
     <p className="video-meta">{video.platform} ? {Math.round(video.dwell_seconds || 0)} seconds ? {video.watch_count || 1} views</p>
+    {video.coverage && <p>Audio captured: {video.coverage.captured.unique_seconds.toFixed(1)}s unique, {video.coverage.captured.repeat_seconds.toFixed(1)}s repeated. Usable transcript coverage: {video.coverage.transcribed.unique_seconds.toFixed(1)}s.</p>}
+    {!!video.missing_evidence?.length && <p>Incomplete audio evidence: {video.missing_evidence.length} missing or unfinished items at Finish.</p>}
+    {!!video.excluded_evidence?.length && <p>{video.excluded_evidence.length} transcript items excluded as unusable.</p>}
     {assessment ? <><p><strong>Negative impact: {assessment.negative_for_user.toUpperCase()}</strong></p><p>{assessment.reason}</p><p>{assessment.context_summary}</p><small>{assessment.provider} / {assessment.model}{assessment.fallback_used ? " ? Gemini fallback used" : ""}</small>
+      {assessment.evidence_summary?.transcript_excerpts !== undefined && <p>Assessment received {assessment.evidence_summary.transcript_excerpts} transcript excerpts ({assessment.evidence_summary.transcript_characters || 0} characters).</p>}
       {assessment.content_signals.length > 0 && <ul>{assessment.content_signals.map(signal => <li key={signal.id}><strong>{signal.id.replaceAll("_", " ")}</strong>: {signal.evidence}</li>)}</ul>}
     </> : <p>No content assessment available.</p>}
     {sentiment ? <><p>{sentiment.total_comments} comments analyzed: {sentiment.counts.positive} positive, {sentiment.counts.negative} negative, {sentiment.counts.neutral} neutral.</p><p>Sentiment balance: {sentiment.sentiment_balance === null ? "No positive or negative comments" : sentiment.sentiment_balance.toFixed(2)}</p></> : <p>Comment sentiment unavailable.</p>}
@@ -68,6 +75,9 @@ function TopicBranch({ node, options, videos, busy, select, edit }: { node: Topi
 function App() {
   const [activity, setActivity] = useState<Activity>(emptyActivity);
   const [paused, setPaused] = useState(true);
+  const [audioEnabled, setAudioEnabled] = useState(true);
+  const [audioStatus, setAudioStatus] = useState<AudioCapture>({});
+  const [audioBackend, setAudioBackend] = useState<AudioBackend>({});
   const [unfinished, setUnfinished] = useState(false);
   const [review, setReview] = useState<Review | null>(null);
   const [busy, setBusy] = useState(false);
@@ -84,10 +94,14 @@ function App() {
       loading.current = true;
       const generation = version.current;
       try {
-        const state = await chrome.storage.local.get(["scrollingSession", "trackingPaused", "localSessionId", "pendingEvents", "finishPending"]);
+        const diagnostics = await request<AudioBackend>("AUDIO_DIAGNOSTICS");
+        const state = await chrome.storage.local.get(["scrollingSession", "trackingPaused", "localSessionId", "pendingEvents", "finishPending", "audioCaptureEnabled", "audioCaptureStatus"]);
         if (!disposed && generation === version.current) {
           setActivity((state.scrollingSession as Activity) || emptyActivity);
           setPaused(state.trackingPaused !== false);
+          setAudioEnabled(state.audioCaptureEnabled !== false);
+          setAudioStatus(state.audioCaptureStatus || {});
+          setAudioBackend(diagnostics);
           setUnfinished(Boolean(state.finishPending) || Boolean(state.localSessionId) || (Array.isArray(state.pendingEvents) && state.pendingEvents.length > 0));
         }
         const result = await request<Review | null>("SESSION_TAXONOMY");
@@ -121,12 +135,17 @@ function App() {
   const options = flatten(review?.tree || []);
   const videos = new Map([...(review?.tree_videos || []), ...(review?.videos || [])].map(video => [video.video_id, video]));
   const processing = review && ["pending", "processing"].includes(review.status);
+  const audioDisplay = describeAudioStatus(audioStatus, audioBackend, audioEnabled);
 
   const fullPage = new URLSearchParams(window.location.search).get("view") === "summary";
   return <main className={fullPage ? "app review-page" : "app"}><h1>Healthy Doomscrolling</h1><p className="subtitle">Review your session. Shape what comes next.</p>
     <section className="stat-card"><span>{paused ? unfinished ? "Session paused; finish pending" : "Session ended" : "Recording activity"}</span><h2>{Math.floor(activity.durationSeconds / 60)}:{Math.floor(activity.durationSeconds % 60).toString().padStart(2, "0")}</h2><p>{activity.videoCount} videos encountered</p>
       <button disabled={!available || busy || (paused && !unfinished)} onClick={() => void finish()}>{busy ? "Working..." : "Finish and review session"}</button>
       {paused && !unfinished && <button disabled={busy} onClick={() => void start()}>Start a new session</button>}
+      <div className="audio-monitor"><strong className={`audio-state ${audioDisplay.tone}`}>{audioDisplay.label}</strong>
+      <label><input type="checkbox" checked={audioEnabled} disabled={busy || audioStatus.recording} onChange={event => { setAudioEnabled(event.target.checked); void chrome.storage.local.set({ audioCaptureEnabled: event.target.checked }); }} />Include video audio</label>
+      <button disabled={!available || busy || (!audioStatus.recording && (!audioEnabled || paused))} onClick={() => void mutate(async () => { await request(audioStatus.recording ? "CAPTURE_STOP" : "CAPTURE_START"); setAudioStatus({ recording: !audioStatus.recording }); })}>{audioStatus.recording ? "Stop audio capture" : "Capture selected tab audio"}</button>
+      <p role="status">{audioDisplay.detail}</p><p>{audioDisplay.model}</p><p>{audioDisplay.counts}</p><p>{audioDisplay.transcript}</p></div>
     </section>
     {error && <p className="error" role="alert">{error}</p>}
     <section className="stat-card"><h2>Your topic tree</h2><p>Saved across sessions. New sessions add videos to existing categories and grow new branches when needed.</p>

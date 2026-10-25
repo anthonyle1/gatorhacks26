@@ -41,6 +41,14 @@
           <span class="session__stats" id="session-stats">0:00 &middot; 0 videos</span>
           <button class="btn btn--dark" id="session-toggle" type="button" disabled>Start tracking</button>
         </div>
+        <div class="audio-monitor" aria-label="Audio and transcription status">
+          <div class="card__row"><label><input id="audio-enabled" type="checkbox" checked>Include video audio</label><strong id="audio-state" data-tone="inactive">NOT RECORDING</strong></div>
+          <p id="audio-status" role="status">Select a video tab and click the Prune toolbar icon to authorize audio.</p>
+          <p class="note-sm" id="audio-model">Checking local Whisper installation...</p>
+          <p class="note-sm" id="audio-progress">No audio uploaded.</p>
+          <p class="note-sm" id="audio-transcript">No transcript available for the prompt.</p>
+          <button class="btn btn--outline" id="audio-toggle" type="button">Capture selected tab audio</button>
+        </div>
         <span class="note" id="session-note">Start a session to track YouTube Shorts and Instagram Reels.</span>
         <p class="session__error" id="session-error" role="alert" hidden></p>
         <a class="session__review" id="session-review" href="popup.html?view=summary" target="_blank" rel="noopener" hidden>Review latest session</a>
@@ -127,6 +135,7 @@
       </div>
     </main>
 
+    <script src="audio-status.js"></script>
     <script src="sidepanel.js"></script>
   </body>
 </html>

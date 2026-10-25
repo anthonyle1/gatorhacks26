@@ -156,7 +156,7 @@ class LocalReviewTests(unittest.TestCase):
     def test_one_video_exception_preserves_all_video_classifications(self):
         self.model_patches()
         self.jobs.enqueue(self.session_id, {"events": [event(), event(source="clip2", event_id="event2")], "instagram": []})
-        def analyze(video, previous=None):
+        def analyze(video, previous=None, **kwargs):
             if video["source_id"] == "clip1":
                 raise RuntimeError("Private provider details")
             video["analysis"] = {"status": "complete", "sentiment": None, "comments": [], "errors": []}

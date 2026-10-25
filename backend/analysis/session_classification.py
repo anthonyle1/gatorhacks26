@@ -6,6 +6,7 @@ import re
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from .model_output import generate_validated
+from app.config import settings
 
 MAX_BATCH_VIDEOS = 12
 MAX_BATCH_CHARS = 7000
@@ -97,6 +98,7 @@ def pack_videos(videos):
                    "caption": (video.get("caption") or "")[:500],
                    "context_summary": (video.get("context_summary") or "")[:240],
                    "sentiment_balance": video.get("sentiment_balance"),
+                   "evidence_version": video.get("evidence_version"),
                    "comments": [str(comment)[:120] for comment in video.get("comments", [])[:2]],
                    "metadata_excerpt": True}
         cost = len(json.dumps(summary, ensure_ascii=True))
@@ -127,5 +129,5 @@ def classify_batch(videos, existing_categories, *, client=None):
     return generate_validated(
         {"videos": videos, "existing_categories": existing_categories}, SESSION_PROMPT, schema,
         lambda raw: validate_discovery(raw, set(ids), {category["id"] for category in existing_categories}),
-        client=client, max_tokens=4096, context_length=16384,
+        client=client, max_tokens=4096, context_length=16384, provider=settings.topic_provider,
     )

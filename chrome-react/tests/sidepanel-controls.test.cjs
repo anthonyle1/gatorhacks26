@@ -28,6 +28,7 @@ async function panel() {
       storage: { local: { async get() { return structuredClone(stored); } },
         onChanged: { addListener(callback) { storageListener = callback; } } },
       runtime: { async sendMessage(message) {
+        if (message.type === 'AUDIO_DIAGNOSTICS') return { success: true, data: { reachable: true, asr: { model: 'base.en', state: 'installed' } } };
         messages.push(message.type);
         if (failure) return { success: false, error: failure };
         if (message.type === 'START_SESSION') Object.assign(stored, { trackingPaused: false, localSessionId: 'session-1' });
@@ -36,6 +37,7 @@ async function panel() {
       } },
     },
   });
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/audio-status.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/sidepanel.js'), 'utf8'), context);
   await new Promise(resolve => setImmediate(resolve));
   return { node, stored, messages, confirm(value) { confirmed = value; }, fail(message) { failure = message; },
@@ -47,6 +49,7 @@ test('side panel starts and finishes tracking, shows live counters, and offers t
   const button = ui.node('#session-toggle');
   assert.equal(button.textContent, 'Start tracking');
   assert.equal(button.disabled, false);
+  assert.equal(ui.node('#audio-enabled').checked, true);
   await button.listeners.click();
   assert.equal(ui.messages[0], 'START_SESSION');
   assert.equal(button.textContent, 'Finish session');

@@ -409,6 +409,28 @@
     setLinks();
     renderCalendar();
     $('#session-toggle').addEventListener('click', toggleSession);
+    $('#audio-enabled').addEventListener('change', async event => {
+      await chrome.storage.local.set({ audioCaptureEnabled: event.target.checked });
+    });
+    let audioRecording = false;
+    let audioValue = {}, audioBackend = {};
+    function renderAudio(value = audioValue, backend = audioBackend) {
+      audioValue = value || {}; audioBackend = backend || {}; value = audioValue;
+      audioRecording = !!value.recording;
+      const display = describeAudioStatus(audioValue, audioBackend, $('#audio-enabled').checked);
+      $('#audio-toggle').textContent = audioRecording ? 'Stop audio capture' : 'Capture selected tab audio';
+      $('#audio-enabled').disabled = audioRecording;
+      $('#audio-state').textContent = display.label;
+      $('#audio-state').dataset.tone = display.tone;
+      $('#audio-status').textContent = display.detail;
+      $('#audio-model').textContent = display.model;
+      $('#audio-progress').textContent = display.counts;
+      $('#audio-transcript').textContent = display.transcript;
+    }
+    $('#audio-toggle').addEventListener('click', async () => {
+      const response = await chrome.runtime.sendMessage({ type: audioRecording ? 'CAPTURE_STOP' : 'CAPTURE_START' });
+      if (!response?.success) $('#audio-status').textContent = response?.error || 'Audio capture unavailable';
+    });
     $('#tree-reset').addEventListener('click', async () => {
       if (!window.confirm('Reset the entire saved tree? This removes all categories, video memberships, and See less preferences across sessions. Individual video analyses are kept.')) return;
       const button = $('#tree-reset');
@@ -441,11 +463,16 @@
     });
 
     if (hasStorage) {
-      const stored = await chrome.storage.local.get(['scrollingSession', PRUNED_KEY, 'pruneTreeReset', ...SESSION_KEYS]);
+      const stored = await chrome.storage.local.get(['scrollingSession', PRUNED_KEY, 'pruneTreeReset', 'audioCaptureEnabled', 'audioCaptureStatus', 'audioBackendStatus', ...SESSION_KEYS]);
+      $('#audio-enabled').checked = stored.audioCaptureEnabled !== false;
+      renderAudio(stored.audioCaptureStatus, stored.audioBackendStatus);
       state.treeReset = !!stored.pruneTreeReset;
       state.pruned = stored[PRUNED_KEY] || {};
       chrome.storage.onChanged.addListener((changes, area) => {
         if (area !== 'local') return;
+        if (changes.audioCaptureEnabled) { $('#audio-enabled').checked = changes.audioCaptureEnabled.newValue !== false; renderAudio(); }
+        if (changes.audioCaptureStatus) renderAudio(changes.audioCaptureStatus.newValue);
+        if (changes.audioBackendStatus) renderAudio(audioValue, changes.audioBackendStatus.newValue);
         if (changes.pruneTreeReset) { state.treeReset = !!changes.pruneTreeReset.newValue; renderTree(); }
         if (changes.lastSessionReview?.newValue?.global_video_count > 0) { state.treeReset = false; renderTree(); }
         for (const key of SESSION_KEYS) { if (changes[key]) state[key] = changes[key].newValue; }
@@ -465,6 +492,12 @@
     renderSession();
     renderToday();
     updateToday();
+    async function refreshAudio() {
+      try { await chrome.runtime.sendMessage({ type: 'AUDIO_DIAGNOSTICS' }); } catch { /* Backend availability is shown separately. */ }
+      renderAudio();
+    }
+    void refreshAudio();
+    setInterval(() => { void refreshAudio(); }, 3000);
 
     // Unrated Shorts can become rated once the backend finishes analysing comments.
     setInterval(() => {

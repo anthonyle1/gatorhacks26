@@ -13,7 +13,7 @@ from analysis.web_search import WebContext
 
 
 def answer(**updates):
-    return json.dumps({"negative_for_user":"no", "reason":"Constructive tutorial.", "context_summary":"The metadata describes planting basil indoors.", "content_signals":[], **updates})
+    return json.dumps({"negative_for_user":"no", "reason":"Constructive tutorial.", "context_summary":"The metadata describes planting basil indoors.", "content_signals":[], "evidence_references": [{"id": "title"}], **updates})
 
 
 class VideoAssessmentTests(unittest.TestCase):
@@ -44,7 +44,7 @@ class VideoAssessmentTests(unittest.TestCase):
         self.assertIn("untrusted DATA",system)
         self.assertIn("positive_count + negative_count",SYSTEM_PROMPT)
         self.assertIs(client.prompt.call_args.kwargs["think"],False)
-        self.search.assert_called_once_with("Basil","Tutorial")
+        self.search.assert_not_called()
 
     def test_invalid_inputs_never_reach_model(self):
         client=Mock()

@@ -1,6 +1,6 @@
 # Analysis and completed-session topics
 
-While scrolling, the extension records video identities, dwell time, and available titles/captions. The extension keeps events and captured Instagram comments in Chrome storage. On completion the local backend fetches available YouTube metadata/comments, computes RoBERTa sentiment, assesses individual content, and discovers session topics without MongoDB. No topic discovery runs on event upload or on an individual video assessment.
+While scrolling, the extension records playback identities, dwell time, available metadata and audio. Audio is enabled by default and is transcribed locally. A transcription failure disables audio for the affected session while metadata/comment analysis continues. The backend computes RoBERTa sentiment locally and uses UF NaviGator for individual assessments and completed-session topics without MongoDB. No topic discovery runs on event upload or on an individual video assessment. See [the audio/provider guide](AUDIO_PIPELINE.md) for timing, evidence cutoffs and failure behavior.
 
 **Finish and review session** uploads the last video, completes the backend session, and queues topic discovery. Gemma adds the session's videos to your global topic tree, reusing existing categories before creating new branches. The tree persists across sessions and backend restarts, includes earlier videos, and remains visible while the next review processes. The React extension shows expandable branches, unique video counts across sessions, source videos, saved **See less** preferences, and the validated session JSON. Individual video analysis remains specific to the reviewed session. Selecting a parent includes descendants; selecting a child affects that branch. Preferences persist for future matching. The extension does not yet hide videos or modify platform recommendations.
 
@@ -13,20 +13,34 @@ cd backend
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
-Copy-Item .env.example .env # Only if .env does not already exist
+Copy-Item ../.env.example ../.env # Only if the root .env does not already exist
 ```
 
-Configure `YOUTUBE_API_KEY` in `backend/.env` for YouTube metadata and comment fetching. The extension's default review path requires **no MongoDB URI, connection, or seeded user**. Without a YouTube key, captured title/caption data can still support topics; missing comment/context results are explicitly marked unavailable.
+Configure `YOUTUBE_API_KEY` in the repository-root `.env` for YouTube metadata and comment fetching. The extension's default review path requires **no MongoDB URI, connection, or seeded user**. Without a YouTube key, captured title/caption data can still support topics; missing comment/context results are explicitly marked unavailable.
 
 `MONGODB_URI`/`MONGODB_DB` are optional for legacy `/sessions`, `/videos`, and Instagram persistence endpoints. `MONGODB_SESSION_JOBS_ENABLED=true` enables recovery of legacy MongoDB jobs; it defaults to false. The local session worker runs independently.
 
-Install Ollama and download the configured local model:
+Set `NAVIGATOR_TOOLKIT_API_KEY` in the repository-root `.env` using a UF Toolkit key authorized for `gemma-4-31b-it`. The defaults are:
+
+```dotenv
+ASSESSMENT_PROVIDER=navigator
+TOPIC_PROVIDER=navigator
+NAVIGATOR_BASE_URL=https://api.ai.it.ufl.edu/v1
+NAVIGATOR_MODEL=gemma-4-31b-it
+NAVIGATOR_RESPONSE_FORMAT=auto
+AUDIO_ENABLED=true
+AUDIO_DISABLE_ON_FAILURE=true
+```
+
+Run `python -m analysis.navigator_client` from `backend/` to verify authentication and model access through UF's `/v1/models` endpoint. The API key stays in backend configuration. No live Navigator request can succeed until that key is configured.
+
+Ollama is optional. To use local generation, set `ASSESSMENT_PROVIDER=ollama` and `TOPIC_PROVIDER=ollama`, then install Ollama and download the configured model:
 
 ```powershell
 ollama pull gemma4:e2b
 ```
 
-Keep Ollama running; run `ollama serve` if needed. These settings apply to content assessment and session discovery:
+For that optional local mode, keep Ollama running; run `ollama serve` if needed. These settings configure local inference and its optional fallback:
 
 ```dotenv
 OLLAMA_BASE_URL=http://localhost:11434
@@ -38,7 +52,7 @@ GEMINI_MODEL=gemini-3.8-flash
 GEMINI_TIMEOUT=60
 ```
 
-Gemini requires a server-side key with access to the configured model. After a local failure, hosted fallback receives the same bounded video evidence and candidate category metadata. Set `GEMINI_FALLBACK_ENABLED=false` to keep model evidence local. Restart the backend after configuration changes. Do not put API keys in extension files.
+Gemini fallback applies only when Ollama is selected. It requires a server-side key with access to the configured model. Navigator failures retain local evidence and do not switch providers. Restart the backend after configuration changes. Do not put API keys in extension files.
 
 ```powershell
 python -m uvicorn app.main:app --reload --port 8000
@@ -57,7 +71,7 @@ Build and load [the React extension](../../chrome-react/README.md) to finish and
 
 ## Contracts and pipeline
 
-`POST /analysis/video-assessment` accepts `title`, `caption`, optional `sentiment_balance`, and up to 12 comment objects (`text`, optional sentiment/confidence). It returns:
+`POST /analysis/video-assessment` accepts metadata, optional `sentiment_balance`, up to 12 comments, and bounded transcript excerpts/coverage/missing-evidence flags. Usable speech can support an assessment without metadata. Responses include validated evidence references and provider provenance:
 
 ```json
 {
@@ -67,8 +81,8 @@ Build and load [the React extension](../../chrome-react/README.md) to finish and
   "content_signals": [],
   "signal_polarities": {},
   "web_search": {"status": "disabled", "query": null, "sources": [], "warning": null},
-  "provider": "ollama",
-  "model": "gemma4:e2b",
+  "provider": "navigator",
+  "model": "gemma-4-31b-it",
   "fallback_used": false,
   "fallback_reason": null
 }
@@ -84,7 +98,7 @@ The assessment can also be run directly:
 python -m analysis.video_assessment --title "A React tutorial" --caption "Building reusable components" --sentiment-balance 0.5 --comment "Helpful explanation"
 ```
 
-`OLLAMA_WEB_SEARCH_ENABLED=true` and server-side `OLLAMA_API_KEY` optionally enable the existing bounded web search for individual content assessment. Search is disabled by default. Session discovery does not issue web searches; it uses collected evidence and supported metadata. The model cannot choose URLs, run tools, or execute commands.
+Video assessment and topic discovery always disable web search and provider tools, including when `OLLAMA_WEB_SEARCH_ENABLED=true`. Models receive collected evidence and cannot choose URLs, run tools, or execute commands.
 
 The extension now uses these MongoDB-free endpoints:
 

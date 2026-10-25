@@ -2,6 +2,11 @@
 
 from functools import lru_cache
 from threading import Lock
+from datetime import datetime, timezone
+from .cache import get_cache
+from .versions import fingerprint
+from .metrics import measure
+from app.config import settings
 
 from app.youtube import Comment, parse_comments
 
@@ -23,22 +28,24 @@ class ModelUnavailableError(RuntimeError):
 
 
 class SentimentAnalyzer:
-    def __init__(self, classifier=None, batch_size: int = 16):
+    def __init__(self, classifier=None, batch_size: int = 16, cache=None):
         if batch_size < 1:
             raise ValueError("batch_size must be positive.")
         self._classifier = classifier
         self.batch_size = batch_size
         self._lock = Lock()
+        self.cache = cache
 
     def _load(self):
         if self._classifier is None:
             try:
                 from transformers import pipeline
 
-                self._classifier = pipeline(
-                    "sentiment-analysis", model=MODEL_ID, tokenizer=MODEL_ID,
-                    framework="pt", device=-1,
-                )
+                with measure("roberta_model_startup"):
+                    self._classifier = pipeline(
+                        "sentiment-analysis", model=MODEL_ID, tokenizer=MODEL_ID,
+                        revision=settings.roberta_revision, framework="pt", device=-1,
+                    )
             except (ImportError, OSError, RuntimeError, ValueError):
                 raise ModelUnavailableError(
                     "Sentiment model unavailable. Install analysis/requirements.txt "
@@ -54,19 +61,47 @@ class SentimentAnalyzer:
             raise ValueError("negative_threshold must be greater than 0 and at most 1.")
         results = []
         # Serialize model loading and inference to bound concurrent CPU/memory use.
+        if comments and self.cache is not None:
+            # The cache miss lock prevents concurrent model requests from duplicating work.
+            identities = [{"model": MODEL_ID, "revision": settings.roberta_revision, "preprocessing": "1",
+                            "language": "en", "text_hash": fingerprint(preprocess(comment.text)), "prompt": None,
+                            "token_limit": 512} for comment in comments]
+            def compute(indices):
+                return [{key: row[key] for key in ("sentiment", "confidence", "scores", "token_count", "truncated")} for row in self._infer([comments[i] for i in indices])]
+            # Mutable revisions cannot safely reuse inference across encounters.
+            predictions = self.cache.many(identities, compute, ttl=settings.analysis_cache_ttl) if settings.roberta_revision != "main" else compute(range(len(comments)))
+            for comment, identity, row in zip(comments, identities, predictions):
+                results.append({**row, "id": comment.id, "text": comment.text, "text_hash": identity["text_hash"],
+                    "model_revision": settings.roberta_revision, "preprocessing_version": "1",
+                    "token_limit": 512, "truncation": "enabled", "analyzed_at": datetime.now(timezone.utc).isoformat()})
+        elif comments:
+            results = self._infer(comments)
+        return self._summarize(results, negative_threshold)
+
+    def _infer(self, comments):
+        results = []
         if comments:
-            with self._lock:
+            with self._lock, measure("roberta_cold" if self._classifier is None else "roberta_warm"):
                 classifier = self._load()
                 for start in range(0, len(comments), self.batch_size):
                     batch = comments[start:start + self.batch_size]
+                    texts = [preprocess(comment.text) for comment in batch]
+                    lengths = [None] * len(batch)
+                    tokenizer = getattr(classifier, "tokenizer", None)
+                    if tokenizer is not None:
+                        encoded = tokenizer(texts, truncation=False, add_special_tokens=True)
+                        if isinstance(encoded, dict) or hasattr(encoded, "data"):
+                            token_ids = encoded.get("input_ids")
+                            if isinstance(token_ids, list) and len(token_ids) == len(batch):
+                                lengths = [len(ids) for ids in token_ids]
                     predictions = classifier(
-                        [preprocess(comment.text) for comment in batch],
+                        texts,
                         top_k=None, truncation=True, max_length=512,
                         batch_size=self.batch_size,
                     )
                     if len(predictions) != len(batch):
                         raise RuntimeError("Sentiment model returned an unexpected batch size.")
-                    for comment, prediction in zip(batch, predictions):
+                    for comment, prediction, length in zip(batch, predictions, lengths):
                         scores = {entry["label"].lower(): float(entry["score"]) for entry in prediction}
                         if set(scores) != set(LABELS):
                             raise RuntimeError("Sentiment model returned unexpected labels.")
@@ -74,7 +109,11 @@ class SentimentAnalyzer:
                         results.append({
                             "id": comment.id, "text": comment.text, "sentiment": label,
                             "confidence": scores[label], "scores": scores,
+                            "token_count": length, "truncated": length > 512 if length is not None else None,
                         })
+        return results
+
+    def _summarize(self, results, negative_threshold):
         total = len(results)
         counts = {label: sum(row["sentiment"] == label for row in results) for label in LABELS}
         proportions = {label: counts[label] / total if total else 0.0 for label in LABELS}
@@ -107,4 +146,4 @@ class SentimentAnalyzer:
 @lru_cache(maxsize=1)
 def get_analyzer() -> SentimentAnalyzer:
     # The weights load only on the first nonempty analysis request.
-    return SentimentAnalyzer()
+    return SentimentAnalyzer(cache=get_cache())
