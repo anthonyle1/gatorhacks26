@@ -30,7 +30,7 @@ def daily_records(timezone_name="America/New_York", store=None):
             """
             SELECT id, payload, videos
             FROM local_review_jobs
-            WHERE status IN ('complete', 'partial')
+            WHERE status IN ('complete', 'partial', 'failed')
             ORDER BY updated_at
             """
         ).fetchall()
