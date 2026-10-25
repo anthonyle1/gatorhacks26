@@ -42,6 +42,56 @@ def seed(store):
     return {key: value[0] for key, value in assignments.items()}
 
 
+def test_permanent_prune_hides_subtree_persists_and_blocks_restore_and_regrowth(store):
+    ids = seed(store)
+    store.save_session("history", LOCAL_USER, {"assignments": {key: [value] for key, value in ids.items()}, "videos": []})
+    store.set_preference(LOCAL_USER, ids["drama"], True)
+    version = store.blacklist(LOCAL_USER)["version"]
+    store.permanently_prune(LOCAL_USER, [ids["breakups"]], version)
+    store.set_preference(LOCAL_USER, ids["drama"], False)
+    restored_store = TopicStore(store.path)
+    nodes = view(restored_store, {key: [value] for key, value in ids.items()})
+    assert ids["breakups"] not in nodes
+    assert ids["drama"] in nodes and ids["movies"] in nodes
+    assert restored_store.blacklist(LOCAL_USER)["topics"][0]["permanent"] is True
+    with pytest.raises(ValueError, match="cannot be restored"):
+        restored_store.set_preference(LOCAL_USER, ids["breakups"], False)
+    again = discover(restored_store, [proposal("again", "Celebrity Breakups", existing=ids["breakups"])])
+    assert again["again"] == [ids["breakups"]]
+    assert ids["breakups"] not in view(restored_store, again)
+
+
+def test_permanent_prune_rejects_stale_unpruned_or_other_user_targets_atomically(store):
+    ids = seed(store)
+    store.set_preference(LOCAL_USER, ids["drama"], True)
+    version = store.blacklist(LOCAL_USER)["version"]
+    with pytest.raises(ValueError, match="Topics changed"):
+        store.permanently_prune(LOCAL_USER, [ids["drama"]], "old-version")
+    with pytest.raises(ValueError, match="currently in the compost"):
+        store.permanently_prune(LOCAL_USER, [ids["drama"], ids["movies"]], version)
+    with pytest.raises(ValueError):
+        store.permanently_prune("other-user", [ids["drama"]], store.blacklist("other-user")["version"])
+    assert store.blacklist(LOCAL_USER)["version"] == version
+    assert not store.blacklist(LOCAL_USER)["topics"][0]["permanent"]
+
+
+def test_permanent_prune_endpoint_requires_confirmation(store, monkeypatch):
+    from app.routes import local_sessions
+    from app.services.local_sessions import LocalSessions
+    ids = seed(store)
+    store.set_preference(LOCAL_USER, ids["drama"], True)
+    jobs = LocalSessions(store)
+    monkeypatch.setattr(local_sessions, "LocalSessions", lambda: jobs)
+    app = FastAPI(); app.include_router(local_sessions.router)
+    client = TestClient(app)
+    body = {"category_ids": [ids["drama"]], "blacklist_version": store.blacklist(LOCAL_USER)["version"], "confirmed": False}
+    assert client.request("DELETE", "/local-sessions/taxonomy/compost", json=body).status_code == 422
+    body["confirmed"] = True
+    response = client.request("DELETE", "/local-sessions/taxonomy/compost", json=body)
+    assert response.status_code == 200
+    assert ids["breakups"] in response.json()["deleted_ids"]
+
+
 def view(store, assignments):
     store.save_session("s", LOCAL_USER, {"assignments": assignments, "videos": []})
     tree = store.view("s", LOCAL_USER)["tree"]

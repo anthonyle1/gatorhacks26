@@ -448,6 +448,55 @@ a.cal__cell:hover {
 /* ---------- Footer ---------- */
 .detection-topics__list { list-style: none; padding: 0; margin: 0; max-height: 280px; overflow-y: auto; }
 .detection-topics__list li { padding: 8px 0; border-top: 1px solid #d9e2dc; overflow-wrap: anywhere; font-size: 13px; color: var(--ink); }
+.detection-topics__list li { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+.detection-topic__label { flex: 1; min-width: 0; }
+.detection-topic__parent { display: block; color: var(--muted); font-size: 11px; margin-top: 3px; }
+.detection-topic__restore { flex-shrink: 0; padding: 6px 9px; border: 1px solid #a8c394; border-radius: 9px; color: #35573c; background: #edf3e7; font: 600 11px var(--font-body); cursor: pointer; }
+.detection-topic__restore:hover { background: #dce8d2; }
+.detection-topic__restore:disabled { opacity: .5; cursor: wait; }
+.detection-compost { display: flex; justify-content: center; margin: 8px 0 12px; border-radius: 14px; background: linear-gradient(#faf8ee, #f0eddd); }
+.detection-compost svg { display: block; width: min(100%, 260px); height: 155px; }
+.detection-topics .detection-compost { max-height: 200px; overflow-y: auto; align-items: flex-start; }
+.detection-topics .detection-compost > svg { flex-shrink: 0; }
+.detection-topics .compost-footer { margin-top: 12px; padding-top: 10px; border-top: 1px solid #d9e2dc; }
+.detection-topics .compost-clear { display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border: 1px solid #a8c394; border-radius: 8px; background: #edf3e7; color: #35573c; font: 600 12px var(--font-body); cursor: pointer; }
+.detection-topics .compost-clear:hover { background: #dce8d2; }
+.detection-topics .compost-clear:disabled { opacity: .5; cursor: default; }
+.detection-topics .compost-clear > span { display: inline-flex; }
+.detection-compost__piece { animation: compostDrop 400ms ease-out both; }
+.detection-compost__caption { font: 12px var(--font-body); fill: #6b775b; }
+@keyframes compostDrop { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .detection-compost__piece { animation: none; } }
+.detection-topics__list .compost-item { display: block; padding: 0; border: 0; position: relative; }
+.detection-topics .compost-row { display: flex; align-items: center; gap: 7px; min-height: 40px; padding: 7px 0; border-top: 1px solid #d9e2dc; }
+.detection-topics .compost-row > svg { flex: 0 0 14px; color: #78925e; }
+.detection-topics .compost-children { margin: 0 0 0 7px; padding: 0 0 0 14px; list-style: none; border-left: 1px solid #91aa7e; }
+.detection-topics .compost-children > .compost-item::before { content: ''; position: absolute; left: -15px; top: 12px; width: 11px; height: 9px; border-left: 1px solid #91aa7e; border-bottom: 1px solid #91aa7e; border-bottom-left-radius: 9px; pointer-events: none; }
+.detection-topics .detection-topic__restore { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; padding: 5px; }
+.detection-topics .detection-topic__restore svg { width: 13px; height: 13px; }
+.detection-topics .compost-delete { display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 6px 9px; border: 1px solid #dec8ac; border-radius: 8px; background: #fbf0df; color: #805433; font: 600 11px var(--font-body); cursor: pointer; }
+.detection-topics .compost-delete { flex-shrink: 0; padding: 6px; }
+.detection-topics .compost-delete:hover { background: #f4dfc0; }
+.detection-topics .compost-delete:disabled { opacity: .5; cursor: default; }
+.detection-topics .detection-compost { position: relative; }
+.detection-topics .compost-fire { display: none; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); align-items: flex-end; color: #d9762d; pointer-events: none; }
+.detection-topics .compost-fire svg { width: 32px; height: 48px; fill: #f1b944; }
+.detection-topics .compost-fire svg:nth-child(2) { height: 65px; margin: 0 -6px; }
+.detection-topics .detection-compost--burning .compost-fire { display: flex; }
+.detection-topics .detection-compost--burning .compost-fire svg { animation: compostFlame 180ms ease-in-out infinite alternate; transform-origin: bottom; }
+.detection-topics .compost-item--burning::before,
+.detection-topics .compost-item--burning .compost-item::before,
+.detection-topics .compost-item--burning .compost-children { animation: compostVineFire 700ms ease-out both; }
+.detection-topics .compost-item--burning > .compost-row .compost-delete svg { color: #df7e29; fill: #f9d276; animation: compostFlame 180ms ease-in-out infinite alternate; }
+.detection-topics .compost-piece--burning { animation: compostAsh 700ms ease-out both; }
+@keyframes compostVineFire { 0% { border-color: #91aa7e; filter: none; } 35% { border-color: #ed932c; filter: drop-shadow(0 0 3px #eaa44b); } 75% { border-color: #8c583c; } 100% { border-color: #8e857b; filter: none; } }
+@keyframes compostFlame { from { transform: scale(.88, 1); } to { transform: scale(1.1, .85); } }
+@keyframes compostAsh { 0% { opacity: 1; filter: none; } 65% { opacity: .7; filter: grayscale(1) brightness(.5); } 100% { opacity: 0; filter: grayscale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .detection-topics .compost-item--burning::before, .detection-topics .compost-item--burning .compost-item::before,
+  .detection-topics .compost-item--burning .compost-children, .detection-topics .compost-piece--burning,
+  .detection-topics .compost-fire svg, .detection-topics .compost-delete svg { animation: none !important; filter: none; }
+}
 .audio-monitor { margin: 12px 0; padding: 12px; border: 1px solid #d9e2dc; border-radius: 10px; background: #f5f8f6; }
 .audio-monitor p { margin: 7px 0; line-height: 1.5; }
 #audio-state { font-size: 11px; padding: 4px 7px; border-radius: 5px; background: #e4e8e5; }

@@ -34,6 +34,8 @@ class TopicStore:
                     category_id TEXT NOT NULL, alias TEXT NOT NULL, PRIMARY KEY(category_id, alias));
                 CREATE TABLE IF NOT EXISTS topic_preferences (
                     user_id TEXT NOT NULL, category_id TEXT NOT NULL, PRIMARY KEY(user_id, category_id));
+                CREATE TABLE IF NOT EXISTS permanent_prunes (
+                    user_id TEXT NOT NULL, category_id TEXT NOT NULL, PRIMARY KEY(user_id, category_id));
                 CREATE TABLE IF NOT EXISTS category_guards (
                     user_id TEXT NOT NULL, category_id TEXT NOT NULL, pruned_id TEXT NOT NULL,
                     PRIMARY KEY(user_id,category_id,pruned_id));
@@ -94,6 +96,32 @@ class TopicStore:
             visited.add(node_id)
             pending.extend((child, height + 1) for child in children.get(node_id, []))
 
+    def permanent_ids(self, connection, user_id):
+        hidden = {row[0] for row in connection.execute("SELECT category_id FROM permanent_prunes WHERE user_id=?", (user_id,))}
+        categories = connection.execute("SELECT id,parent_id FROM categories WHERE user_id=?", (user_id,)).fetchall()
+        guards = connection.execute("SELECT category_id,pruned_id FROM category_guards WHERE user_id=?", (user_id,)).fetchall()
+        while True:
+            expanded = hidden | {row[0] for row in categories if row[1] in hidden} | {row[0] for row in guards if row[1] in hidden}
+            if expanded == hidden:
+                return hidden
+            hidden = expanded
+
+    def permanently_prune(self, user_id, category_ids, expected_version):
+        with self.connection() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            state = self.blacklist(user_id, connection=connection)
+            if state["version"] != expected_version:
+                raise ValueError("Topics changed. Refresh the compost bin and confirm again.")
+            allowed = {item["id"] for root in state["topics"] for item in [root, *root["descendants"]] if not item["permanent"]}
+            identities = set(category_ids)
+            if not identities or not identities <= allowed:
+                raise ValueError("Only topics currently in the compost bin can be permanently pruned.")
+            for identity in identities:
+                connection.execute("INSERT OR IGNORE INTO permanent_prunes VALUES (?,?)", (user_id, identity))
+                # Permanent pruning remains a detection preference, even if its parent is restored later.
+                connection.execute("INSERT OR IGNORE INTO topic_preferences VALUES (?,?)", (user_id, identity))
+            return sorted(self.permanent_ids(connection, user_id))
+
     def blacklist(self, user_id, *, connection=None):
         """Canonical selected roots plus descendants; never infer ownership from a request."""
         if connection is None:
@@ -105,7 +133,8 @@ class TopicStore:
             "SELECT category_id FROM topic_preferences WHERE user_id=?", (user_id,))})
         aliases = [list(row) for row in connection.execute(
             "SELECT a.category_id,a.alias FROM category_aliases a JOIN categories c ON c.id=a.category_id WHERE c.user_id=? ORDER BY a.category_id,a.alias", (user_id,))]
-        version = hashlib.sha256(json.dumps([categories, selected, aliases], sort_keys=True).encode()).hexdigest()
+        permanent = self.permanent_ids(connection, user_id)
+        version = hashlib.sha256(json.dumps([categories, selected, aliases, sorted(permanent)], sort_keys=True).encode()).hexdigest()
         by_id = {row["id"]: row for row in categories if not row["merged_into"]}
         topics = []
         for identity in selected:
@@ -118,15 +147,16 @@ class TopicStore:
                 while node and node["id"] not in seen:
                     if node["id"] == identity:
                         if row["id"] != identity:
-                            descendants.append({key: row[key] for key in ("id", "name", "description")})
+                            descendants.append({**{key: row[key] for key in ("id", "name", "description", "parent_id")}, "permanent": row["id"] in permanent})
                         break
                     seen.add(node["id"])
                     node = by_id.get(node["parent_id"])
             ancestors, parent = [], by_id.get(root["parent_id"])
             while parent and parent["id"] not in {node["id"] for node in ancestors}:
-                ancestors.append({key: parent[key] for key in ("id", "name", "description")})
+                ancestors.append({key: parent[key] for key in ("id", "name", "description", "parent_id")})
                 parent = by_id.get(parent["parent_id"])
             topics.append({"id": identity, "name": root["name"], "description": root["description"],
+                           "parent_id": root["parent_id"], "permanent": identity in permanent,
                            "aliases": [alias for category, alias in aliases if category == identity],
                            "ancestors": ancestors, "descendants": descendants})
         return {"version": version, "topics": topics}
@@ -293,6 +323,7 @@ class TopicStore:
                 return self.reset_tree(user_id, connection=connection)
         connection.execute("DELETE FROM category_aliases WHERE category_id IN (SELECT id FROM categories WHERE user_id=?)", (user_id,))
         connection.execute("DELETE FROM topic_preferences WHERE user_id=?", (user_id,))
+        connection.execute("DELETE FROM permanent_prunes WHERE user_id=?", (user_id,))
         connection.execute("DELETE FROM category_guards WHERE user_id=?", (user_id,))
         connection.execute("DELETE FROM category_semantic_checks WHERE user_id=?", (user_id,))
         connection.execute("DELETE FROM video_category_overrides WHERE user_id=?", (user_id,))
@@ -318,6 +349,8 @@ class TopicStore:
     def set_preference(self, user_id, category_id, reduce):
         with self.connection() as connection:
             category = self._category(connection, user_id, category_id)
+            if category["id"] in self.permanent_ids(connection, user_id):
+                raise ValueError("Permanently pruned topics cannot be restored or changed.")
             if reduce:
                 connection.execute("INSERT OR IGNORE INTO topic_preferences VALUES (?,?)", (user_id, category["id"]))
             else:
@@ -329,6 +362,8 @@ class TopicStore:
         with self.connection() as connection:
             connection.execute("BEGIN IMMEDIATE")
             category = self._category(connection, user_id, category_id)
+            if category["id"] in self.permanent_ids(connection, user_id):
+                raise ValueError("Cannot move videos into a permanently pruned topic.")
             reviews = [json.loads(row[0]) for row in connection.execute("SELECT result FROM session_topics WHERE user_id=?", (user_id,))]
             if not any(video_id in review.get("assignments", {}) or any(video.get("video_id") == video_id for video in review.get("videos", [])) for review in reviews):
                 raise ValueError("Unknown video for this user")
@@ -340,8 +375,13 @@ class TopicStore:
             connection.execute("BEGIN IMMEDIATE")
             category = self._category(connection, user_id, category_id)
             category_id = category["id"]
+            hidden = self.permanent_ids(connection, user_id)
+            if category_id in hidden or parent_id in hidden or merge_into in hidden:
+                raise ValueError("Permanently pruned topics cannot be changed.")
             if merge_into:
                 target = self._category(connection, user_id, merge_into)
+                if target["id"] in hidden:
+                    raise ValueError("Permanently pruned topics cannot be changed.")
                 if target["id"] == category_id:
                     return
                 self._check_parent(connection, user_id, category_id, target["id"])
@@ -355,6 +395,8 @@ class TopicStore:
                 if move:
                     if parent_id:
                         parent_id = self._category(connection, user_id, parent_id)["id"]
+                        if parent_id in hidden:
+                            raise ValueError("Permanently pruned topics cannot be changed.")
                     self._check_parent(connection, user_id, category_id, parent_id)
                     if before_id and after_id:
                         raise ValueError("Choose one ordering target")
@@ -401,14 +443,17 @@ class TopicStore:
             guarded = {self._category(connection, user_id, item[0])["id"] for item in connection.execute(
                 "SELECT category_id,pruned_id FROM category_guards WHERE user_id=?", (user_id,))
                 if self._category(connection, user_id, item[1])["id"] in preferences}
+            hidden = self.permanent_ids(connection, user_id)
             nodes = {item["id"]: {"id": item["id"], "name": item["name"],
                 "description": item["description"], "parent_id": item["parent_id"], "video_ids": set(), "children": []}
-                for item in connection.execute("SELECT * FROM categories WHERE user_id=? AND merged_into IS NULL", (user_id,))}
+                for item in connection.execute("SELECT * FROM categories WHERE user_id=? AND merged_into IS NULL", (user_id,)) if item["id"] not in hidden}
             assignments = {}
             for video_id, category_ids in global_assignments.items():
                 assignments[video_id] = set()
                 for category_id in category_ids:
                     category = self._category(connection, user_id, category_id)
+                    if category["id"] in hidden:
+                        continue
                     assignments[video_id].add(category["id"])
                     seen = set()
                     while category:
@@ -438,15 +483,16 @@ class TopicStore:
                 inherited(root)
             result["tree"] = sorted(roots, key=category_order)
             result["tree_scope"] = "global"
+            assignments = {video_id: ids for video_id, ids in assignments.items() if ids}
             result["tree_assignments"] = {video_id: sorted(ids) for video_id, ids in assignments.items()}
             result["tree_videos"] = [video for video_id, video in global_videos.items() if video_id in assignments]
             result["global_video_count"] = len(assignments)
             result["assignments"] = {video_id: sorted({self._category(connection, user_id, category_id)["id"]
-                for category_id in category_ids}) for video_id, category_ids in result.get("assignments", {}).items()}
+                for category_id in category_ids} - hidden) for video_id, category_ids in result.get("assignments", {}).items()}
             result["selected_category_ids"] = sorted(preferences)
             result["blacklist_version"] = self.blacklist(user_id, connection=connection)["version"]
             for video in result.get("videos", []):
-                if video["video_id"] in overrides:
+                if video["video_id"] in overrides and overrides[video["video_id"]] not in hidden:
                     result["assignments"][video["video_id"]] = [self._category(connection, user_id, overrides[video["video_id"]])["id"]]
             result["reduce_video_ids"] = sorted({video_id for node in nodes.values() if node["reduce"] for video_id in node["video_ids"]})
             return result

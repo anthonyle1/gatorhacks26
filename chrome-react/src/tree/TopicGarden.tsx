@@ -126,6 +126,16 @@ export class TopicGarden {
     await this.refresh()
   }
 
+  async applySnapshot(data: TreeData) {
+    this.version++
+    this.data = data
+    this.falling.clear()
+    this.loading = false
+    this.error = ''
+    this.render()
+    await this.cache()
+  }
+
   async refresh() {
     if (this.busy || this.refreshing || this.falling.size) return
     this.refreshing = true
